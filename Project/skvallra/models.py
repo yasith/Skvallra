@@ -1,7 +1,6 @@
 from django.db import models
 from django.db import connection
 
-from django.db import models
 from django.utils import timezone
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
@@ -19,7 +18,7 @@ class Tag(models.Model):
         ordering = ["tag_id"]
 
     def __unicode__(self):
-        return '%s' % self.name
+        return '%s' % self.tag_id
 
 
 class SkvallraUserManager(BaseUserManager):
@@ -55,9 +54,9 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     activities = models.ManyToManyField(Tag, related_name='user_activities', blank=True, null=True)
     interests = models.ManyToManyField(Tag, related_name='user_interests', blank=True, null=True)
-    friends = models.ManyToManyField(SkvallraUser, related_name='user_friends', blank=True, null=True)
+    friends = models.ManyToManyField('self', related_name='user_friends', blank=True, null=True)
     address = models.CharField('address', max_length=200, blank=True, null=True)
-    coordinates = models.CharField('coordinates', max_length=50)
+    coordinates = models.CharField('coordinates', max_length=50, blank=True)
     image = models.ForeignKey('Image', blank=True, null=True)
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '
@@ -99,7 +98,7 @@ class Action(models.Model):
     min_participants = models.IntegerField(default=1)
     max_participants = models.IntegerField(default=1)
     address = models.CharField('address', max_length=200, blank=True, null=True)
-    coordinates = models.CharField('coordinates', max_length=50)
+    coordinates = models.CharField('coordinates', max_length=50, blank=True)
     image = models.ForeignKey('Image', blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name='action_tags')
 
@@ -125,7 +124,7 @@ class Action(models.Model):
 class Image(models.Model):
     """ Image model """
 
-    image_hash = models.CharField('coordinates', max_length=50)
+    image_hash = models.CharField('hash', max_length=50)
 
 
 class UserAction(models.Model):
