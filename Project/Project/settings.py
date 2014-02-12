@@ -60,9 +60,9 @@ WSGI_APPLICATION = 'Project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'skvallra',
-		'USER': 'skvallra',
-		'PASSWORD': 'skvallra',
+        'NAME': 'yuliya',
+		'USER': 'yuliya',
+		'PASSWORD': 'yuliya',
 		'HOST': 'localhost',
     }
 }
@@ -90,3 +90,12 @@ REST_FRAMEWORK = {
 	    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
 	    'PAGINATE_BY': 10
 }
+
+AUTH_USER_MODEL = 'skvallra.SkvallraUser'
+
+
+# Application Admin Settings 
+
+MIN_PARTICIPANTS = 1
+MAX_LOGIN_ATTEMPTS = 5
+# Image dimensions
