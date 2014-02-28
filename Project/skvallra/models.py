@@ -50,15 +50,18 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
     Username and password are required. Other fields are optional.
     """
     username = models.CharField('username', max_length=30, unique=True, db_index=True)
-    email = models.EmailField(_('email address'), max_length=254, blank=True)
+    email = models.EmailField(_('email address'), max_length=256, blank=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    birthday = models.DateTimeField(_('birthday'), default=timezone.now)
+    gender = models.BooleanField(_('user gender'), default=True) 
     activities = models.ManyToManyField(Tag, related_name='user_activities', blank=True, null=True)
     interests = models.ManyToManyField(Tag, related_name='user_interests', blank=True, null=True)
-    friends = models.ManyToManyField(SkvallraUser, related_name='user_friends', blank=True, null=True)
+    friends = models.ManyToManyField('SkvallraUser', related_name='user_friends', blank=True, null=True)
     address = models.CharField('address', max_length=200, blank=True, null=True)
     coordinates = models.CharField('coordinates', max_length=50)
-    image = models.ForeignKey('Image', blank=True, null=True)
+    image = models.ForeignKey('Image', blank=True, null=True, related_name='userpic')
+    thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name='userpic_thumbnail')
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '
                     'site.'))
@@ -90,8 +93,9 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 
 class Action(models.Model):
     """ Action model. """
-    
+
     action_id = models.AutoField("action_id", primary_key=True)
+    title = models.CharField(_('action title'), max_length=256)
     description = models.TextField("action description", blank=True, null=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -101,6 +105,7 @@ class Action(models.Model):
     address = models.CharField('address', max_length=200, blank=True, null=True)
     coordinates = models.CharField('coordinates', max_length=50)
     image = models.ForeignKey('Image', blank=True, null=True)
+    thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
     tags = models.ManyToManyField(Tag, related_name='action_tags')
 
 
@@ -125,7 +130,7 @@ class Action(models.Model):
 class Image(models.Model):
     """ Image model """
 
-    image_hash = models.CharField('coordinates', max_length=50)
+    image_hash = models.CharField('image_hash', max_length=50)
 
 
 class UserAction(models.Model):
@@ -138,7 +143,14 @@ class UserAction(models.Model):
 
 
 class Setting(models.Model):
-    """ Admin settings """
+    """ Admin settings. Supported settings include: 
+            default userpic (based on user's gender)
+            userpic dimensions
+            default action picture  
+            minimum number of participants
+            maximum number of participants
+            number of successive invalid login attempts after which the user gets blocked
+    """
 
     setting_id = models.CharField('setting_name', max_length=100, primary_key=True)
     setting_type = models.CharField('type', max_length=20)
