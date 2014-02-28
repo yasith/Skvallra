@@ -1,0 +1,30 @@
+{
+  "src_folders" : ["Tests"],
+  "custom_commands_path" : "",
+  
+  "selenium" : {
+    "start_process" : true,
+    "server_path" : "/home/ubuntu/Downloads/selenium-server-standalone-2.39.0.jar",
+    "log_path" : "/dev/null",
+    "host" : "127.0.0.1",
+    "port" : 4444  
+  },
+  
+  "test_settings" : {
+    "default" : {
+      "launch_url" : "http://localhost",
+      "port"  : 4444,
+      "silent": true,
+      "firefox_profile": false,
+      "screenshots" : {
+        "enabled" : false,
+        "path" : ""
+      },
+      "desiredCapabilities": {
+        "browserName": "firefox",
+        "javascriptEnabled": true,
+        "acceptSslCerts": true
+      }
+    }
+  }
+}
