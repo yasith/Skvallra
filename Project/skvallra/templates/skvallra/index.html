@@ -3,16 +3,20 @@
 <html>
 	<head>
 		<script src="{% static "skvallra/js/jquery.min.js" %}"></script>
-	    <script src="{% static "skvallra/js/handlebars.js" %}"></script>
-	    <script src="{% static "skvallra/js/underscore-min.js" %}"></script>
-	    <script src="{% static "skvallra/js/backbone-min.js" %}"></script>
-	    <script src="{% static "skvallra/js/backbone-relational.js" %}"></script>
-	    <script src="{% static "skvallra/js/templates.js" %}"></script>
-	    <link rel="stylesheet" type="text/css" href="{% static "skvallra/css/style.css" %}">
-	    <link rel="stylesheet" type="text/css" href="{% static "skvallra/css/bootstrap.css" %}">
+		<script src="{% static "skvallra/js/handlebars.js" %}"></script>
+		<script src="{% static "skvallra/js/underscore-min.js" %}"></script>
+		<script src="{% static "skvallra/js/backbone-min.js" %}"></script>
+		<script src="{% static "skvallra/js/backbone-relational.js" %}"></script>
+		<script src="{% static "skvallra/js/templates.js" %}"></script>
+		<link rel="stylesheet" type="text/css" href="{% static "skvallra/css/skvallra.css" %}">
 	</head>
 	<body>
-		<div id="stuff">
+		<nav class="navbar navbar-static-top navbar-default" role="navigation">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="#">Skvallra</a>
+			</div>
+		</nav>
+		<div id="content">
 		</div>
 	</body>
 </html>

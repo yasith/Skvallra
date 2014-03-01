@@ -3932,22 +3932,22 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   }
 }
 .navbar-default {
-  background-color: #f8f8f8;
-  border-color: #e7e7e7;
+  background-color: #3bc04c;
+  border-color: #33a742;
 }
 .navbar-default .navbar-brand {
-  color: #777777;
+  color: #ffffff;
 }
 .navbar-default .navbar-brand:hover,
 .navbar-default .navbar-brand:focus {
-  color: #5e5e5e;
+  color: #d9d9d9;
   background-color: transparent;
 }
 .navbar-default .navbar-text {
   color: #777777;
 }
 .navbar-default .navbar-nav > li > a {
-  color: #777777;
+  color: #ffffff;
 }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
@@ -3958,7 +3958,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
   color: #555555;
-  background-color: #e7e7e7;
+  background-color: #33a742;
 }
 .navbar-default .navbar-nav > .disabled > a,
 .navbar-default .navbar-nav > .disabled > a:hover,
@@ -3978,17 +3978,17 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
-  border-color: #e7e7e7;
+  border-color: #33a742;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
-  background-color: #e7e7e7;
+  background-color: #33a742;
   color: #555555;
 }
 @media (max-width: 767px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #777777;
+    color: #ffffff;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
@@ -3999,7 +3999,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
     color: #555555;
-    background-color: #e7e7e7;
+    background-color: #33a742;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover,
@@ -4009,7 +4009,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   }
 }
 .navbar-default .navbar-link {
-  color: #777777;
+  color: #ffffff;
 }
 .navbar-default .navbar-link:hover {
   color: #333333;
@@ -4219,6 +4219,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   margin: 20px 0;
   list-style: none;
   text-align: center;
+  border: 1px solid #dddddd;
+  border-radius: 0px;
 }
 .pager li {
   display: inline;
@@ -4226,10 +4228,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .pager li > a,
 .pager li > span {
   display: inline-block;
-  padding: 5px 14px;
+  padding: 0px 9px;
   background-color: #ffffff;
-  border: 1px solid #dddddd;
-  border-radius: 15px;
 }
 .pager li > a:hover,
 .pager li > a:focus {
@@ -4238,11 +4238,17 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .pager .next > a,
 .pager .next > span {
+  color: #3bc04c;
   float: right;
+  border-left: 1px solid #dddddd;
+  border-radius: 0px;
 }
 .pager .previous > a,
 .pager .previous > span {
+  color: #3bc04c;
   float: left;
+  border-right: 1px solid #dddddd;
+  border-radius: 0px;
 }
 .pager .disabled > a,
 .pager .disabled > a:hover,
@@ -5817,4 +5823,50 @@ td.visible-print {
   td.hidden-print {
     display: none !important;
   }
+}
+body {
+  font-size: 14px;
+  color: #000000;
+}
+img {
+  max-width: 100%;
+}
+a {
+  color: #2f993d;
+}
+.profileimage {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+}
+.left {
+  float: left;
+}
+.right {
+  float: left;
+}
+.bottom {
+  clear: both;
+}
+.friend {
+  display: inline-block;
+}
+.userimage {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  width: 100px;
+}
+.userimagename {
+  font-weight: normal;
+  font-size: 14px;
+  width: 100px;
+}
+.name {
+  font-weight: bold;
+  font-size: 21px;
+}
+.birthday {
+  color: #808080;
+}
+.address {
+  color: #808080;
 }

@@ -1,9 +1,9 @@
 listItemTemplate = '\
-	<div>\
-		<div class="thumbnail">\
+	<div class="friend" id="{{id}}">\
+		<div class="userimage" id="{{id}}">\
 		</div>\
-		<div class="name">\
-			{{first_name}}\
+		<div class="userimagename">\
+			<a>{{first_name}}</a>\
 		</div>\
 	</div>';
 
@@ -14,7 +14,10 @@ activitiesList = '\
 	</div>\
 	{{/each}}\
 	<div class="pagebar">\
-		{{! pagination bar goes here}}\
+		<ul class="pager">\
+			<li class="previous"><a href="#">&laquo;</a></li>\
+			<li class="next"><a href="#">&raquo;</a></li>\
+		</ul>\
 	</div>';
 
 interestsList = '\
@@ -24,7 +27,10 @@ interestsList = '\
 	</div>\
 	{{/each}}\
 	<div class="pagebar">\
-		{{! pagination bar goes here}}\
+		<ul class="pager">\
+			<li class="previous"><a href="#">&laquo;</a></li>\
+			<li class="next"><a href="#">&raquo;</a></li>\
+		</ul>\
 	</div>';
 
 friendList = '\
@@ -34,7 +40,10 @@ friendList = '\
 	{{/each}}\
 	</div>\
 	<div class="pagebar">\
-		{{! pagination bar goes here}}\
+		<ul class="pager">\
+			<li class="previous"><a href="#">&laquo;</a></li>\
+			<li class="next"><a href="#">&raquo;</a></li>\
+		</ul>\
 	</div>';
 
 actionList = '\
@@ -44,7 +53,10 @@ actionList = '\
 	{{/each}}\
 	</div>\
 	<div class="pagebar">\
-		{{! pagination bar goes here}}\
+		<ul class="pager">\
+			<li class="previous"><a href="#">&laquo;</a></li>\
+			<li class="next"><a href="#">&raquo;</a></li>\
+		</ul>\
 	</div>';
 
 loginTemplate = '\
@@ -57,15 +69,16 @@ loginTemplate = '\
 		</div>\
 	</div>';
 
-imageTemplate = '<img src="{{this.image_hash}}" width="100" />';
+imageTemplate = '<img src="{{this.image_hash}}" />';
 
 profileTemplate = '\
-	{{#each []}}\
 	<div class="container">\
 		<div class="row">\
-			<div class="userimage col-md-2">\
+			<div class="col-md-3">\
+				<div class="profileimage">\
+				</div>\
 			</div>\
-			<div class="information col-md-8">\
+			<div class="information col-md-7">\
 				<div class="name">\
 					{{this.first_name}} {{this.last_name}}\
 				</div>\
@@ -78,7 +91,7 @@ profileTemplate = '\
 			</div>\
 		</div>\
 		<div class="row">\
-			<div class="col-md-2">\
+			<div class="col-md-3">\
 				<div class="activities">\
 					{{> activitiesList}}\
 				</div>\
@@ -86,7 +99,7 @@ profileTemplate = '\
 					{{> interestsList}}\
 				</div>\
 			</div>\
-			<div class="col-md-8">\
+			<div class="col-md-7">\
 				<div class="friends">\
 				</div>\
 				<div class="actions">\
@@ -94,8 +107,7 @@ profileTemplate = '\
 				</div>\
 			</div>\
 		</div>\
-	</div>\
-	{{/each}}';
+	</div>';
 
 searchListItemTemplate = '\
 	<div>\
@@ -108,34 +120,34 @@ searchListItemTemplate = '\
 	<div>';
 
 User = Backbone.Model.extend({
-	urlRoot: '/users',
+	urlRoot: '/api/users/',
 });
 
 Users = Backbone.Collection.extend({
 	model: User,
-	url: "/users",
+	url: "/api/users/",
 });
 
 Activity = Backbone.Model.extend({
-	urlRoot: "/tags",
+	urlRoot: "/api/tags/",
 });
 
 Activities = Backbone.Collection.extend({
 	model: Activity,
-	url: "/tags",
+	url: "/api/tags/",
 });
 
 Images = Backbone.Model.extend({
-	urlRoot: '/images'
+	urlRoot: '/api/images/'
 });
 
 Profile = Backbone.Model.extend({
-	urlRoot: '/me',
+	urlRoot: '/api/me/',
 });
 
 ProfileList = Backbone.Collection.extend({
 	model: Profile,
-	url: "/me",
+	url: "/api/me/",
 });
 
 ListItemView = Backbone.View.extend({
@@ -177,6 +189,10 @@ ActionFriendListView = Backbone.View.extend({
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
+
+	},
+	events: {
+		"click .friend": "navi",
 	},
 	render: function() {
 		var source = friendList;
@@ -191,9 +207,12 @@ ActionFriendListView = Backbone.View.extend({
 		$(this.collection.models).each(function() {
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
-			imageView.$el = $('.thumbnail');
+			imageView.$el = $('#' + this.attributes.id + '.userimage');
 			image.fetch();
 		});
+	},
+	navi: function(event) {
+		router.navigate("/" + event.currentTarget.id, {trigger: true});
 	}
 });
 
@@ -231,6 +250,12 @@ ProfileView = Backbone.View.extend({
 	render: function() {
 		var source = profileTemplate;
 		var template = Handlebars.compile(source);
+
+		var data = this.model.attributes;
+		
+		var d = new Date(data.birthday);
+		data.birthday = d.toLocaleDateString();
+		
 		var html = template(this.model.toJSON());
 
 		this.$el.html(html);
@@ -241,13 +266,13 @@ ProfileView = Backbone.View.extend({
 		this.render_interests();
 	},
 	render_image: function() {
-		var image = new Images({id: this.model.models[0].attributes.image});
+		var image = new Images({id: this.model.attributes.image});
 		var imageView = new ImageView({model: image});
-		imageView.$el = $('.userimage');
+		imageView.$el = $('.profileimage');
 		image.fetch();
 	},
 	render_friends: function() {
-		var friends = this.model.models[0].attributes.friends;
+		var friends = this.model.attributes.friends;
 		var users = new Users();
 		var actionFriendListView = new ActionFriendListView({collection: users});
 		actionFriendListView.$el = $('.friends');
@@ -256,9 +281,10 @@ ProfileView = Backbone.View.extend({
 			users.add(user);
 			user.fetch();
 		});
+		actionFriendListView.delegateEvents();
 	},
 	render_activities: function() {
-		var activities = this.model.models[0].attributes.activities;
+		var activities = this.model.attributes.activities;
 		var acts = new Activities();
 		var activitiesView = new ActivitiesView({collection: acts});
 		activitiesView.$el = $('.activities');
@@ -269,7 +295,7 @@ ProfileView = Backbone.View.extend({
 		});
 	},
 	render_interests: function() {
-		var activities = this.model.models[0].attributes.interests;
+		var activities = this.model.attributes.interests;
 		var acts = new Activities();
 		var activitiesView = new ActivitiesView({collection: acts});
 		activitiesView.$el = $('.interests');
@@ -291,6 +317,25 @@ SearchListItemView = Backbone.View.extend({
 	}
 });
 
+Router = Backbone.Router.extend({
+	routes: {
+		"": "show_profile",
+		":id": "show_profile",
+	},
+	show_profile: function(id) {
+		var profile;
+		if (id) {
+			profile = new User({id: id});
+		} else {
+			profile = new Profile();
+		}
+
+		var profileView = new ProfileView({model: profile});
+		profileView.$el = $("#content");
+		profile.fetch();
+	},
+});
+
 $(document).ready(function () {
 
 	Handlebars.registerPartial("listItem", listItemTemplate);
@@ -300,11 +345,9 @@ $(document).ready(function () {
 	Handlebars.registerPartial("actionsList", actionList);
 	Handlebars.registerPartial("login", loginTemplate);
 
+	router = new Router();
+	Backbone.history.start({pushState: true});
 
-	var profile = new ProfileList();
-	var profileView = new ProfileView({model: profile});
-	profileView.$el = $("body");
-	profile.fetch();
 
 });
 
