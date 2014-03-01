@@ -1,5 +1,8 @@
-from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment
+from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.response import Response
+
+from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment
 from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSerializer, UserActionSerializer, ImageSerializer, SettingSerializer, CommentSerializer
 
 
@@ -9,6 +12,23 @@ class SkvallraUserViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = SkvallraUser.objects.all()
 	serializer_class = SkvallraUserSerializer
+
+class meViewSet(viewsets.ModelViewSet):
+	"""
+	API endpoint that allows users to be viewed or edited.
+	"""
+	serializer_class = SkvallraUserSerializer
+	model = SkvallraUser
+
+	def list(self, request):
+		user = request.user
+		serializer = SkvallraUserSerializer(user)
+		return Response(serializer.data)
+
+	def retrieve(self, request, pk=None):
+		user = request.user
+		serializer = SkvallraUserSerializer(user)
+		return Response(serializer.data)
 
 class TagViewSet(viewsets.ModelViewSet):
 	"""
@@ -51,3 +71,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
+
+def index(request):
+	return render(request, "skvallra/index.html", {})
