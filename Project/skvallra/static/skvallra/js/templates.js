@@ -72,18 +72,6 @@ loginTemplate = '\
 imageTemplate = '<img src="{{this.image_hash}}" />';
 
 profileTemplate = '\
-	<nav class="navbar navbar-static-top navbar-default" role="navigation">\
-		<div class="container-fluid">\
-			<a class="navbar-brand" href="#">Skvallra</a>\
-			<form class="navbar-form navbar-right" role="search">\
-				<div class="form-group">\
-					<input type="text" class="form-control" placeholder="Search">\
-					<button type="submit" class="" id="form-button"><img src="/static/skvallra/images/magnifier.png" /></button>\
-				</div>\
-			</form>\
-			<a class="home navbar-right" href="/"><img src="/static/skvallra/images/home.png" /></a>\
-		</div>\
-	</nav>\
 	<div class="container">\
 		<div class="row">\
 			<div class="col-md-3">\
@@ -412,7 +400,7 @@ Router = Backbone.Router.extend({
 		}
 
 		var profileView = new ProfileView({model: profile});
-		profileView.$el = $("body");
+		profileView.$el = $("#content");
 		profile.fetch();
 	},
 	show_suggested: function() {
