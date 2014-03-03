@@ -109,6 +109,27 @@ profileTemplate = '\
 		</div>\
 	</div>';
 
+actionTemplate = '\
+	<div class="container">\
+		<div class="row actionimage">\
+		</div>\
+		<div class="col-md-10 title">\
+			{{this.title}}\
+		</div>\
+		<div class="col-md-1 rating">\
+		</div>\
+		<div class="col-md-1 status">\
+			{{#unless this.public}}\
+				lock_icon_here \
+			{{/unless}}\
+		</div>\
+		<div class="col-md-4">\
+		</div>\
+		<div class="col-md-8">\
+		</div>\
+	</div>\
+';
+
 searchListItemTemplate = '\
 	<div>\
 		<div>\
@@ -149,6 +170,11 @@ ProfileList = Backbone.Collection.extend({
 	model: Profile,
 	url: "/api/me/",
 });
+
+Action = Backbone.Model.extend({
+	urlRoot: '/api/actions/',
+});
+
 
 ListItemView = Backbone.View.extend({
 	render: function() {
@@ -307,6 +333,38 @@ ProfileView = Backbone.View.extend({
 	}
 });
 
+ActionView = Backbone.View.extend({
+	initialize: function() {
+		this.model.on('add', this.render, this);
+		this.model.on('change', this.render, this);
+		this.model.on('sync', this.render, this);
+	},
+	render: function() {
+			var source = actionTemplate;
+			var template = Handlebars.compile(source);
+
+			var data = this.model.attributes;
+			
+			// var d = new Date(data.birthday);
+			// data.birthday = d.toLocaleDateString();
+			
+			var html = template(this.model.toJSON());
+			this.$el.html(html);
+
+			this.render_image();
+
+
+		},
+	render_image: function() {
+		var image = new Images({id: this.model.attributes.image});
+		var imageView = new ImageView({model: image});
+		imageView.$el = $('.actionimage');
+		image.fetch();
+	},
+
+});
+
+
 SearchListItemView = Backbone.View.extend({
 	render: function() {
 		var source = searchListItemTemplate;
@@ -321,6 +379,7 @@ Router = Backbone.Router.extend({
 	routes: {
 		"": "show_profile",
 		":id": "show_profile",
+		"action/:id": "show_action",
 	},
 	show_profile: function(id) {
 		var profile;
@@ -334,6 +393,12 @@ Router = Backbone.Router.extend({
 		profileView.$el = $("#content");
 		profile.fetch();
 	},
+	show_action: function(id) {
+		var action = new Action({id: id});
+		var actionView = new ActionView({model: action});
+		actionView.$el = $("#content");
+		action.fetch();
+	}
 });
 
 $(document).ready(function () {

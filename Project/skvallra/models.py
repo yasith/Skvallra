@@ -108,14 +108,14 @@ class Action(models.Model):
 	min_participants = models.IntegerField(default=1)
 	max_participants = models.IntegerField(default=1)
 	address = models.CharField('address', max_length=200, blank=True, null=True)
-	coordinates = models.CharField('coordinates', max_length=50, blank=True)
+	coordinates = models.CharField('coordinates', max_length=50, blank=True, null=True)
 	image = models.ForeignKey('Image', blank=True, null=True)
 	thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
-	tags = models.ManyToManyField(Tag, related_name='action_tags')
+	tags = models.ManyToManyField(Tag, related_name='action_tags', blank=True, null=True)
 
 
 	def __unicode__(self):
-		return '%s' % self.action_id
+		return u'%s' % self.action_id
 
 	# def clean(self, *args, **kwargs):
 	#	 if (start_date is not None) and (end_date is not None) and (start_date >= end_date):

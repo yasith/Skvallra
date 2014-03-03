@@ -24,6 +24,8 @@ urlpatterns = patterns('',
 	
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api/', include(router.urls)),
-	url(r'^[^api/]', include("skvallra.urls")),
+	# url(r'^(.?$|..?$|[^m].+|m[^y].*)', include("skvallra.urls")),
+	url(r'(^.{1,2}$|^.{3}(?<!api).*)', include("skvallra.urls")),
+	# url(r'^[^api/]', include("skvallra.urls")),
 	url(r'^$', include("skvallra.urls")),
 )

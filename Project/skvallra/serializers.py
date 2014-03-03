@@ -79,7 +79,7 @@ class TagSerializer(serializers.ModelSerializer):
 class ActionSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Action
-		fields = ('action_id', 'description', 'start_date', 'end_date', 'public', 'min_participants', 'max_participants', 'address', 'coordinates', 'image', 'tags')
+		fields = ('action_id', 'title', 'description', 'start_date', 'end_date', 'public', 'min_participants', 'max_participants', 'address', 'coordinates', 'image', 'tags')
 
 class UserActionSerializer(serializers.ModelSerializer):
 	class Meta:
