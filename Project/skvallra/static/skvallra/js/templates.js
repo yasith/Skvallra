@@ -72,6 +72,18 @@ loginTemplate = '\
 imageTemplate = '<img src="{{this.image_hash}}" />';
 
 profileTemplate = '\
+	<nav class="navbar navbar-static-top navbar-default" role="navigation">\
+		<div class="container-fluid">\
+			<a class="navbar-brand" href="#">Skvallra</a>\
+			<form class="navbar-form navbar-right" role="search">\
+				<div class="form-group">\
+					<input type="text" class="form-control" placeholder="Search">\
+					<button type="submit" class="" id="form-button"><img src="/static/skvallra/images/magnifier.png" /></button>\
+				</div>\
+			</form>\
+			<a class="home navbar-right" href="/"><img src="/static/skvallra/images/home.png" /></a>\
+		</div>\
+	</nav>\
 	<div class="container">\
 		<div class="row">\
 			<div class="col-md-3">\
@@ -107,7 +119,10 @@ profileTemplate = '\
 				</div>\
 			</div>\
 		</div>\
-	</div>';
+	</div>\
+	{{#unless this.username}}\
+		{{> login}}\
+	{{/unless}}';
 
 actionTemplate = '\
 	<div class="container">\
@@ -378,6 +393,13 @@ SearchListItemView = Backbone.View.extend({
 Router = Backbone.Router.extend({
 	routes: {
 		"": "show_profile",
+		"suggested": "show_suggested",
+		"nearby": "show_nearby",
+		"settings": "show_settings",
+		"action/:id": "show_action",
+		"search/:term": "show_search",
+		"activities/:term": "show_activities",
+		"interests/:term": "show_interests",
 		":id": "show_profile",
 		"action/:id": "show_action",
 	},
@@ -390,15 +412,33 @@ Router = Backbone.Router.extend({
 		}
 
 		var profileView = new ProfileView({model: profile});
-		profileView.$el = $("#content");
+		profileView.$el = $("body");
 		profile.fetch();
+	},
+	show_suggested: function() {
+
+	},
+	show_nearby: function() {
+
+	},
+	show_settings: function() {
+
 	},
 	show_action: function(id) {
 		var action = new Action({id: id});
 		var actionView = new ActionView({model: action});
 		actionView.$el = $("#content");
 		action.fetch();
-	}
+	},
+	show_search: function(term) {
+
+	},
+	show_activities: function(term) {
+
+	},
+	show_interests: function(term) {
+
+	},
 });
 
 $(document).ready(function () {
@@ -415,4 +455,3 @@ $(document).ready(function () {
 
 
 });
-

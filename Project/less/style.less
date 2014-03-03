@@ -6,6 +6,8 @@
 
 @friend-item-width:			100px;
 
+@white:						#fff;
+
 body {
 	font-size: @font-size;
 	color: @font-color
@@ -17,6 +19,28 @@ img {
 
 a {
 	color: darken(@green, 20%);
+}
+
+.navbar {
+
+	.home {
+		color: darken(@green, 35%);
+		font-size: @font-size * 2;
+		font-weight: bold;
+		img {
+			height: 25px;
+		}
+	}
+}
+
+#form-button {
+	border: none;
+	padding: 0px 0px;
+	background-color: @white;
+	margin-left: -30px;
+	img {
+		height: 15px;
+	}
 }
 
 .top{

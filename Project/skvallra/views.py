@@ -22,13 +22,17 @@ class meViewSet(viewsets.ModelViewSet):
 
 	def list(self, request):
 		user = request.user
-		serializer = SkvallraUserSerializer(user)
-		return Response(serializer.data)
+		if not user.is_anonymous():
+			serializer = SkvallraUserSerializer(user)
+			return Response(serializer.data)
+		return Response({})
 
 	def retrieve(self, request, pk=None):
 		user = request.user
-		serializer = SkvallraUserSerializer(user)
-		return Response(serializer.data)
+		if not user.is_anonymous():
+			serializer = SkvallraUserSerializer(user)
+			return Response(serializer.data)
+		return Response({})
 
 class TagViewSet(viewsets.ModelViewSet):
 	"""

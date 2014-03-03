@@ -1683,9 +1683,10 @@ output {
   width: 100%;
   height: 34px;
   padding: 6px 12px;
+  padding-right: 42px;
   font-size: 14px;
   line-height: 1.428571429;
-  color: #555555;
+  color: #2f993d;
   background-color: #ffffff;
   background-image: none;
   border: 1px solid #cccccc;
@@ -1702,17 +1703,17 @@ output {
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 .form-control:-moz-placeholder {
-  color: #999999;
+  color: #2f993d;
 }
 .form-control::-moz-placeholder {
-  color: #999999;
+  color: #2f993d;
   opacity: 1;
 }
 .form-control:-ms-input-placeholder {
-  color: #999999;
+  color: #2f993d;
 }
 .form-control::-webkit-input-placeholder {
-  color: #999999;
+  color: #2f993d;
 }
 .form-control[disabled],
 .form-control[readonly],
@@ -3944,14 +3945,14 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   background-color: transparent;
 }
 .navbar-default .navbar-text {
-  color: #777777;
+  color: #ffffff;
 }
 .navbar-default .navbar-nav > li > a {
   color: #ffffff;
 }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
-  color: #333333;
+  color: #d9d9d9;
   background-color: transparent;
 }
 .navbar-default .navbar-nav > .active > a,
@@ -3992,7 +3993,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #333333;
+    color: #d9d9d9;
     background-color: transparent;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
@@ -4012,7 +4013,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   color: #ffffff;
 }
 .navbar-default .navbar-link:hover {
-  color: #333333;
+  color: #d9d9d9;
+  text-decoration: none;
 }
 .navbar-inverse {
   background-color: #222222;
@@ -5833,6 +5835,23 @@ img {
 }
 a {
   color: #2f993d;
+}
+.navbar .home {
+  color: #1d5e25;
+  font-size: 28px;
+  font-weight: bold;
+}
+.navbar .home img {
+  height: 25px;
+}
+#form-button {
+  border: none;
+  padding: 0px 0px;
+  background-color: #ffffff;
+  margin-left: -30px;
+}
+#form-button img {
+  height: 15px;
 }
 .profileimage {
   border: 1px solid #e6e6e6;
