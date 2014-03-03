@@ -114,21 +114,24 @@ profileTemplate = '\
 
 actionTemplate = '\
 	<div class="container">\
-		<div class="row actionimage">\
+		<div class="row actionimage"></div>\
+		<div class="row">\
+			<div class="col-md-10 title">{{this.title}}</div>\
+			<div class="col-md-1 rating"></div>\
+			<div class="col-md-1 status">{{#unless this.public}} lock_icon_here {{/unless}}</div>\
 		</div>\
-		<div class="col-md-10 title">\
-			{{this.title}}\
-		</div>\
-		<div class="col-md-1 rating">\
-		</div>\
-		<div class="col-md-1 status">\
-			{{#unless this.public}}\
-				lock_icon_here \
-			{{/unless}}\
-		</div>\
-		<div class="col-md-4">\
-		</div>\
-		<div class="col-md-8">\
+		<br><br>\
+		<div class="row">\
+			<div class="col-md-4">\
+				<div class="start_date">Start date {{this.start_date}}</div>\
+				<div class="end_date">End date {{this.end_date}}</div>\
+				<br>\
+				<div class="address">{{this.address}}</div>\
+				<div class="tags">\
+					{{> activitiesList}}\
+				</div>\
+			</div>\
+			<div class="col-md-8 action_description">{{this.description}}</div>\
 		</div>\
 	</div>\
 ';
@@ -177,6 +180,8 @@ ProfileList = Backbone.Collection.extend({
 Action = Backbone.Model.extend({
 	urlRoot: '/api/actions/',
 });
+
+
 
 
 ListItemView = Backbone.View.extend({
@@ -348,13 +353,17 @@ ActionView = Backbone.View.extend({
 
 			var data = this.model.attributes;
 			
-			// var d = new Date(data.birthday);
-			// data.birthday = d.toLocaleDateString();
+			var d = new Date(data.start_date);
+			data.start_date = d.toLocaleString();
+
+			d = new Date(data.end_date);
+			data.end_date = d.toLocaleString();
 			
 			var html = template(this.model.toJSON());
 			this.$el.html(html);
 
 			this.render_image();
+			this.render_tags();
 
 
 		},
@@ -364,6 +373,30 @@ ActionView = Backbone.View.extend({
 		imageView.$el = $('.actionimage');
 		image.fetch();
 	},
+	render_tags: function() {
+		var activities = this.model.attributes.tags;
+		var acts = new Activities();
+		var activitiesView = new ActivitiesView({collection: acts});
+		activitiesView.$el = $('.tags');
+		$(activities).each(function() {
+			var act = new Activity({id: this.valueOf()});
+			acts.add(act);
+			act.fetch();
+		});
+	},
+	// render_participants: function() {
+	// 	var participants = new ActionUsers(id: this.model.attributes.id)
+	// 	// var friends = this.model.attributes.friends;
+	// 	var users = new Users();
+	// 	// var actionFriendListView = new ActionFriendListView({collection: users});
+	// 	// actionFriendListView.$el = $('.friends');
+	// 	// $(friends).each(function() {
+	// 	// 	var user = new User({id: this.valueOf()});
+	// 	// 	users.add(user);
+	// 	// 	user.fetch();
+	// 	// });
+	// 	// actionFriendListView.delegateEvents();
+	// },
 
 });
 
@@ -436,6 +469,7 @@ $(document).ready(function () {
 	Handlebars.registerPartial("interestsList", interestsList);
 	Handlebars.registerPartial("friendsList", friendList);
 	Handlebars.registerPartial("actionsList", actionList);
+	Handlebars.registerPartial("login", loginTemplate);
 	Handlebars.registerPartial("login", loginTemplate);
 
 	router = new Router();

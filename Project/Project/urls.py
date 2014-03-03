@@ -11,6 +11,8 @@ router.register(r'users', views.SkvallraUserViewSet)
 router.register(r'tags', views.TagViewSet)
 router.register(r'actions', views.ActionViewSet)
 router.register(r'useractions', views.UserActionViewSet)
+router.register(r'action_users', views.ActionUsersView)
+router.register(r'user_actions', views.UserActionsView)
 router.register(r'images', views.ImageViewSet)
 router.register(r'settings', views.SettingViewSet)
 router.register(r'comments', views.CommentViewSet)
@@ -24,7 +26,6 @@ urlpatterns = patterns('',
 	
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api/', include(router.urls)),
-	# url(r'^(.?$|..?$|[^m].+|m[^y].*)', include("skvallra.urls")),
 	url(r'(^.{1,2}$|^.{3}(?<!api).*)', include("skvallra.urls")),
 	# url(r'^[^api/]', include("skvallra.urls")),
 	url(r'^$', include("skvallra.urls")),
