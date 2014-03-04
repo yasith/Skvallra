@@ -61,12 +61,24 @@ actionList = '\
 
 loginTemplate = '\
 	<div class="login">\
-		<div>\
-			<input id="username" type="text" />\
-		</div>\
-		<div>\
-			<input id="password" type="password" />\
-		</div>\
+		<script>\
+			$(document).ready(function () {\
+				$(".container").css("-webkit-filter", "blur(2px)");\
+				$("#submit").click(authenticate);\
+				$("#logout").remove();\
+			});\
+		</script>\
+		<form onSubmit="return false">\
+			<div>\
+				<input id="username" class="form-control" placeholder="Username" type="text" autofocus />\
+			</div>\
+			<div>\
+				<input id="password" class="form-control" placeholder="Password" autocomplete="off" type="password" />\
+			</div>\
+			<div>\
+				<button type="submit" id="submit" class="btn btn-default">Login</button>\
+			</div>\
+		</form>\
 	</div>';
 
 imageTemplate = '<img src="{{this.image_hash}}" />';
@@ -114,24 +126,21 @@ profileTemplate = '\
 
 actionTemplate = '\
 	<div class="container">\
-		<div class="row actionimage"></div>\
-		<div class="row">\
-			<div class="col-md-10 title">{{this.title}}</div>\
-			<div class="col-md-1 rating"></div>\
-			<div class="col-md-1 status">{{#unless this.public}} lock_icon_here {{/unless}}</div>\
+		<div class="row actionimage">\
 		</div>\
-		<br><br>\
-		<div class="row">\
-			<div class="col-md-4">\
-				<div class="start_date">Start date {{this.start_date}}</div>\
-				<div class="end_date">End date {{this.end_date}}</div>\
-				<br>\
-				<div class="address">{{this.address}}</div>\
-				<div class="tags">\
-					{{> activitiesList}}\
-				</div>\
-			</div>\
-			<div class="col-md-8 action_description">{{this.description}}</div>\
+		<div class="col-md-10 title">\
+			{{this.title}}\
+		</div>\
+		<div class="col-md-1 rating">\
+		</div>\
+		<div class="col-md-1 status">\
+			{{#unless this.public}}\
+				lock_icon_here \
+			{{/unless}}\
+		</div>\
+		<div class="col-md-4">\
+		</div>\
+		<div class="col-md-8">\
 		</div>\
 	</div>\
 ';
@@ -146,8 +155,9 @@ searchListItemTemplate = '\
 		</div>\
 	<div>';
 
+$.app = {};
 
-OAuthToken = $.cookie('OAuthToken');
+$.app.OAuthToken = $.cookie('OAuthToken');
 
 // check OAuthToken Validity
 
@@ -157,7 +167,9 @@ $.ajaxSetup({
 		if (settings.url.indexOf("/", settings.url.length - 1) == -1) {
 			settings.url += "/";
 		}
-		xhr.setRequestHeader("Authorization","Bearer " + OAuthToken);
+		if ($.app.OAuthToken) {
+			xhr.setRequestHeader("Authorization","Bearer " + $.app.OAuthToken);
+		}
 	}
 });
 
@@ -195,8 +207,6 @@ ProfileList = Backbone.Collection.extend({
 Action = Backbone.Model.extend({
 	urlRoot: '/api/actions/',
 });
-
-
 
 
 ListItemView = Backbone.View.extend({
@@ -313,7 +323,7 @@ ProfileView = Backbone.View.extend({
 		}
 		
 		var temp = this.model.toJSON()
-		temp.OAuthToken = OAuthToken;
+		temp.OAuthToken = $.app.OAuthToken;
 		
 		var html = template(temp);
 
@@ -338,12 +348,7 @@ ProfileView = Backbone.View.extend({
 		$(friends).each(function() {
 			var user = new User({id: this.valueOf()});
 			users.add(user);
-			var options = {};
-			options.header = {
-				'Authorization': 'Bearer ' + OAuthToken,
-				"blah": "poopy",
-			}
-			user.fetch(options);
+			user.fetch();
 		});
 		actionFriendListView.delegateEvents();
 	},
@@ -383,17 +388,13 @@ ActionView = Backbone.View.extend({
 
 			var data = this.model.attributes;
 			
-			var d = new Date(data.start_date);
-			data.start_date = d.toLocaleString();
-
-			d = new Date(data.end_date);
-			data.end_date = d.toLocaleString();
+			// var d = new Date(data.birthday);
+			// data.birthday = d.toLocaleDateString();
 			
 			var html = template(this.model.toJSON());
 			this.$el.html(html);
 
 			this.render_image();
-			this.render_tags();
 
 
 		},
@@ -403,30 +404,6 @@ ActionView = Backbone.View.extend({
 		imageView.$el = $('.actionimage');
 		image.fetch();
 	},
-	render_tags: function() {
-		var activities = this.model.attributes.tags;
-		var acts = new Activities();
-		var activitiesView = new ActivitiesView({collection: acts});
-		activitiesView.$el = $('.tags');
-		$(activities).each(function() {
-			var act = new Activity({id: this.valueOf()});
-			acts.add(act);
-			act.fetch();
-		});
-	},
-	// render_participants: function() {
-	// 	var participants = new ActionUsers(id: this.model.attributes.id)
-	// 	// var friends = this.model.attributes.friends;
-	// 	var users = new Users();
-	// 	// var actionFriendListView = new ActionFriendListView({collection: users});
-	// 	// actionFriendListView.$el = $('.friends');
-	// 	// $(friends).each(function() {
-	// 	// 	var user = new User({id: this.valueOf()});
-	// 	// 	users.add(user);
-	// 	// 	user.fetch();
-	// 	// });
-	// 	// actionFriendListView.delegateEvents();
-	// },
 
 });
 
@@ -447,6 +424,7 @@ Router = Backbone.Router.extend({
 		"suggested": "show_suggested",
 		"nearby": "show_nearby",
 		"settings": "show_settings",
+		"logout": "logout",
 		"action/:id": "show_action",
 		"search/:term": "show_search",
 		"activities/:term": "show_activities",
@@ -455,16 +433,16 @@ Router = Backbone.Router.extend({
 		"action/:id": "show_action",
 	},
 	show_profile: function(id) {
-		var profile;
+		$.app.profile;
 		if (id) {
-			profile = new User({id: id});
+			$.app.profile = new User({id: id});
 		} else {
-			profile = new Profile();
+			$.app.profile = new Profile();
 		}
 
-		var profileView = new ProfileView({model: profile});
-		profileView.$el = $("#content");
-		profile.fetch();
+		$.app.profileView = new ProfileView({model: $.app.profile});
+		$.app.profileView.$el = $("#content");
+		$.app.profile.fetch();
 	},
 	show_suggested: function() {
 
@@ -490,7 +468,37 @@ Router = Backbone.Router.extend({
 	show_interests: function(term) {
 
 	},
+	logout: function() {
+		delete $.app.OAuthToken;
+		$.removeCookie("OAuthToken");
+		router.navigate("/", {trigger: true});
+	}
 });
+
+authenticate = function() {
+	var username = $('#username').val();
+	var password = $('#password').val();
+	console.log(username);
+	console.log(password);
+	$.ajax({
+		type: "POST",
+		url: "/oauth2/access_token",
+		data: {
+			client_id: "b54456c016e657c9c580",
+			client_secret: "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab",
+			grant_type: "password",
+			username: username,
+			password: password,
+		}
+	}).done(function (data) {
+		$.app.OAuthToken = data.access_token;
+		$.cookie("OAuthToken", $.app.OAuthToken);
+		$(".login").remove();
+		$(".container").css("-webkit-filter", "");
+		$("#logo").after('<ul class="nav navbar-nav navbar-right"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
+		router.show_profile();
+	});
+}
 
 $(document).ready(function () {
 
@@ -500,10 +508,8 @@ $(document).ready(function () {
 	Handlebars.registerPartial("friendsList", friendList);
 	Handlebars.registerPartial("actionsList", actionList);
 	Handlebars.registerPartial("login", loginTemplate);
-	Handlebars.registerPartial("login", loginTemplate);
 
 	router = new Router();
 	Backbone.history.start({pushState: true});
-
 
 });
