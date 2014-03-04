@@ -64,7 +64,7 @@ loginTemplate = '\
 		<script>\
 			$(document).ready(function () {\
 				$(".container").css("-webkit-filter", "blur(2px)");\
-				$("#submit").click(authenticate);\
+				$("#submit").click($.app.authenticate);\
 				$("#logout").remove();\
 			});\
 		</script>\
@@ -500,6 +500,9 @@ SearchListItemView = Backbone.View.extend({
 });
 
 Router = Backbone.Router.extend({
+	initialize: function (options){
+		$.app.validate();
+	},
 	routes: {
 		"": "show_profile",
 		"suggested": "show_suggested",
@@ -560,11 +563,9 @@ Router = Backbone.Router.extend({
 	}
 });
 
-authenticate = function() {
+$.app.authenticate = function() {
 	var username = $('#username').val();
 	var password = $('#password').val();
-	console.log(username);
-	console.log(password);
 	$.ajax({
 		type: "POST",
 		url: "/oauth2/access_token",
@@ -582,6 +583,19 @@ authenticate = function() {
 		$(".container").css("-webkit-filter", "");
 		$("#logo").after('<ul class="nav navbar-nav navbar-right"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 		router.show_profile();
+	});
+}
+
+$.app.validate = function() {
+	$.ajax({
+		type: "GET",
+		url: "/api/me/",
+		statusCode: {
+			401: function() {
+				delete $.app.OAuthToken;
+				$.removeCookie("OAuthToken");
+			}
+		}
 	});
 }
 
