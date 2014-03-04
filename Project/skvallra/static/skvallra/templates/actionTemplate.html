@@ -1,0 +1,22 @@
+<div class="container">
+	<div class="row actionimage"></div>
+	<div class="col-md-10 title">{{this.title}}</div>
+	<div class="col-md-1 rating"></div>
+	<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>
+	<br>
+	<div class="row">
+		<div class="col-md-4">
+			<div class="start_date">Start date {{this.start_date}}</div>
+			<div class="end_date">End date {{this.end_date}}</div>
+			<br>
+			<div class="address">{{this.address}}</div>
+			<div class="tags">
+				{{> activitiesList}}
+			</div>
+			<div class="users">
+				{{> friendsList}}
+			</div>
+		</div>
+		<div class="col-md-8 action_description">{{this.description}}</div>
+	</div>
+</div>

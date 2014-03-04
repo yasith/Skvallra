@@ -1,234 +1,3 @@
-flistItemTemplate = '\
-	<div class="friend" id="{{id}}">\
-		<div class="userimage" id="{{id}}">\
-		</div>\
-		<div class="userimagename">\
-			<a>{{first_name}}</a>\
-		</div>\
-	</div>';
-
-alistItemTemplate = '\
-	<div class="action" id="{{action_id}}">\
-		<div class="userimage" id="{{action_id}}">\
-		</div>\
-		<div class="userimagename">\
-			<a>{{title}}</a>\
-		</div>\
-	</div>';
-
-activitiesList = '\
-	{{#each []}}\
-	<div class="tag">\
-		{{this.tag_id}}\
-	</div>\
-	{{/each}}\
-	<div class="pagebar">\
-		<ul class="pager">\
-			<li class="previous"><a href="#">&laquo;</a></li>\
-			<li class="next"><a href="#">&raquo;</a></li>\
-		</ul>\
-	</div>';
-
-interestsList = '\
-	{{#each interests}}\
-	<div class="tag">\
-		{{this.tag_id}}\
-	</div>\
-	{{/each}}\
-	<div class="pagebar">\
-		<ul class="pager">\
-			<li class="previous"><a href="#">&laquo;</a></li>\
-			<li class="next"><a href="#">&raquo;</a></li>\
-		</ul>\
-	</div>';
-
-friendList = '\
-	<div class="list">\
-	{{#each []}}\
-		{{> flistItem}}\
-	{{/each}}\
-	</div>\
-	<div class="pagebar">\
-		<ul class="pager">\
-			<li class="previous"><a href="#">&laquo;</a></li>\
-			<li class="next"><a href="#">&raquo;</a></li>\
-		</ul>\
-	</div>';
-
-actionList = '\
-	<div class="list">\
-	{{#each []}}\
-		{{> alistItem}}\
-	{{/each}}\
-	</div>\
-	<div class="pagebar">\
-		<ul class="pager">\
-			<li class="previous"><a href="#">&laquo;</a></li>\
-			<li class="next"><a href="#">&raquo;</a></li>\
-		</ul>\
-	</div>';
-
-loginTemplate = '\
-	<div class="login">\
-		<script>\
-			$(document).ready(function () {\
-				$(".container").css("-webkit-filter", "blur(2px)");\
-				$("#submit").click($.app.authenticate);\
-				$("#logout").remove();\
-			});\
-		</script>\
-		<form onSubmit="return false">\
-			<div>\
-				<input id="username" class="form-control" placeholder="Username" type="text" autofocus />\
-			</div>\
-			<div>\
-				<input id="password" class="form-control" placeholder="Password" autocomplete="off" type="password" />\
-			</div>\
-			<div>\
-				<button type="submit" id="submit" class="btn btn-default">Login</button>\
-			</div>\
-		</form>\
-	</div>';
-
-imageTemplate = '<img src="{{this.image_hash}}" />';
-
-userSearchTemplate = '\
-	{{#each []}}\
-		<div class="user" id="{{id}}">\
-			<div class="left usersearchimage" id="{{id}}">\
-			</div>\
-			<div class="usersearchname" >\
-				{{this.first_name}} {{this.last_name}}\
-			</div>\
-			<div class="usersearchaddress" >\
-				{{this.address}}\
-			</div>\
-		</div>\
-	{{/each}}';
-
-actionSearchTemplate = '\
-	{{#each []}}\
-		<div class="action" id="{{action_id}}">\
-			<div class="left actionsearchimage" id="{{action_id}}">\
-			</div>\
-			<div class="actionsearchname" >\
-				{{this.title}}\
-			</div>\
-			<div class="actionsearchaddress" >\
-				{{this.address}}\
-			</div>\
-		</div>\
-	{{/each}}';
-
-searchTemplate = '\
-	<div class="container">\
-		<div class="row">\
-			<div class="col-md-2">\
-			</div>\
-			<div class="col-md-8">\
-				<div class="row">\
-				<p>Users</p>\
-				<div id="users">\
-				</div>\
-				</div>\
-				<div class="row">\
-				<p>Actions</p>\
-				<div id="actions">\
-				</div>\
-				</div>\
-			</div>\
-		</div>\
-	</div>';
-
-profileTemplate = '\
-	<div class="container">\
-		<div class="row">\
-			<div class="col-md-3">\
-				<div class="profileimage">\
-				</div>\
-			</div>\
-			<div class="information col-md-7">\
-				<div class="name">\
-					{{this.first_name}} {{this.last_name}}\
-				</div>\
-				<div class="birthday">\
-					{{this.birthday}}\
-				</div>\
-				<div class="address">\
-					{{this.address}}\
-				</div>\
-			</div>\
-		</div>\
-		<div class="row">\
-			<div class="col-md-3">\
-				<div class="activities">\
-					{{> activitiesList}}\
-				</div>\
-				<div class="interests">\
-					{{> interestsList}}\
-				</div>\
-			</div>\
-			<div class="col-md-7">\
-				<div class="friends">\
-				</div>\
-				<div class="actions">\
-				</div>\
-			</div>\
-		</div>\
-	</div>\
-	{{#unless OAuthToken}}\
-		{{> login}}\
-	{{/unless}}';
-
-actionTemplate = '\
-	<div class="container">\
-		<div class="row actionimage"></div>\
-		<div class="col-md-10 title">{{this.title}}</div>\
-		<div class="col-md-1 rating"></div>\
-		<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>\
-		<br>\
-		<div class="row">\
-			<div class="col-md-4">\
-				<div class="start_date">Start date {{this.start_date}}</div>\
-				<div class="end_date">End date {{this.end_date}}</div>\
-				<br>\
-				<div class="address">{{this.address}}</div>\
-				<div class="tags">\
-					{{> activitiesList}}\
-				</div>\
-				<div class="users">\
-					{{> friendsList}}\
-				</div>\
-			</div>\
-			<div class="col-md-8 action_description">{{this.description}}</div>\
-		</div>\
-	</div>\
-';
-
-settingsTemplate = '\
-	<div class="container">\
-		<div class="list">\
-		{{#each []}}\
-			<div class="setting">\
-				<div class="setting_name">{{this.setting_id}}</div>\
-				<div class="description">{{this.description}}</div>\
-				<div class="setting_value">{{this.value}}</div>\
-			</div>\
-		{{/each}}\
-		</div>\
-	</div>\
-';
-
-searchListItemTemplate = '\
-	<div>\
-		<div>\
-			<img src="{{this.image}}" />\
-		</div>\
-		<div>\
-			{{this.name}}\
-		</div>\
-	<div>';
-
 $.app = {};
 
 $.app.OAuthToken = $.cookie('OAuthToken');
@@ -319,7 +88,12 @@ ActionUsers = Backbone.Collection.extend({
 
 UserActions = Backbone.Collection.extend({
 	model: Action,
-	url: '/api/user_actions/',
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+	url: function() {
+		return '/api/user_actions/' + this.id;
+	},
 });
 
 Setting = Backbone.Model.extend({
@@ -334,7 +108,7 @@ Settings = Backbone.Collection.extend({
 
 ListItemView = Backbone.View.extend({
 	render: function() {
-		var source = listItemTemplate;
+		var source = $.app.templates.listItemTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 
@@ -344,7 +118,7 @@ ListItemView = Backbone.View.extend({
 
 TagsListView = Backbone.View.extend({
 	render: function() {
-		var source = tagsList;
+		var source = $.app.templates.tagsList;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 
@@ -359,7 +133,7 @@ ActivitiesView = Backbone.View.extend({
 		this.collection.on('sync', this.render, this);
 	},
 	render: function() {
-		var source = activitiesList;
+		var source = $.app.templates.activitiesList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 		this.$el.html(html);
@@ -376,7 +150,7 @@ ActionListView = Backbone.View.extend({
 		"click .action" : "navi",
 	},
 	render: function() {
-		var source = actionList;
+		var source = $.app.templates.actionList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 
@@ -408,7 +182,7 @@ ActionFriendListView = Backbone.View.extend({
 		"click .friend": "navi",
 	},
 	render: function() {
-		var source = friendList;
+		var source = $.app.templates.friendList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 
@@ -435,7 +209,7 @@ ActionFriendListView = Backbone.View.extend({
 
 LoginView = Backbone.View.extend({
 	render: function() {
-		var source = loginTemplate;
+		var source = $.app.templates.loginTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 
@@ -450,7 +224,7 @@ ImageView = Backbone.View.extend({
 		this.model.on('sync', this.render, this);
 	},
 	render: function() {
-		var source = imageTemplate;
+		var source = $.app.templates.imageTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 
@@ -468,7 +242,7 @@ SearchUserView = Backbone.View.extend({
 		"click .user": "navi",
 	},
 	render: function() {
-		var source = userSearchTemplate;
+		var source = $.app.templates.userSearchTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 
@@ -503,7 +277,7 @@ SearchActionView = Backbone.View.extend({
 		"click .action": "navi",
 	},
 	render: function() {
-		var source = actionSearchTemplate;
+		var source = $.app.templates.actionSearchTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 
@@ -532,7 +306,7 @@ SearchView = Backbone.View.extend({
 		// this.searchterm.on('sync', this.render, this);
 	},
 	render: function() {
-		var source = searchTemplate;
+		var source = $.app.templates.searchTemplate;
 		var template = Handlebars.compile(source);
 		var html = template({});
 
@@ -572,7 +346,7 @@ ProfileView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		var source = profileTemplate;
+		var source = $.app.templates.profileTemplate;
 		var template = Handlebars.compile(source);
 
 		var data = this.model.attributes;
@@ -614,7 +388,7 @@ ProfileView = Backbone.View.extend({
 		actionFriendListView.delegateEvents();
 	},
 	render_actions: function() {
-		var actions = new UserActions();
+		var actions = new UserActions([], {id: this.model.attributes.id});
 		var actionListView = new ActionListView({collection: actions});
 		actionListView.$el = $('.actions');
 		actions.fetch();
@@ -651,7 +425,7 @@ ActionView = Backbone.View.extend({
 		this.model.on('sync', this.render, this);
 	},
 	render: function() {
-			var source = actionTemplate;
+			var source = $.app.templates.actionTemplate;
 			var template = Handlebars.compile(source);
 
 			var data = this.model.attributes;
@@ -708,7 +482,7 @@ SettingsView = Backbone.View.extend({
 		this.model.on('sync', this.render, this);
 	},
 	render: function() {
-		var source = settingsTemplate;
+		var source = $.app.templates.settingsTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 		this.$el.html(html);
@@ -827,19 +601,46 @@ $.app.search = function() {
 	return false;
 }
 
-$(document).ready(function () {
+$.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", "flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", "profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", "userSearchTemplate"];
 
-	Handlebars.registerPartial("flistItem", flistItemTemplate);
-	Handlebars.registerPartial("alistItem", alistItemTemplate);
-	Handlebars.registerPartial("activitiesList", activitiesList);
-	Handlebars.registerPartial("interestsList", interestsList);
-	Handlebars.registerPartial("friendsList", friendList);
-	Handlebars.registerPartial("actionsList", actionList);
-	Handlebars.registerPartial("login", loginTemplate);
+$.app.loadTemplates = function(options) {
+	var temp = $.app.templates;
+	$.app.templates = {};
+	$(document).ajaxStop(options.success);
+	$(document).ajaxStop(function() {
+		$(document).off("ajaxStop");
+	});
+	$(temp).each(function() {
+		var name = this;
+		$.ajax({
+			type: "GET",
+			url: "/static/skvallra/templates/" + name + ".html",
+		}).done(function(data) {
+			var newTemplate = {};
+			newTemplate[name] = data;
+			$.app.templates = _.extend($.app.templates, newTemplate);
+		});
+	});
+};
 
-	$("#navbar-form").submit($.app.search);
+$.app.loadTemplates({
+	success: function() {
+		$(document).ready(function () {
 
-	router = new Router();
-	Backbone.history.start({pushState: true});
+			Handlebars.registerPartial("flistItem", $.app.templates.flistItemTemplate);
+			Handlebars.registerPartial("alistItem", $.app.templates.alistItemTemplate);
 
+			Handlebars.registerPartial("activitiesList", $.app.templates.activitiesList);
+			Handlebars.registerPartial("interestsList", $.app.templates.interestsList);
+			Handlebars.registerPartial("friendsList", $.app.templates.friendList);
+			Handlebars.registerPartial("actionsList", $.app.templates.actionList);
+			Handlebars.registerPartial("login", $.app.templates.loginTemplate);
+
+			$("#navbar-form").submit($.app.search);
+
+			router = new Router();
+			Backbone.history.start({pushState: true});
+
+		});
+	},
 });
