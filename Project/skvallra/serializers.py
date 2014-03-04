@@ -94,7 +94,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class SettingSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Setting
-		fields = ('setting_id', 'setting_type', 'value')
+		fields = ('setting_id', 'description', 'setting_type', 'value')
 
 class CommentSerializer(serializers.ModelSerializer):
 	class Meta:

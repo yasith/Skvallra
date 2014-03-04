@@ -126,21 +126,39 @@ profileTemplate = '\
 
 actionTemplate = '\
 	<div class="container">\
-		<div class="row actionimage">\
+		<div class="row actionimage"></div>\
+		<div class="col-md-10 title">{{this.title}}</div>\
+		<div class="col-md-1 rating"></div>\
+		<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>\
+		<br>\
+		<div class="row">\
+			<div class="col-md-4">\
+				<div class="start_date">Start date {{this.start_date}}</div>\
+				<div class="end_date">End date {{this.end_date}}</div>\
+				<br>\
+				<div class="address">{{this.address}}</div>\
+				<div class="tags">\
+					{{> activitiesList}}\
+				</div>\
+				<div class="users">\
+					{{> friendsList}}\
+				</div>\
+			</div>\
+			<div class="col-md-8 action_description">{{this.description}}</div>\
 		</div>\
-		<div class="col-md-10 title">\
-			{{this.title}}\
-		</div>\
-		<div class="col-md-1 rating">\
-		</div>\
-		<div class="col-md-1 status">\
-			{{#unless this.public}}\
-				lock_icon_here \
-			{{/unless}}\
-		</div>\
-		<div class="col-md-4">\
-		</div>\
-		<div class="col-md-8">\
+	</div>\
+';
+
+settingsTemplate = '\
+	<div class="container">\
+		<div class="list">\
+		{{#each []}}\
+			<div class="setting">\
+				<div class="setting_name">{{this.setting_id}}</div>\
+				<div class="description">{{this.description}}</div>\
+				<div class="setting_value">{{this.value}}</div>\
+			</div>\
+		{{/each}}\
 		</div>\
 	</div>\
 ';
@@ -206,6 +224,30 @@ ProfileList = Backbone.Collection.extend({
 
 Action = Backbone.Model.extend({
 	urlRoot: '/api/actions/',
+});
+
+ActionUsers = Backbone.Collection.extend({
+	model: User,
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+  	url: function() {
+    	return '/api/action_users/' + this.id;
+  	},
+});
+
+
+UserActions = Backbone.Collection.extend({
+	urlRoot: '/api/user_actions/',
+});
+
+Setting = Backbone.Model.extend({
+	urlRoot: '/api/settings/',
+});
+
+Settings = Backbone.Collection.extend({
+	model: Setting,
+	url: "/api/settings/",
 });
 
 
@@ -395,7 +437,8 @@ ActionView = Backbone.View.extend({
 			this.$el.html(html);
 
 			this.render_image();
-
+			this.render_tags();
+			this.render_participants();
 
 		},
 	render_image: function() {
@@ -404,7 +447,46 @@ ActionView = Backbone.View.extend({
 		imageView.$el = $('.actionimage');
 		image.fetch();
 	},
+	render_tags: function() {
+		var activities = this.model.attributes.tags;
+		var acts = new Activities();
+		var activitiesView = new ActivitiesView({collection: acts});
+		activitiesView.$el = $('.tags');
+		$(activities).each(function() {
+			var act = new Activity({id: this.valueOf()});
+			acts.add(act);
+			act.fetch();
+		});
+	},
+	render_participants: function(){
+		var participants = new ActionUsers([], {id: this.model.attributes.id});
+		participants.fetch({success: function(){
+			var users = new Users();
+			var actionFriendListView = new ActionFriendListView({collection: users});
+			actionFriendListView.$el = $('.users');
+			participants.each(function(m) {
+				var user = new User({id: m.get("id")});
+				users.add(user);
+				user.fetch();
+			});
+			actionFriendListView.delegateEvents();
+		}});
+	},
 
+});
+
+SettingsView = Backbone.View.extend({
+	initialize: function() {
+		this.model.on('add', this.render, this);
+		this.model.on('change', this.render, this);
+		this.model.on('sync', this.render, this);
+	},
+	render: function() {
+		var source = settingsTemplate;
+		var template = Handlebars.compile(source);
+		var html = template(this.model.toJSON());
+		this.$el.html(html);
+	},
 });
 
 
@@ -413,7 +495,6 @@ SearchListItemView = Backbone.View.extend({
 		var source = searchListItemTemplate;
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
-		
 		this.$el.html(html);
 	}
 });
@@ -451,7 +532,11 @@ Router = Backbone.Router.extend({
 
 	},
 	show_settings: function() {
-
+		var settings = new Settings();
+		var settingsView = new SettingsView({model: settings});
+		settingsView.$el = $("#content");
+		settings.fetch();
+		console.log(settings);
 	},
 	show_action: function(id) {
 		var action = new Action({id: id});

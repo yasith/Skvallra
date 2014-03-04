@@ -156,6 +156,7 @@ class Setting(models.Model):
 	"""
 
 	setting_id = models.CharField('setting_name', max_length=100, primary_key=True)
+	description = models.TextField('setting_description')
 	setting_type = models.CharField('type', max_length=20)
 	value = models.CharField('value', max_length=20)
 
