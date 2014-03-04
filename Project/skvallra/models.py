@@ -77,7 +77,10 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 	REQUIRED_FIELDS = []
 
 	def save(self, *args, **kwargs):
-		self.password = make_password(self.password)
+		if self.pk:
+			orig = SkvallraUser.objects.get(pk=self.pk)
+			if orig.password != self.password:
+				self.password = make_password(self.password)
 		super(SkvallraUser, self).save(*args, **kwargs)
 
 	class Meta:

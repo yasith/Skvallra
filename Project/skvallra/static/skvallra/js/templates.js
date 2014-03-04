@@ -1,9 +1,18 @@
-listItemTemplate = '\
+flistItemTemplate = '\
 	<div class="friend" id="{{id}}">\
 		<div class="userimage" id="{{id}}">\
 		</div>\
 		<div class="userimagename">\
 			<a>{{first_name}}</a>\
+		</div>\
+	</div>';
+
+alistItemTemplate = '\
+	<div class="action" id="{{action_id}}">\
+		<div class="userimage" id="{{action_id}}">\
+		</div>\
+		<div class="userimagename">\
+			<a>{{title}}</a>\
 		</div>\
 	</div>';
 
@@ -36,7 +45,7 @@ interestsList = '\
 friendList = '\
 	<div class="list">\
 	{{#each []}}\
-		{{> listItem}}\
+		{{> flistItem}}\
 	{{/each}}\
 	</div>\
 	<div class="pagebar">\
@@ -48,8 +57,8 @@ friendList = '\
 
 actionList = '\
 	<div class="list">\
-	{{#each actions}}\
-		{{> listItem}}\
+	{{#each []}}\
+		{{> alistItem}}\
 	{{/each}}\
 	</div>\
 	<div class="pagebar">\
@@ -83,6 +92,54 @@ loginTemplate = '\
 
 imageTemplate = '<img src="{{this.image_hash}}" />';
 
+userSearchTemplate = '\
+	{{#each []}}\
+		<div class="user" id="{{id}}">\
+			<div class="left usersearchimage" id="{{id}}">\
+			</div>\
+			<div class="usersearchname" >\
+				{{this.first_name}} {{this.last_name}}\
+			</div>\
+			<div class="usersearchaddress" >\
+				{{this.address}}\
+			</div>\
+		</div>\
+	{{/each}}';
+
+actionSearchTemplate = '\
+	{{#each []}}\
+		<div class="action" id="{{action_id}}">\
+			<div class="left actionsearchimage" id="{{action_id}}">\
+			</div>\
+			<div class="actionsearchname" >\
+				{{this.title}}\
+			</div>\
+			<div class="actionsearchaddress" >\
+				{{this.address}}\
+			</div>\
+		</div>\
+	{{/each}}';
+
+searchTemplate = '\
+	<div class="container">\
+		<div class="row">\
+			<div class="col-md-2">\
+			</div>\
+			<div class="col-md-8">\
+				<div class="row">\
+				<p>Users</p>\
+				<div id="users">\
+				</div>\
+				</div>\
+				<div class="row">\
+				<p>Actions</p>\
+				<div id="actions">\
+				</div>\
+				</div>\
+			</div>\
+		</div>\
+	</div>';
+
 profileTemplate = '\
 	<div class="container">\
 		<div class="row">\
@@ -115,7 +172,6 @@ profileTemplate = '\
 				<div class="friends">\
 				</div>\
 				<div class="actions">\
-					{{> actionsList}}\
 				</div>\
 			</div>\
 		</div>\
@@ -191,6 +247,24 @@ $.ajaxSetup({
 	}
 });
 
+SearchUser = Backbone.Collection.extend({
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+	url: function() {
+		return "/api/search/" + this.id + "/users/";
+	},
+});
+
+SearchAction = Backbone.Collection.extend({
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+	url: function() {
+		return "/api/search/" + this.id + "/actions/";
+	},
+});
+
 User = Backbone.Model.extend({
 	urlRoot: '/api/users/',
 });
@@ -214,7 +288,13 @@ Images = Backbone.Model.extend({
 });
 
 Profile = Backbone.Model.extend({
+	initialize: function() {
+		this.on('sync', this.record, this);
+	},
 	urlRoot: '/api/me/',
+	record: function() {
+		$.app.user = this;
+	}
 });
 
 ProfileList = Backbone.Collection.extend({
@@ -238,7 +318,8 @@ ActionUsers = Backbone.Collection.extend({
 
 
 UserActions = Backbone.Collection.extend({
-	urlRoot: '/api/user_actions/',
+	model: Action,
+	url: '/api/user_actions/',
 });
 
 Setting = Backbone.Model.extend({
@@ -283,7 +364,38 @@ ActivitiesView = Backbone.View.extend({
 		var html = template(this.collection.toJSON());
 		this.$el.html(html);
 	}
-})
+});
+
+ActionListView = Backbone.View.extend({
+	initialize: function() {
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		"click .action" : "navi",
+	},
+	render: function() {
+		var source = actionList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+
+		this.$el.html(html);
+
+		this.render_image();
+	},
+	render_image: function() {
+		$(this.collection.models).each(function() {
+			var image = new Images({id: this.attributes.image});
+			var imageView = new ImageView({model: image});
+			imageView.$el = $('#' + this.attributes.action_id + '.userimage');
+			image.fetch();
+		});
+	},
+	navi: function(event) {
+		router.navigate("/action/" + event.currentTarget.id, {trigger: true});
+	}
+});
 
 ActionFriendListView = Backbone.View.extend({
 	initialize: function() {
@@ -313,7 +425,11 @@ ActionFriendListView = Backbone.View.extend({
 		});
 	},
 	navi: function(event) {
-		router.navigate("/" + event.currentTarget.id, {trigger: true});
+		if (event.currentTarget.id == $.app.user.attributes.id) {
+			router.navigate("/", {trigger: true});
+		} else {
+			router.navigate("/" + event.currentTarget.id, {trigger: true});
+		}
 	}
 });
 
@@ -339,6 +455,108 @@ ImageView = Backbone.View.extend({
 		var html = template(this.model.toJSON());
 
 		this.$el.html(html);
+	}
+});
+
+SearchUserView = Backbone.View.extend({
+	initialize: function() {
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		"click .user": "navi",
+	},
+	render: function() {
+		var source = userSearchTemplate;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+
+		this.$el.html(html);
+
+		this.render_image();
+	},
+	render_image: function() {
+		$(this.collection.models).each(function() {
+			var image = new Images({id: this.attributes.image});
+			var imageView = new ImageView({model: image});
+			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
+			image.fetch();
+		});
+	},
+	navi: function(event) {
+		if (event.currentTarget.id == $.app.user.attributes.id) {
+			router.navigate("/", {trigger: true});
+		} else {
+			router.navigate("/" + event.currentTarget.id, {trigger: true});
+		}
+	},
+});
+
+SearchActionView = Backbone.View.extend({
+	initialize: function() {
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		"click .action": "navi",
+	},
+	render: function() {
+		var source = actionSearchTemplate;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+
+		this.$el.html(html);
+
+		this.render_image();
+	},
+	render_image: function() {
+		$(this.collection.models).each(function() {
+			var image = new Images({id: this.attributes.image});
+			var imageView = new ImageView({model: image});
+			imageView.$el = $('#' + this.attributes.action_id + '.actionsearchimage');
+			image.fetch();
+		});
+	},
+	navi: function(event) {
+		router.navigate("/action/" + event.currentTarget.id, {trigger: true});
+	}
+});
+
+SearchView = Backbone.View.extend({
+	initialize: function(options) {
+		this.searchterm = options.searchterm;
+		// this.searchterm.on('add', this.render, this);
+		// this.searchterm.on('change', this.render, this);
+		// this.searchterm.on('sync', this.render, this);
+	},
+	render: function() {
+		var source = searchTemplate;
+		var template = Handlebars.compile(source);
+		var html = template({});
+
+		this.$el.html(html);
+
+		var userSearch = new SearchUser([], {id: this.searchterm});
+		var searchUserView = new SearchUserView({collection: userSearch});
+		searchUserView.$el = $('#users');
+		userSearch.fetch();
+		searchUserView.delegateEvents();
+
+		var actionSearch = new SearchAction([], {id: this.searchterm});
+		var searchActionView = new SearchActionView({collection: actionSearch});
+		searchActionView.$el = $('#actions');
+		actionSearch.fetch();
+		searchActionView.delegateEvents();
+	},
+	render_image: function() {
+		$(this.collection.models).each(function() {
+			var image = new Images({id: this.attributes.image});
+			var imageView = new ImageView({model: image});
+			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
+			image.fetch();
+		});
 	}
 });
 
@@ -373,6 +591,7 @@ ProfileView = Backbone.View.extend({
 
 		this.render_image();
 		this.render_friends();
+		this.render_actions();
 		this.render_activities();
 		this.render_interests();
 	},
@@ -393,6 +612,13 @@ ProfileView = Backbone.View.extend({
 			user.fetch();
 		});
 		actionFriendListView.delegateEvents();
+	},
+	render_actions: function() {
+		var actions = new UserActions();
+		var actionListView = new ActionListView({collection: actions});
+		actionListView.$el = $('.actions');
+		actions.fetch();
+		actionListView.delegateEvents();
 	},
 	render_activities: function() {
 		var activities = this.model.attributes.activities;
@@ -490,15 +716,6 @@ SettingsView = Backbone.View.extend({
 });
 
 
-SearchListItemView = Backbone.View.extend({
-	render: function() {
-		var source = searchListItemTemplate;
-		var template = Handlebars.compile(source);
-		var html = template(this.model.toJSON());
-		this.$el.html(html);
-	}
-});
-
 Router = Backbone.Router.extend({
 	initialize: function (options){
 		$.app.validate();
@@ -548,7 +765,11 @@ Router = Backbone.Router.extend({
 		action.fetch();
 	},
 	show_search: function(term) {
-
+		// var search = new SearchUser([], {id: term});
+		var searchView = new SearchView({searchterm: term});
+		searchView.$el = $("#content");
+		searchView.render();
+		// search.fetch();
 	},
 	show_activities: function(term) {
 
@@ -599,14 +820,24 @@ $.app.validate = function() {
 	});
 }
 
+$.app.search = function() {
+	var searchterm = $('#searchbox').val();
+	console.log(searchterm);
+	router.navigate("/search/" + searchterm, {trigger: true});
+	return false;
+}
+
 $(document).ready(function () {
 
-	Handlebars.registerPartial("listItem", listItemTemplate);
+	Handlebars.registerPartial("flistItem", flistItemTemplate);
+	Handlebars.registerPartial("alistItem", alistItemTemplate);
 	Handlebars.registerPartial("activitiesList", activitiesList);
 	Handlebars.registerPartial("interestsList", interestsList);
 	Handlebars.registerPartial("friendsList", friendList);
 	Handlebars.registerPartial("actionsList", actionList);
 	Handlebars.registerPartial("login", loginTemplate);
+
+	$("#navbar-form").submit($.app.search);
 
 	router = new Router();
 	Backbone.history.start({pushState: true});

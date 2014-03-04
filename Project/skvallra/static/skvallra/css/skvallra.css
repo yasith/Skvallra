@@ -5875,6 +5875,9 @@ div.login > form > div > input:-ms-input-placeholder {
 div.login > form > div > input::-webkit-input-placeholder {
   color: #2f993d;
 }
+#content {
+  margin-bottom: 20px;
+}
 .navbar .home {
   color: #1d5e25;
   font-size: 28px;
@@ -5912,6 +5915,25 @@ div.login > form > div > input::-webkit-input-placeholder {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   width: 100px;
+}
+.usersearchimage,
+.actionsearchimage {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  width: 200px;
+}
+.left {
+  float: left;
+  margin-right: 5px;
+}
+.usersearchname,
+.actionsearchname {
+  font-size: 21px;
+}
+.usersearchaddress,
+.actionsearchaddress {
+  font-size: 14px;
+  color: #808080;
 }
 .userimagename {
   font-weight: normal;

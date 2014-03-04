@@ -52,6 +52,10 @@ div {
 	}
 }
 
+#content {
+	margin-bottom: 20px;
+}
+
 .navbar {
 
 	.home {
@@ -107,6 +111,26 @@ div {
 	border: 1px solid lighten(#000, 90%);
 	border-radius: 4px;
 	width: @friend-item-width;
+}
+
+.usersearchimage, .actionsearchimage {
+	border: 1px solid lighten(#000, 90%);
+	border-radius: 4px;
+	width: @friend-item-width * 2;
+}
+
+.left {
+	float: left;
+	margin-right: 5px;
+}
+
+.usersearchname, .actionsearchname {
+	font-size: @larger-font-size;
+}
+
+.usersearchaddress, .actionsearchaddress {
+	font-size: @font-size;
+	color: @light-font-color;
 }
 
 .userimagename {
