@@ -1,6 +1,9 @@
+from django.db.models import Q
 from django.shortcuts import render
+
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import link
 
 from rest_framework.permissions import TokenHasReadWriteScope
 
@@ -138,12 +141,22 @@ class SearchViewSet(viewsets.ModelViewSet):
         	return Response({})
 
 	def retrieve(self, request, pk=None):
-		from django.db.models import Q
-		
+		return self.users(request, pk)
+
+	@link()
+	def users(self, request, pk=None):
 		users = SkvallraUser.objects.filter(Q(first_name__contains=pk) | Q(last_name__contains=pk))
 
 		serializer = SkvallraUserSerializer(users, many=True)
 	 	return Response(serializer.data)
+
+	@link()
+	def actions(self, request, pk=None):
+		actions = Action.objects.filter(Q(title__contains=pk) | Q(description__contains=pk))
+		
+		serializer = ActionSerializer(actions, many=True)
+		return Response(serializer.data)
+
 
 def index(request):
 	return render(request, "skvallra/index.html", {})
