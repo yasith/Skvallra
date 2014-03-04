@@ -127,5 +127,23 @@ class CommentViewSet(viewsets.ModelViewSet):
 	serializer_class = CommentSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+class SearchViewSet(viewsets.ModelViewSet):
+	"""
+	API endpoint that allows searching users
+	"""
+    	serializer_class = SkvallraUserSerializer
+    	model = SkvallraUser
+
+	def list(self, request):
+        	return Response({})
+
+	def retrieve(self, request, pk=None):
+		from django.db.models import Q
+		
+		users = SkvallraUser.objects.filter(Q(first_name__contains=pk) | Q(last_name__contains=pk))
+
+		serializer = SkvallraUserSerializer(users, many=True)
+	 	return Response(serializer.data)
+
 def index(request):
 	return render(request, "skvallra/index.html", {})
