@@ -5951,3 +5951,7 @@ div.login > form > div > input::-webkit-input-placeholder {
 .address {
   color: #808080;
 }
+.box-item {
+  border: 2px solid #2f993d;
+  border-radius: 4px;
+}

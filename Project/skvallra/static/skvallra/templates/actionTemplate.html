@@ -1,8 +1,10 @@
 <div class="container">
 	<div class="row actionimage"></div>
-	<div class="col-md-10 title">{{this.title}}</div>
-	<div class="col-md-1 rating"></div>
-	<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>
+	<div class="row">
+		<div class="col-md-10 title name" id={{id}}>{{this.title}}</div>
+		<div class="col-md-1 rating"></div>
+		<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>
+	</div>
 	<br>
 	<div class="row">
 		<div class="col-md-4">
@@ -17,6 +19,9 @@
 				{{> friendsList}}
 			</div>
 		</div>
-		<div class="col-md-8 action_description">{{this.description}}</div>
+		<div class="col-md-8">
+			<div class="action_description">{{this.description}}</div>
+			<div class="user_comments"></div>
+		</div>	
 	</div>
 </div>

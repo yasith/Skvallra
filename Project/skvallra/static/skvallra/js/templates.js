@@ -191,15 +191,15 @@ ActionListView = Backbone.View.extend({
 
 ActionCommentsView = Backbone.View.extend({
 	initialize: function() {
-		this.collection.on('add', this.render, this);
-		this.collection.on('change', this.render, this);
+		// this.collection.on('add', this.render, this);
+		this.collection.on('change', $.app.actionView.render_comments, $.app.actionView);
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
 		"click #add_comment": "add_comment",
 	},
 	render: function() {
-		var source = commentList;
+		var source = $.app.templates.commentList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 		this.$el.html(html);
@@ -319,7 +319,7 @@ SearchActionView = Backbone.View.extend({
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
-		"click .action": "navi",
+		"click .search-action": "navi",
 	},
 	render: function() {
 		var source = $.app.templates.actionSearchTemplate;
@@ -467,12 +467,7 @@ ActionView = Backbone.View.extend({
 	render: function() {
 			var source = $.app.templates.actionTemplate;
 			var template = Handlebars.compile(source);
-
-			var data = this.model.attributes;
-			
-			// var d = new Date(data.birthday);
-			// data.birthday = d.toLocaleDateString();
-			
+						
 			var html = template(this.model.toJSON());
 			this.$el.html(html);
 
@@ -577,8 +572,8 @@ Router = Backbone.Router.extend({
 	},
 	show_action: function(id) {
 		var action = new Action({id: id});
-		var actionView = new ActionView({model: action});
-		actionView.$el = $("#content");
+		$.app.actionView = new ActionView({model: action});
+		$.app.actionView.$el = $("#content");
 		action.fetch();
 	},
 	show_search: function(term) {
@@ -644,7 +639,10 @@ $.app.search = function() {
 	return false;
 }
 
-$.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", "flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", "profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", "userSearchTemplate"];
+$.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
+					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
+					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
+					"userSearchTemplate", "commentList"];
 
 $.app.loadTemplates = function(options) {
 	var temp = $.app.templates;
@@ -680,6 +678,9 @@ $.app.loadTemplates({
 			Handlebars.registerPartial("login", $.app.templates.loginTemplate);
 
 			$("#navbar-form").submit($.app.search);
+
+			var temp = new Profile();
+			temp.fetch();
 
 			router = new Router();
 			Backbone.history.start({pushState: true});
