@@ -15,7 +15,7 @@ class SkvallraUserViewSet(viewsets.ModelViewSet):
 	queryset = SkvallraUser.objects.all()
 	serializer_class = SkvallraUserSerializer
 
-	# permission_classes = (TokenHasReadWriteScope, )
+	permission_classes = (TokenHasReadWriteScope,)
 
 class meViewSet(viewsets.ModelViewSet):
 	"""
@@ -23,7 +23,7 @@ class meViewSet(viewsets.ModelViewSet):
 	"""
 	serializer_class = SkvallraUserSerializer
 	model = SkvallraUser
-	# permission_classes = (TokenHasReadWriteScope, )
+	permission_classes = (TokenHasReadWriteScope,)
 
 	def list(self, request):
 		user = request.user

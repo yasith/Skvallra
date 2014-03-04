@@ -23,7 +23,7 @@ urlpatterns = patterns('',
 	# url(r'^$', 'Project.views.home', name='home'),
 	# url(r'^blog/', include('blog.urls')),
 
-	
+	url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
 	url(r'^admin/', include(admin.site.urls)),
 	url(r'^api/', include(router.urls)),
 	url(r'(^.{1,2}$|^.{3}(?<!api).*)', include("skvallra.urls")),

@@ -108,7 +108,7 @@ profileTemplate = '\
 			</div>\
 		</div>\
 	</div>\
-	{{#unless this.username}}\
+	{{#unless OAuthToken}}\
 		{{> login}}\
 	{{/unless}}';
 
@@ -145,6 +145,21 @@ searchListItemTemplate = '\
 			{{this.name}}\
 		</div>\
 	<div>';
+
+
+OAuthToken = $.cookie('OAuthToken');
+
+// check OAuthToken Validity
+
+$.ajaxSetup({
+	beforeSend: function (xhr, settings)
+	{
+		if (settings.url.indexOf("/", settings.url.length - 1) == -1) {
+			settings.url += "/";
+		}
+		xhr.setRequestHeader("Authorization","Bearer " + OAuthToken);
+	}
+});
 
 User = Backbone.Model.extend({
 	urlRoot: '/api/users/',
@@ -280,6 +295,11 @@ ProfileView = Backbone.View.extend({
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
+		this.model.on('error', this.error, this);
+	},
+	error: function() {
+		this.model = new User({});
+		this.render();
 	},
 	render: function() {
 		var source = profileTemplate;
@@ -287,10 +307,15 @@ ProfileView = Backbone.View.extend({
 
 		var data = this.model.attributes;
 		
-		var d = new Date(data.birthday);
-		data.birthday = d.toLocaleDateString();
+		if (data.birthday) {
+			var d = new Date(data.birthday);
+			data.birthday = d.toLocaleDateString();
+		}
 		
-		var html = template(this.model.toJSON());
+		var temp = this.model.toJSON()
+		temp.OAuthToken = OAuthToken;
+		
+		var html = template(temp);
 
 		this.$el.html(html);
 
@@ -313,7 +338,12 @@ ProfileView = Backbone.View.extend({
 		$(friends).each(function() {
 			var user = new User({id: this.valueOf()});
 			users.add(user);
-			user.fetch();
+			var options = {};
+			options.header = {
+				'Authorization': 'Bearer ' + OAuthToken,
+				"blah": "poopy",
+			}
+			user.fetch(options);
 		});
 		actionFriendListView.delegateEvents();
 	},
