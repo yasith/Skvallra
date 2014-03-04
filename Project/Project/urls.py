@@ -16,6 +16,7 @@ router.register(r'user_actions', views.UserActionsView)
 router.register(r'images', views.ImageViewSet)
 router.register(r'settings', views.SettingViewSet)
 router.register(r'comments', views.CommentViewSet)
+router.register(r'action_comments', views.ActionCommentViewSet)
 router.register(r'me', views.meViewSet)
 router.register(r'search', views.SearchViewSet)
 

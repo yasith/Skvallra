@@ -105,6 +105,24 @@ Settings = Backbone.Collection.extend({
 	url: "/api/settings/",
 });
 
+Comment = Backbone.Model.extend({
+	urlRoot: '/api/comments/',
+});
+
+ActionComment = Backbone.Model.extend({
+	urlRoot: '/api/action_comments/',
+});
+
+ActionComments = Backbone.Collection.extend({
+	model: ActionComment,
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+  	url: function() {
+    	return '/api/action_comments/' + this.id;
+  	},
+});
+
 
 ListItemView = Backbone.View.extend({
 	render: function() {
@@ -131,7 +149,7 @@ ActivitiesView = Backbone.View.extend({
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
-	},
+	},	
 	render: function() {
 		var source = $.app.templates.activitiesList;
 		var template = Handlebars.compile(source);
@@ -170,6 +188,33 @@ ActionListView = Backbone.View.extend({
 		router.navigate("/action/" + event.currentTarget.id, {trigger: true});
 	}
 });
+
+ActionCommentsView = Backbone.View.extend({
+	initialize: function() {
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		"click #add_comment": "add_comment",
+	},
+	render: function() {
+		var source = commentList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+		this.$el.html(html);
+	},
+	add_comment: function(event) {
+		var NewComment = new Comment({
+			"action_id": $(".title").get(0).id, 
+        	"user_id": 1,  
+        	"comment_time": new Date().toISOString(), 
+        	"comment": $("#new_comment").val(),
+		});
+		this.collection.add(NewComment);
+		NewComment.save();
+	},
+})
 
 ActionFriendListView = Backbone.View.extend({
 	initialize: function() {
@@ -351,11 +396,6 @@ ProfileView = Backbone.View.extend({
 
 		var data = this.model.attributes;
 		
-		if (data.birthday) {
-			var d = new Date(data.birthday);
-			data.birthday = d.toLocaleDateString();
-		}
-		
 		var temp = this.model.toJSON()
 		temp.OAuthToken = $.app.OAuthToken;
 		
@@ -439,7 +479,7 @@ ActionView = Backbone.View.extend({
 			this.render_image();
 			this.render_tags();
 			this.render_participants();
-
+			this.render_comments();
 		},
 	render_image: function() {
 		var image = new Images({id: this.model.attributes.image});
@@ -472,7 +512,13 @@ ActionView = Backbone.View.extend({
 			actionFriendListView.delegateEvents();
 		}});
 	},
-
+	render_comments: function() {
+		var comments = new ActionComments([], {id: this.model.attributes.action_id}); // create collection with id 
+		var commentsView = new ActionCommentsView({collection: comments}); // create view
+		commentsView.$el = $('.user_comments'); // point view to element in DOM
+		comments.fetch();
+		commentsView.delegateEvents();
+	},
 });
 
 SettingsView = Backbone.View.extend({
@@ -491,9 +537,6 @@ SettingsView = Backbone.View.extend({
 
 
 Router = Backbone.Router.extend({
-	initialize: function (options){
-		$.app.validate();
-	},
 	routes: {
 		"": "show_profile",
 		"suggested": "show_suggested",
@@ -558,9 +601,11 @@ Router = Backbone.Router.extend({
 	}
 });
 
-$.app.authenticate = function() {
+authenticate = function() {
 	var username = $('#username').val();
 	var password = $('#password').val();
+	console.log(username);
+	console.log(password);
 	$.ajax({
 		type: "POST",
 		url: "/oauth2/access_token",
