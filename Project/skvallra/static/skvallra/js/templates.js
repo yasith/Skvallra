@@ -601,11 +601,9 @@ Router = Backbone.Router.extend({
 	}
 });
 
-authenticate = function() {
+$.app.authenticate = function() {
 	var username = $('#username').val();
 	var password = $('#password').val();
-	console.log(username);
-	console.log(password);
 	$.ajax({
 		type: "POST",
 		url: "/oauth2/access_token",

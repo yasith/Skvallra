@@ -5908,7 +5908,8 @@ div.login > form > div > input::-webkit-input-placeholder {
 .bottom {
   clear: both;
 }
-.friend {
+.friend,
+.action {
   display: inline-block;
 }
 .userimage {
