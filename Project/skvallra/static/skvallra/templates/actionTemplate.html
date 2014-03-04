@@ -1,9 +1,16 @@
 <div class="container">
 	<div class="row actionimage"></div>
 	<div class="row">
-		<div class="col-md-10 title name" id={{id}}>{{this.title}}</div>
+		<div class="col-md-9 title name" id="{{id}}">{{this.title}}</div>
 		<div class="col-md-1 rating"></div>
 		<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>
+		<div class="col-md-1">
+			{{#if this.member}}
+				<button type="button" class="btn btn-default leave">Leave</button>
+			{{else}}
+				<button type="button" class="btn btn-default join">Join</button>
+			{{/if}}
+		</div>
 	</div>
 	<br>
 	<div class="row">

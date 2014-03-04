@@ -207,7 +207,7 @@ ActionCommentsView = Backbone.View.extend({
 	add_comment: function(event) {
 		var NewComment = new Comment({
 			"action_id": $(".title").get(0).id, 
-        	"user_id": 1,  
+        	"user_id": $.app.user.id,  
         	"comment_time": new Date().toISOString(), 
         	"comment": $("#new_comment").val(),
 		});
@@ -467,8 +467,13 @@ ActionView = Backbone.View.extend({
 	render: function() {
 			var source = $.app.templates.actionTemplate;
 			var template = Handlebars.compile(source);
-						
-			var html = template(this.model.toJSON());
+				
+			var temp = this.model.toJSON();
+			temp.member = true;
+			if ($.app.actions.indexOf(this.model.attributes.action_id) == -1) {
+				temp.member = false;
+			}
+			var html = template(temp);
 			this.$el.html(html);
 
 			this.render_image();
@@ -702,10 +707,10 @@ $.app.loadTemplates({
 					temp.push(this.action_id);
 				});
 				$.app.actions = temp;
-			});
 
-			router = new Router();
-			Backbone.history.start({pushState: true});
+				router = new Router();
+				Backbone.history.start({pushState: true});
+			});
 
 		});
 	},
