@@ -553,6 +553,17 @@ Router = Backbone.Router.extend({
 			$.app.profile = new Profile();
 		}
 
+		$.ajax({
+			type: "GET",
+			url: "/api/user_actions/",
+		}).done(function (data){
+			var temp = [];
+			$(data).each(function (){
+				temp.push(this.action_id);
+			});
+			$.app.actions = temp;
+		});
+
 		$.app.profileView = new ProfileView({model: $.app.profile});
 		$.app.profileView.$el = $("#content");
 		$.app.profile.fetch();
@@ -681,6 +692,17 @@ $.app.loadTemplates({
 
 			var temp = new Profile();
 			temp.fetch();
+
+			$.ajax({
+				type: "GET",
+				url: "/api/user_actions/",
+			}).done(function (data){
+				var temp = []
+				$(data).each(function (){
+					temp.push(this.action_id);
+				});
+				$.app.actions = temp;
+			});
 
 			router = new Router();
 			Backbone.history.start({pushState: true});
