@@ -17,6 +17,7 @@ router.register(r'images', views.ImageViewSet)
 router.register(r'settings', views.SettingViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'me', views.meViewSet)
+router.register(r'search', views.SearchViewSet)
 
 urlpatterns = patterns('',
 	# Examples:
