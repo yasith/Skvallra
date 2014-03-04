@@ -111,10 +111,10 @@ class Action(models.Model):
 	min_participants = models.IntegerField(default=1)
 	max_participants = models.IntegerField(default=1)
 	address = models.CharField('address', max_length=200, blank=True, null=True)
-	coordinates = models.CharField('coordinates', max_length=50, blank=True)
+	coordinates = models.CharField('coordinates', max_length=50, blank=True, null=True)
 	image = models.ForeignKey('Image', blank=True, null=True)
 	thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
-	tags = models.ManyToManyField(Tag, related_name='action_tags')
+	tags = models.ManyToManyField(Tag, related_name='action_tags', blank=True, null=True)
 
 
 	def __unicode__(self):
@@ -138,9 +138,6 @@ class Image(models.Model):
 	""" Image model """
 
 	image_hash = models.CharField('hash', max_length=50)
-
-	def __unicode__(self):
-		return '%s' % self.image_hash
 
 class UserAction(models.Model):
 	""" UserActions """

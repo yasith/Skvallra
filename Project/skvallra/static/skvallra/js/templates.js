@@ -68,12 +68,36 @@ actionList = '\
 		</ul>\
 	</div>';
 
+commentList = '\
+	<div class="row new_comment">\
+		<textarea rows="4" cols="50" class="form-control" id="new_comment"></textarea>\
+		<br>\
+		<button type="button" class="btn btn-default pull-right" id="add_comment">Submit</button>\
+	</div>\
+	<br>\
+	<div class="list">\
+	{{#each []}}\
+		<div class="row comment" id="{{id}}">\
+			<div class="col-md-2">\
+				<div class="userimage"><img src="{{user_id.image.image_hash}}" /></div>\
+				<div class="userimagename"><a>{{user_id.first_name}} {{user_id.last_name}}</a></div>\
+			</div>\
+			<div class="col-md-6">\
+				<div class="comment_time">{{comment_time}}</div>\
+				<div class="comment_body">{{comment}}</div>\
+			</div>\
+		</div>\
+	{{/each}}\
+	</div>\
+';
+
+
 loginTemplate = '\
 	<div class="login">\
 		<script>\
 			$(document).ready(function () {\
 				$(".container").css("-webkit-filter", "blur(2px)");\
-				$("#submit").click($.app.authenticate);\
+				$("#submit").click(authenticate);\
 				$("#logout").remove();\
 			});\
 		</script>\
@@ -183,9 +207,11 @@ profileTemplate = '\
 actionTemplate = '\
 	<div class="container">\
 		<div class="row actionimage"></div>\
-		<div class="col-md-10 title">{{this.title}}</div>\
-		<div class="col-md-1 rating"></div>\
-		<div class="col-md-1 status">{{#unless this.public}}lock_icon_here {{/unless}}</div>\
+		<div class="row">\
+			<div class="col-md-10 title" id="{{id}}">{{this.title}}</div>\
+			<div class="col-md-1 rating"></div>\
+			<div class="col-md-1 status">{{#unless this.public}}lock_icon_here{{/unless}}</div>\
+		</div>\
 		<br>\
 		<div class="row">\
 			<div class="col-md-4">\
@@ -193,17 +219,18 @@ actionTemplate = '\
 				<div class="end_date">End date {{this.end_date}}</div>\
 				<br>\
 				<div class="address">{{this.address}}</div>\
-				<div class="tags">\
-					{{> activitiesList}}\
-				</div>\
-				<div class="users">\
-					{{> friendsList}}\
-				</div>\
+				<div class="tags">{{> activitiesList}}</div>\
+				<div class="users">{{> friendsList}}</div>\
 			</div>\
-			<div class="col-md-8 action_description">{{this.description}}</div>\
+			<div class="col-md-8">\
+				<div class="action_description">{{this.description}}</div>\
+				<br>\
+				<div class="user_comments"></div>\
+			</div>\
 		</div>\
 	</div>\
 ';
+
 
 settingsTemplate = '\
 	<div class="container">\
@@ -331,6 +358,24 @@ Settings = Backbone.Collection.extend({
 	url: "/api/settings/",
 });
 
+Comment = Backbone.Model.extend({
+	urlRoot: '/api/comments/',
+});
+
+ActionComment = Backbone.Model.extend({
+	urlRoot: '/api/action_comments/',
+});
+
+ActionComments = Backbone.Collection.extend({
+	model: ActionComment,
+	initialize: function(models, options) {
+    	this.id = options.id;    
+  	},
+  	url: function() {
+    	return '/api/action_comments/' + this.id;
+  	},
+});
+
 
 ListItemView = Backbone.View.extend({
 	render: function() {
@@ -357,7 +402,7 @@ ActivitiesView = Backbone.View.extend({
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
-	},
+	},	
 	render: function() {
 		var source = activitiesList;
 		var template = Handlebars.compile(source);
@@ -396,6 +441,33 @@ ActionListView = Backbone.View.extend({
 		router.navigate("/action/" + event.currentTarget.id, {trigger: true});
 	}
 });
+
+ActionCommentsView = Backbone.View.extend({
+	initialize: function() {
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		"click #add_comment": "add_comment",
+	},
+	render: function() {
+		var source = commentList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+		this.$el.html(html);
+	},
+	add_comment: function(event) {
+		var NewComment = new Comment({
+			"action_id": $(".title").get(0).id, 
+        	"user_id": 1,  
+        	"comment_time": new Date().toISOString(), 
+        	"comment": $("#new_comment").val(),
+		});
+		this.collection.add(NewComment);
+		NewComment.save();
+	},
+})
 
 ActionFriendListView = Backbone.View.extend({
 	initialize: function() {
@@ -577,11 +649,6 @@ ProfileView = Backbone.View.extend({
 
 		var data = this.model.attributes;
 		
-		if (data.birthday) {
-			var d = new Date(data.birthday);
-			data.birthday = d.toLocaleDateString();
-		}
-		
 		var temp = this.model.toJSON()
 		temp.OAuthToken = $.app.OAuthToken;
 		
@@ -652,20 +719,14 @@ ActionView = Backbone.View.extend({
 	},
 	render: function() {
 			var source = actionTemplate;
-			var template = Handlebars.compile(source);
-
-			var data = this.model.attributes;
-			
-			// var d = new Date(data.birthday);
-			// data.birthday = d.toLocaleDateString();
-			
+			var template = Handlebars.compile(source);			
 			var html = template(this.model.toJSON());
 			this.$el.html(html);
 
 			this.render_image();
 			this.render_tags();
 			this.render_participants();
-
+			this.render_comments();
 		},
 	render_image: function() {
 		var image = new Images({id: this.model.attributes.image});
@@ -698,7 +759,13 @@ ActionView = Backbone.View.extend({
 			actionFriendListView.delegateEvents();
 		}});
 	},
-
+	render_comments: function() {
+		var comments = new ActionComments([], {id: this.model.attributes.action_id}); // create collection with id 
+		var commentsView = new ActionCommentsView({collection: comments}); // create view
+		commentsView.$el = $('.user_comments'); // point view to element in DOM
+		comments.fetch();
+		commentsView.delegateEvents();
+	},
 });
 
 SettingsView = Backbone.View.extend({
@@ -717,9 +784,6 @@ SettingsView = Backbone.View.extend({
 
 
 Router = Backbone.Router.extend({
-	initialize: function (options){
-		$.app.validate();
-	},
 	routes: {
 		"": "show_profile",
 		"suggested": "show_suggested",
@@ -784,9 +848,11 @@ Router = Backbone.Router.extend({
 	}
 });
 
-$.app.authenticate = function() {
+authenticate = function() {
 	var username = $('#username').val();
 	var password = $('#password').val();
+	console.log(username);
+	console.log(password);
 	$.ajax({
 		type: "POST",
 		url: "/oauth2/access_token",
@@ -826,6 +892,7 @@ $.app.search = function() {
 	router.navigate("/search/" + searchterm, {trigger: true});
 	return false;
 }
+
 
 $(document).ready(function () {
 
