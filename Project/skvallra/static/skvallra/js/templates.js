@@ -608,7 +608,9 @@ Router = Backbone.Router.extend({
 	logout: function() {
 		delete $.app.OAuthToken;
 		$.removeCookie("OAuthToken");
-		router.navigate("/", {trigger: true});
+		setTimeout(function() {
+			router.navigate("/", {trigger: true});
+		}, 100);
 	}
 });
 
@@ -630,7 +632,7 @@ $.app.authenticate = function() {
 		$.cookie("OAuthToken", $.app.OAuthToken);
 		$(".login").remove();
 		$(".container").css("-webkit-filter", "");
-		$("#logo").after('<ul class="nav navbar-nav navbar-right"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
+		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 		router.show_profile();
 	});
 }
@@ -643,6 +645,13 @@ $.app.validate = function() {
 			401: function() {
 				delete $.app.OAuthToken;
 				$.removeCookie("OAuthToken");
+				$('#logout').remove();
+			},
+			200: function() {
+				console.log("200");
+				$(".login").remove();
+				$(".container").css("-webkit-filter", "");
+				$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 			}
 		}
 	});
@@ -708,6 +717,7 @@ $.app.loadTemplates({
 				});
 				$.app.actions = temp;
 
+				$.app.validate();
 				router = new Router();
 				Backbone.history.start({pushState: true});
 			});
