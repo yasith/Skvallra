@@ -1,20 +1,28 @@
+// create a dictionary that will contain data relevent to the app.
 $.app = {};
 
+// attempt to retrieve the users OAuth Token from their cookie
 $.app.OAuthToken = $.cookie('OAuthToken');
 
-// check OAuthToken Validity
-
+// add needed functionality to all jquery ajax calls
 $.ajaxSetup({
 	beforeSend: function (xhr, settings)
 	{
+		// fixes a potential jquery ajax bug where headers are not always added to a request
 		if (settings.url.indexOf("/", settings.url.length - 1) == -1) {
 			settings.url += "/";
 		}
+
+		// add the Authorization header with the OAuth Token to the request.
 		if ($.app.OAuthToken) {
 			xhr.setRequestHeader("Authorization","Bearer " + $.app.OAuthToken);
 		}
 	}
 });
+
+//
+// javascript models and collections to correspond with the matching django models
+//
 
 SearchUser = Backbone.Collection.extend({
 	initialize: function(models, options) {
@@ -61,6 +69,7 @@ Profile = Backbone.Model.extend({
 		this.on('sync', this.record, this);
 	},
 	urlRoot: '/api/me/',
+	// keep a copy of the current user's object in the app
 	record: function() {
 		$.app.user = this;
 	}
@@ -124,28 +133,10 @@ ActionComments = Backbone.Collection.extend({
 });
 
 
-ListItemView = Backbone.View.extend({
-	render: function() {
-		var source = $.app.templates.listItemTemplate;
-		var template = Handlebars.compile(source);
-		var html = template(this.model.toJSON());
-
-		this.$el.html(html);
-	}
-});
-
-TagsListView = Backbone.View.extend({
-	render: function() {
-		var source = $.app.templates.tagsList;
-		var template = Handlebars.compile(source);
-		var html = template(this.model.toJSON());
-
-		this.$el.html(html);	
-	}
-});
-
+// Backbone view to display a list of Activities
 ActivitiesView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
@@ -158,13 +149,16 @@ ActivitiesView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display a list of Actions
 ActionListView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
+		// event, element and function to bind together
 		"click .action" : "navi",
 	},
 	render: function() {
@@ -189,13 +183,16 @@ ActionListView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display the list of comments
 ActionCommentsView = Backbone.View.extend({
 	initialize: function() {
-		// this.collection.on('add', this.render, this);
+		// bind parents render_comments function to change event
 		this.collection.on('change', $.app.actionView.render_comments, $.app.actionView);
+		// bind render function to sync event
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
+		// event, element and function to bind together
 		"click #add_comment": "add_comment",
 	},
 	render: function() {
@@ -216,14 +213,17 @@ ActionCommentsView = Backbone.View.extend({
 	},
 })
 
+// Backbone view to display a list of users
 ActionFriendListView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
 
 	},
 	events: {
+		// event, element and function to bind together
 		"click .friend": "navi",
 	},
 	render: function() {
@@ -252,18 +252,10 @@ ActionFriendListView = Backbone.View.extend({
 	}
 });
 
-LoginView = Backbone.View.extend({
-	render: function() {
-		var source = $.app.templates.loginTemplate;
-		var template = Handlebars.compile(source);
-		var html = template(this.model.toJSON());
-
-		this.$el.html(html);
-	}
-});
-
+// Backbone view to display an image
 ImageView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
@@ -277,13 +269,16 @@ ImageView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display the list of user search results
 SearchUserView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
+		// event, element and function to bind together
 		"click .user": "navi",
 	},
 	render: function() {
@@ -312,13 +307,16 @@ SearchUserView = Backbone.View.extend({
 	},
 });
 
+// Backbone view to display the list of action search results
 SearchActionView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.collection.on('add', this.render, this);
 		this.collection.on('change', this.render, this);
 		this.collection.on('sync', this.render, this);
 	},
 	events: {
+		// event, element and function to bind together
 		"click .search-action": "navi",
 	},
 	render: function() {
@@ -343,12 +341,10 @@ SearchActionView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display the search results page
 SearchView = Backbone.View.extend({
 	initialize: function(options) {
 		this.searchterm = options.searchterm;
-		// this.searchterm.on('add', this.render, this);
-		// this.searchterm.on('change', this.render, this);
-		// this.searchterm.on('sync', this.render, this);
 	},
 	render: function() {
 		var source = $.app.templates.searchTemplate;
@@ -379,14 +375,20 @@ SearchView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display a users profile
 ProfileView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
+		// bind error function to error event
 		this.model.on('error', this.error, this);
 	},
 	error: function() {
+		// if a user is not logged in, use an empty user object as the model to display
+		// an empty user object is used since the login form is displayed overtop of the
+		// profile view
 		this.model = new User({});
 		this.render();
 	},
@@ -458,8 +460,10 @@ ProfileView = Backbone.View.extend({
 	}
 });
 
+// Backbone view to display an action
 ActionView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
@@ -521,8 +525,10 @@ ActionView = Backbone.View.extend({
 	},
 });
 
+// Backbone view to display the settings page
 SettingsView = Backbone.View.extend({
 	initialize: function() {
+		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
@@ -535,7 +541,9 @@ SettingsView = Backbone.View.extend({
 	},
 });
 
-
+// Backbone router to allow for navigation though the app
+// and to allow for urls within the app even though it is
+// a single page and navigated completely through javascript
 Router = Backbone.Router.extend({
 	routes: {
 		"": "show_profile",
@@ -574,10 +582,10 @@ Router = Backbone.Router.extend({
 		$.app.profile.fetch();
 	},
 	show_suggested: function() {
-
+		// TODO: display the suggested friends page
 	},
 	show_nearby: function() {
-
+		// TODO: display the nearby actions page
 	},
 	show_settings: function() {
 		var settings = new Settings();
@@ -593,17 +601,15 @@ Router = Backbone.Router.extend({
 		action.fetch();
 	},
 	show_search: function(term) {
-		// var search = new SearchUser([], {id: term});
 		var searchView = new SearchView({searchterm: term});
 		searchView.$el = $("#content");
 		searchView.render();
-		// search.fetch();
 	},
 	show_activities: function(term) {
-
+		// TODO: display search page with users and actions who do a specified activity
 	},
 	show_interests: function(term) {
-
+		// TODO: display search page with users and actions who have a specified interest
 	},
 	logout: function() {
 		delete $.app.OAuthToken;
@@ -614,6 +620,7 @@ Router = Backbone.Router.extend({
 	}
 });
 
+// used to authenticate a user with the system and get an OAuth Token
 $.app.authenticate = function() {
 	var username = $('#username').val();
 	var password = $('#password').val();
@@ -628,15 +635,22 @@ $.app.authenticate = function() {
 			password: password,
 		}
 	}).done(function (data) {
+		// Store the OAuth Token
 		$.app.OAuthToken = data.access_token;
 		$.cookie("OAuthToken", $.app.OAuthToken);
+		// remove the login form
 		$(".login").remove();
+		// remove the blur filter from the behind content
 		$(".container").css("-webkit-filter", "");
+		// add the logout button
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
+		// reload the users profile
 		router.show_profile();
 	});
 }
 
+// used to validate a user/OAuth Token, if not valid removes the token from the app
+// if valid, removes the login form, and blur from behind content and adds the logout button
 $.app.validate = function() {
 	$.ajax({
 		type: "GET",
@@ -657,25 +671,33 @@ $.app.validate = function() {
 	});
 }
 
+// navigates the app to the search page
 $.app.search = function() {
 	var searchterm = $('#searchbox').val();
-	console.log(searchterm);
 	router.navigate("/search/" + searchterm, {trigger: true});
 	return false;
 }
 
+// list of templates the app should load
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
 					"userSearchTemplate", "commentList"];
 
+// loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {
+	// create a copy of the templates list
 	var temp = $.app.templates;
+	// redefine templates to be a dictionary
 	$.app.templates = {};
+	// bind the success option to be a handler for when all ajax call are finished
 	$(document).ajaxStop(options.success);
+	// bind another handler that removes all handlers to clean up after ourselves
 	$(document).ajaxStop(function() {
 		$(document).off("ajaxStop");
 	});
+	// loop through each required template and load it using ajax
+	// storing it in the templates dictionary
 	$(temp).each(function() {
 		var name = this;
 		$.ajax({
@@ -684,29 +706,38 @@ $.app.loadTemplates = function(options) {
 		}).done(function(data) {
 			var newTemplate = {};
 			newTemplate[name] = data;
+			// uses the underscore.js extend method to add key/value pairs
+			// in newTemplate to the apps templates dictionary
 			$.app.templates = _.extend($.app.templates, newTemplate);
 		});
 	});
 };
 
+// call the actual loadTemplates function passing a success handler
+// that waits for the document to be ready before registering partial templates
+// and handlers, fetching the users profile and actions to have stored in the app,
+// checks the user/OAuthToken for validity, creates an instance of the router and
+// starts keeping track of history.
 $.app.loadTemplates({
 	success: function() {
 		$(document).ready(function () {
-
+			// Register partial templates with Handlebars.js
 			Handlebars.registerPartial("flistItem", $.app.templates.flistItemTemplate);
 			Handlebars.registerPartial("alistItem", $.app.templates.alistItemTemplate);
-
 			Handlebars.registerPartial("activitiesList", $.app.templates.activitiesList);
 			Handlebars.registerPartial("interestsList", $.app.templates.interestsList);
 			Handlebars.registerPartial("friendsList", $.app.templates.friendList);
 			Handlebars.registerPartial("actionsList", $.app.templates.actionList);
 			Handlebars.registerPartial("login", $.app.templates.loginTemplate);
 
+			// bind search function to the search form
 			$("#navbar-form").submit($.app.search);
 
+			// attempt to retrieve the users profile
 			var temp = new Profile();
 			temp.fetch();
 
+			// attempt to retrieve the users actions.
 			$.ajax({
 				type: "GET",
 				url: "/api/user_actions/",
@@ -717,6 +748,7 @@ $.app.loadTemplates({
 				});
 				$.app.actions = temp;
 
+				// validate and start the app
 				$.app.validate();
 				router = new Router();
 				Backbone.history.start({pushState: true});
