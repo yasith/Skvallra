@@ -148,7 +148,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class SearchViewSet(viewsets.ModelViewSet):
 	"""
-	API endpoint that allows searching users
+	API endpoint that allows to searching for users or actions.
 	"""
     	serializer_class = SkvallraUserSerializer
     	model = SkvallraUser
