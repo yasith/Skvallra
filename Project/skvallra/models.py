@@ -81,6 +81,8 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 			orig = SkvallraUser.objects.get(pk=self.pk)
 			if orig.password != self.password:
 				self.password = make_password(self.password)
+		else:
+			self.password = make_password(self.password)
 		super(SkvallraUser, self).save(*args, **kwargs)
 
 	class Meta:
