@@ -174,7 +174,7 @@ ActionListView = Backbone.View.extend({
 		$(this.collection.models).each(function() {
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
-			imageView.$el = $('#' + this.attributes.action_id + '.userimage');
+			imageView.$el = $('#' + this.attributes.action_id + '.actionimage');
 			image.fetch();
 		});
 	},
@@ -488,7 +488,7 @@ ActionView = Backbone.View.extend({
 	render_image: function() {
 		var image = new Images({id: this.model.attributes.image});
 		var imageView = new ImageView({model: image});
-		imageView.$el = $('.actionimage');
+		imageView.$el = $('.actionpageimage');
 		image.fetch();
 	},
 	render_tags: function() {

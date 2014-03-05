@@ -5912,7 +5912,7 @@ div.login > form > div > input::-webkit-input-placeholder {
 .action {
   display: inline-block;
 }
-.userimage {
+.userimage, .actionimage {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   width: 100px;
@@ -5936,7 +5936,7 @@ div.login > form > div > input::-webkit-input-placeholder {
   font-size: 14px;
   color: #808080;
 }
-.userimagename {
+.userimagename, .actionimagename {
   font-weight: normal;
   font-size: 14px;
   width: 100px;
