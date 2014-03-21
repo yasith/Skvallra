@@ -4,6 +4,10 @@ $.app = {};
 // attempt to retrieve the users OAuth Token from their cookie
 $.app.OAuthToken = $.cookie('OAuthToken');
 
+// set globals for user status in action
+$.app._organizer = 1;
+$.app._participant = 2;
+
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
 	beforeSend: function (xhr, settings)
@@ -84,6 +88,7 @@ Action = Backbone.Model.extend({
 	urlRoot: '/api/actions/',
 });
 
+// all users of a given action
 ActionUsers = Backbone.Collection.extend({
 	model: User,
 	initialize: function(models, options) {
@@ -94,7 +99,7 @@ ActionUsers = Backbone.Collection.extend({
   	},
 });
 
-
+// all action of a given user
 UserActions = Backbone.Collection.extend({
 	model: Action,
 	initialize: function(models, options) {
@@ -103,6 +108,21 @@ UserActions = Backbone.Collection.extend({
 	url: function() {
 		return '/api/user_actions/' + this.id;
 	},
+});
+
+// all user-action interactions
+UserActionInteraction = Backbone.Model.extend({
+	urlRoot: '/api/useractions/',
+});
+
+UserActionInteractions = Backbone.Collection.extend({
+	model: UserActionInteraction,
+	url: '/api/useractions/',
+	getByUserAndAction: function(user_id, action_id){
+       	return this.filter(function(elem) {
+          	return (elem.get("user") === user_id) && (elem.get("action") == action_id);
+        })[0]
+    },
 });
 
 Setting = Backbone.Model.extend({
@@ -468,6 +488,11 @@ ActionView = Backbone.View.extend({
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
 	},
+	events: {
+		// event, element and function to bind together
+		"click .leave" : "remove_user",
+		"click .join" : "add_user",
+	},
 	render: function() {
 			var source = $.app.templates.actionTemplate;
 			var template = Handlebars.compile(source);
@@ -523,6 +548,40 @@ ActionView = Backbone.View.extend({
 		comments.fetch();
 		commentsView.delegateEvents();
 	},
+	remove_user: function() {
+		var userId = $.app.user.id;
+		var actionId = this.model.attributes.id;
+		var UserActionsCollection = new UserActionInteractions();
+		UserActionsCollection.fetch({
+			success: function() {
+				var userAction = UserActionsCollection.getByUserAndAction(userId, actionId);
+				userAction.destroy({
+					success: function(){
+						$(".leave").html("Join").switchClass("leave", "join");
+					}, 
+					error: function() {
+						alert("cannot remove user");
+					},
+				});
+			}
+		});
+	},
+	add_user: function() {
+		var UserAction = new UserActionInteraction({
+			"action": this.model.attributes.id, 
+        	"user": $.app.user.id,  
+        	"role": $.app._participant,
+		});
+		UserAction.save({}, {
+			success: function(){
+				$(".join").html("Leave").switchClass("join", "leave");
+			}, 
+			error: function() {
+				alert("cannot add user");
+			},
+		})
+	},	
+
 });
 
 // Backbone view to display the settings page
@@ -599,6 +658,7 @@ Router = Backbone.Router.extend({
 		$.app.actionView = new ActionView({model: action});
 		$.app.actionView.$el = $("#content");
 		action.fetch();
+		$.app.actionView.delegateEvents();
 	},
 	show_search: function(term) {
 		var searchView = new SearchView({searchterm: term});

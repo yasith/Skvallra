@@ -89,7 +89,7 @@ class ActionSerializer(serializers.ModelSerializer):
 class UserActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAction
-        fields = ('user', 'action', 'role', 'rating')
+        fields = ('id', 'user', 'action', 'role', 'rating')
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
