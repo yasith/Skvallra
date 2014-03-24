@@ -178,7 +178,7 @@ class SearchViewSet(viewsets.ModelViewSet):
 
 	@link()
 	def actions(self, request, pk=None):
-		actions = Action.objects.filter(Q(title__contains=pk) | Q(description__contains=pk))
+		actions = Action.objects.filter(Q(title__contains=pk, public=True) | Q(description__contains=pk, public=True))
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)

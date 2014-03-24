@@ -174,7 +174,7 @@ class UserAction(models.Model):
 		global_settings = Setting.objects.all()[0]
 		action_id = self.action
 		number_of_participants = UserAction.objects.filter(action=action_id).count()
-		if (number_of_participants >= global_settings.max_participants):
+		if (number_of_participants > global_settings.max_participants):
 			raise Exception, "Unfortunately, no more users can participate in this action."
 		else:
 			super(UserAction, self).save()
