@@ -5912,7 +5912,8 @@ div.login > form > div > input::-webkit-input-placeholder {
 .action {
   display: inline-block;
 }
-.userimage, .actionimage {
+.userimage,
+.actionimage {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   width: 100px;
@@ -5936,7 +5937,8 @@ div.login > form > div > input::-webkit-input-placeholder {
   font-size: 14px;
   color: #808080;
 }
-.userimagename, .actionimagename {
+.userimagename,
+.actionimagename {
   font-weight: normal;
   font-size: 14px;
   width: 100px;
@@ -5954,5 +5956,16 @@ div.login > form > div > input::-webkit-input-placeholder {
 .box-item {
   border: 2px solid #2f993d;
   border-radius: 4px;
-  padding: 8px;
+  padding: 8px 8px 8px 0px;
+}
+.action_status_bar > .rating {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  display: inline-block;
+}
+.action_status_bar > .action_status {
+  display: inline-block;
+}
+.action_status_bar > .participation {
+  display: inline-block;
 }

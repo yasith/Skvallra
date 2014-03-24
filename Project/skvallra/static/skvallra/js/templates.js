@@ -528,21 +528,25 @@ ActionStatusBarView = Backbone.View.extend({
  	},
 	remove_user: function() {
 		// Remove current user from the current Action. 
-		this.model.url = "/api/useractions/" + this.model.attributes.id;
+		this.model.url = "/api/useractions/" + this.model.get('id');
 		this.model.destroy({
-			success: function(){
-				$(".leave").html("Join").switchClass("leave", "join");
-				$(".rating").empty();
-			}, 
-			error: function() {
-				alert("cannot remove user");
+			// success() does not function properly with empty responses, check statusCode instead. 
+			statusCode: {
+				204: function() {
+					$(".leave").html("Join").switchClass("leave", "join");
+					$(".rating").empty();				
+				}
 			},
+			error: function() {
+				alert("Internal error has happened while processing your request.");
+			},
+
 		});
 	},
 	add_user: function() {
 		// Add current user to the current Action.
 		var UserAction = new UserActionInteraction({
-			"action": $.app.actionView.model.attributes.id, 
+			"action": $.app.actionView.model.get('id'), 
         	"user": $.app.user.id,  
         	"role": $.app._participant,
 		});
@@ -553,8 +557,12 @@ ActionStatusBarView = Backbone.View.extend({
 				temp.draw_rating(0);
 				temp.model = UserAction;
 			}, 
-			error: function() {
-				alert("cannot add user");
+			error: function(model, response, options) {
+				var responseText = response.responseText;
+				var messageStart = responseText.indexOf("\n");
+				var messageEnd = responseText.indexOf("\n", messageStart + 1);
+				var errorMessage = responseText.substring(messageStart, messageEnd);
+				alert(errorMessage);
 			},
 		})
 	},	
@@ -562,9 +570,9 @@ ActionStatusBarView = Backbone.View.extend({
 		// Display status bar controls: rating, public/private status, add user, and join/leave buttons. 
 		if (this.model.has('action')) {
 			$(".participation").html('<button type="button" class="btn btn-default leave">Leave</button>');
-			var isOrganizer = this.model.attributes.role == $.app._organizer;
+			var isOrganizer = this.model.get('role') == $.app._organizer;
 			if (isOrganizer) {
-				var actionPublicStatus = $.app.actionView.model.attributes.public;
+				var actionPublicStatus = $.app.actionView.model.get('public');
 				this.set_lock_icon(actionPublicStatus);
 			}
 			this.draw_rating(this.model.get('rating'));
@@ -610,7 +618,7 @@ ActionStatusBarView = Backbone.View.extend({
 	update_rating: function() {
 		// Update rating of the current UserAction model
 		score = $(".rating input").val();
-		this.model.url = "/api/useractions/" + this.model.attributes.id;
+		this.model.url = "/api/useractions/" + this.model.get('id');
 		this.model.save({'rating': score});
 	},
 
@@ -647,13 +655,13 @@ ActionView = Backbone.View.extend({
 	},
 
 	render_image: function() {
-		var image = new Images({id: this.model.attributes.image});
+		var image = new Images({id: this.model.get('image')});
 		var imageView = new ImageView({model: image});
 		imageView.$el = $('.actionpageimage');
 		image.fetch();
 	},
 	render_tags: function() {
-		var activities = this.model.attributes.tags;
+		var activities = this.model.get('tags');
 		var acts = new Activities();
 		var activitiesView = new ActivitiesView({collection: acts});
 		activitiesView.$el = $('.tags');
@@ -664,7 +672,7 @@ ActionView = Backbone.View.extend({
 		});
 	},
 	render_participants: function(){
-		var participants = new ActionUsers([], {id: this.model.attributes.id});
+		var participants = new ActionUsers([], {id: this.model.get('id')});
 		participants.fetch({success: function(){
 			var users = new Users();
 			var actionFriendListView = new ActionFriendListView({collection: users});
@@ -678,14 +686,14 @@ ActionView = Backbone.View.extend({
 		}});
 	},
 	render_comments: function() {
-		var comments = new ActionComments([], {id: this.model.attributes.action_id}); // create collection with id 
+		var comments = new ActionComments([], {id: this.model.get('action_id')}); // create collection with id 
 		var commentsView = new ActionCommentsView({collection: comments}); // create view
 		commentsView.$el = $('.user_comments'); // point view to element in DOM
 		comments.fetch();
 		commentsView.delegateEvents();
 	},
 	render_rating: function() {
-		var actionStatusBar = new RatingAndParticipation([], {id: this.model.attributes.action_id});
+		var actionStatusBar = new RatingAndParticipation([], {id: this.model.get('action_id')});
 		var myActionStatusBarView = new ActionStatusBarView({model: actionStatusBar});
 		myActionStatusBarView.$el = $(".action_status_bar");
 		actionStatusBar.fetch();
