@@ -116,13 +116,16 @@ UserActionInteraction = Backbone.Model.extend({
 });
 
 UserActionInteractions = Backbone.Collection.extend({
+	// url: '/api/useractions/',
 	model: UserActionInteraction,
-	url: '/api/useractions/',
 	getByUserAndAction: function(user_id, action_id){
        	return this.filter(function(elem) {
           	return (elem.get("user") === user_id) && (elem.get("action") == action_id);
         })[0]
     },
+    url: function() {
+		return '/api/useractions/' + this.id;
+	},
 });
 
 Setting = Backbone.Model.extend({
@@ -152,6 +155,23 @@ ActionComments = Backbone.Collection.extend({
   	},
 });
 
+RatingAndParticipation = Backbone.Model.extend({
+	model: UserActionInteraction,
+	initialize: function(models, options) {
+    	this.actionId = options.id;    
+  	},
+
+  // 	methodToURL: {
+  //   'read': "/api/user_actions/" + this.actionId + "/get_useraction",
+  //   'create': '/api/useractions/',
+  //   'update': '/api/useractions/',
+  //   'delete': '/api/useractions/'
+  // },
+
+	url: function() {
+		return "/api/user_actions/" + this.actionId + "/get_useraction";
+	}
+})
 
 // Backbone view to display a list of Activities
 ActivitiesView = Backbone.View.extend({
@@ -480,8 +500,8 @@ ProfileView = Backbone.View.extend({
 	}
 });
 
-// Backbone view to display an action
-ActionView = Backbone.View.extend({
+
+RatingAndParticipationView = Backbone.View.extend({
 	initialize: function() {
 		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
@@ -490,18 +510,108 @@ ActionView = Backbone.View.extend({
 	},
 	events: {
 		// event, element and function to bind together
+		"click .rating" : "update_rating",
 		"click .leave" : "remove_user",
 		"click .join" : "add_user",
+	},
+	render: function() {
+		var source = $.app.templates.ratingAndParticipationTemplate;
+		var template = Handlebars.compile(source);	
+		var temp = this.model.toJSON();
+		var html = template(temp);
+		this.$el.html(html);
+		if (this.model.has('action')) {
+			$(".participation").html('<button type="button" class="btn btn-default leave pull-right">Leave</button>');
+
+			$('.rating').raty({ 
+				path: '/static/skvallra/images/raty-img',
+				width: 150,
+				hints: ["very bad", "poor", "okay", "good", "excellent"],
+				cancel: true,
+				cancelHint: 'Remove rating',
+				cancelPlace : 'right',
+				score: this.model.attributes.rating,
+			});
+		} else {
+			$(".participation").html('<button type="button" class="btn btn-default join pull-right">Join</button>');
+		}
+ 	},
+	update_rating: function() {
+		console.log(this.model);
+		score = $(".rating input").val();
+		this.model.set({'rating': score});
+		this.model.url = "/api/useractions/" + this.model.attributes.id;
+		this.model.save();
+	},
+	remove_user: function() {
+		this.model.url = "/api/useractions/" + this.model.attributes.id;
+		this.model.destroy({
+			success: function(){
+				$(".leave").html("Join").switchClass("leave", "join");
+				$(".rating").empty();
+			}, 
+			error: function() {
+				alert("cannot remove user");
+			},
+		});
+	},
+	add_user: function() {
+		var UserAction = new UserActionInteraction({
+			"action": $.app.actionView.model.attributes.id, 
+        	"user": $.app.user.id,  
+        	"role": $.app._participant,
+		});
+		var temp = this;
+		UserAction.save({}, {
+			success: function(){
+				$(".join").html("Leave").switchClass("join", "leave");
+				$('.rating').raty({ 
+					path: '/static/skvallra/images/raty-img',
+					width: 150,
+					hints: ["very bad", "poor", "okay", "good", "excellent"],
+					cancel: true,
+					cancelHint: 'Remove rating',
+					cancelPlace : 'right',
+				});
+				temp.model = UserAction;
+			}, 
+			error: function() {
+				alert("cannot add user");
+			},
+		})
+	},	
+	create_rating: function(){
+		 $('.rating').raty({ 
+			path: '/static/skvallra/images/raty-img',
+			width: 150,
+			hints: ["very bad", "poor", "okay", "good", "excellent"],
+			cancel: true,
+			cancelHint: 'Remove rating',
+			cancelPlace : 'right',
+			score: this.model.attributes.rating,
+		});
+	}
+
+
+});
+
+// Backbone view to display an action
+ActionView = Backbone.View.extend({
+// TODO: add address on comment
+// add rating functionality
+
+	initialize: function() {
+		// bind render function to add, change and sync events
+		this.model.on('add', this.render, this);
+		this.model.on('change', this.render, this);
+		this.model.on('sync', this.render, this);
 	},
 	render: function() {
 			var source = $.app.templates.actionTemplate;
 			var template = Handlebars.compile(source);
 				
 			var temp = this.model.toJSON();
-			temp.member = true;
-			if ($.app.actions.indexOf(this.model.attributes.action_id) == -1) {
-				temp.member = false;
-			}
+
 			var html = template(temp);
 			this.$el.html(html);
 
@@ -509,7 +619,9 @@ ActionView = Backbone.View.extend({
 			this.render_tags();
 			this.render_participants();
 			this.render_comments();
+			this.render_rating();
 		},
+
 	render_image: function() {
 		var image = new Images({id: this.model.attributes.image});
 		var imageView = new ImageView({model: image});
@@ -548,40 +660,13 @@ ActionView = Backbone.View.extend({
 		comments.fetch();
 		commentsView.delegateEvents();
 	},
-	remove_user: function() {
-		var userId = $.app.user.id;
-		var actionId = this.model.attributes.id;
-		var UserActionsCollection = new UserActionInteractions();
-		UserActionsCollection.fetch({
-			success: function() {
-				var userAction = UserActionsCollection.getByUserAndAction(userId, actionId);
-				userAction.destroy({
-					success: function(){
-						$(".leave").html("Join").switchClass("leave", "join");
-					}, 
-					error: function() {
-						alert("cannot remove user");
-					},
-				});
-			}
-		});
+	render_rating: function() {
+		var ratingAndParticipationStatus = new RatingAndParticipation([], {id: this.model.attributes.action_id});
+		var ratingAndParticipationStatusView = new RatingAndParticipationView({model: ratingAndParticipationStatus});
+		ratingAndParticipationStatusView.$el = $(".rating_and_participation");
+		ratingAndParticipationStatus.fetch();
+		ratingAndParticipationStatusView.delegateEvents();
 	},
-	add_user: function() {
-		var UserAction = new UserActionInteraction({
-			"action": this.model.attributes.id, 
-        	"user": $.app.user.id,  
-        	"role": $.app._participant,
-		});
-		UserAction.save({}, {
-			success: function(){
-				$(".join").html("Leave").switchClass("join", "leave");
-			}, 
-			error: function() {
-				alert("cannot add user");
-			},
-		})
-	},	
-
 });
 
 // Backbone view to display the settings page
@@ -658,7 +743,7 @@ Router = Backbone.Router.extend({
 		$.app.actionView = new ActionView({model: action});
 		$.app.actionView.$el = $("#content");
 		action.fetch();
-		$.app.actionView.delegateEvents();
+		// $.app.actionView.delegateEvents();
 	},
 	show_search: function(term) {
 		var searchView = new SearchView({searchterm: term});
@@ -742,7 +827,7 @@ $.app.search = function() {
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
-					"userSearchTemplate", "commentList"];
+					"userSearchTemplate", "commentList", "ratingAndParticipationTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {

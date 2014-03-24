@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -66,7 +67,6 @@ class UserActionViewSet(viewsets.ModelViewSet):
     serializer_class = UserActionSerializer
     # permission_classes = (TokenHasReadWriteScope, )
 
-
 class UserActionsView(viewsets.ModelViewSet):   
     serializer_class = UserActionSerializer
     model = UserAction
@@ -89,6 +89,16 @@ class UserActionsView(viewsets.ModelViewSet):
         serializer = ActionSerializer(actions, many=True)
         return Response(serializer.data)
 
+    @link()
+    def get_useraction(self, request, pk=None):
+        try:
+            queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
+            print(pk)
+            serializer = UserActionSerializer(queryset)
+            data = serializer.data
+        except ObjectDoesNotExist:
+            data = {}
+        return Response(data)
 
 class ActionUsersView(viewsets.ModelViewSet):   
     serializer_class = SkvallraUserSerializer
