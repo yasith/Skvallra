@@ -5837,13 +5837,15 @@ a {
   color: #2f993d;
 }
 div.login {
-  margin-left: auto;
+  position: absolute;
+  top: 30%;
+  left: 39.5%;
   width: 300px;
   height: 200px;
-  margin-right: auto;
   background-color: #eee;
   border: 1px solid #eee;
   border-radius: 30px;
+  overflow: hidden;
 }
 div.login > form {
   width: 200px;
@@ -5851,11 +5853,31 @@ div.login > form {
   margin-left: auto;
   margin-right: auto;
 }
-div.login > form > div {
+div.login > form > div,
+div.login > form > a {
   margin-left: auto;
   margin-right: auto;
 }
+div.login > form > div > #email,
+div.login > form > div #passwordconfirm,
+div.login > form > div #fname,
+div.login > form > div #lname {
+  margin: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-width: 0px;
+  /*display: none;*/
+  /*opacity: 0.0;*/
+  height: 0px;
+}
+div.login > form > div > a {
+  font-size: 0.75em;
+}
 div.login > form > div:last-child {
+  width: 41px;
+  height: 12px;
+}
+div.login > form > div:nth-last-of-type(2) {
   width: 61px;
 }
 div.login > form > div > input {
@@ -5874,6 +5896,114 @@ div.login > form > div > input:-ms-input-placeholder {
 }
 div.login > form > div > input::-webkit-input-placeholder {
   color: #2f993d;
+}
+div.register {
+  -webkit-animation-name: register;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-name: register;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  position: absolute;
+  top: 30%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #eee;
+  border: 1px solid #eee;
+  border-radius: 30px;
+}
+div.register > form {
+  width: 200px;
+  margin-top: 47px;
+  margin-left: auto;
+  margin-right: auto;
+}
+div.register > form > div,
+div.register > form > a {
+  margin-left: auto;
+  margin-right: auto;
+}
+div.register > form > div > #email,
+div.register > form > div #passwordconfirm,
+div.register > form > div #fname,
+div.register > form > div #lname {
+  -webkit-animation-name: register-inputs;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-name: register-inputs;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+div.register > form > div > a {
+  font-size: 0.75em;
+}
+div.register > form > div:last-child {
+  width: 28px;
+  height: 12px;
+}
+div.register > form > div:nth-last-of-type(2) {
+  width: 78px;
+}
+div.register > form > div > input {
+  width: 100%;
+  margin: 2px;
+}
+div.register > form > div > input:-moz-placeholder {
+  color: #2f993d;
+}
+div.register > form > div > input::-moz-placeholder {
+  color: #2f993d;
+  opacity: 1;
+}
+div.register > form > div > input:-ms-input-placeholder {
+  color: #2f993d;
+}
+div.register > form > div > input::-webkit-input-placeholder {
+  color: #2f993d;
+}
+@-webkit-keyframes unblur {
+  from {
+    -webkit-filter: blur(6px);
+  }
+  to {
+    -webkit-filter: blur(0);
+  }
+}
+@-webkit-keyframes fade {
+  from {
+    opacity: 1.0;
+  }
+  to {
+    opacity: 0.0;
+  }
+}
+@-webkit-keyframes register {
+  from {
+    width: 300px;
+    height: 200px;
+    left: 39.5%;
+  }
+  to {
+    width: 400px;
+    height: 350px;
+    left: 36%;
+  }
+}
+@-webkit-keyframes register-inputs {
+  0% {
+    margin: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-width: 0px;
+    height: 0px;
+  }
+  100% {
+    margin: 2px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-width: 1px;
+    height: 34px;
+  }
 }
 #content {
   margin-bottom: 20px;
@@ -5899,6 +6029,17 @@ div.login > form > div > input::-webkit-input-placeholder {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
 }
+.profileimage > div.edit {
+  margin-bottom: -20px;
+  padding-right: 3px;
+  background-color: rgba(179, 179, 179, 0.4);
+  padding-left: 3px;
+  float: right;
+  z-index: 1000;
+}
+.profileimage > img {
+  z-index: -1;
+}
 .left {
   float: left;
 }
@@ -5912,7 +6053,8 @@ div.login > form > div > input::-webkit-input-placeholder {
 .action {
   display: inline-block;
 }
-.userimage, .actionimage {
+.userimage,
+.actionimage {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   width: 100px;
@@ -5936,7 +6078,8 @@ div.login > form > div > input::-webkit-input-placeholder {
   font-size: 14px;
   color: #808080;
 }
-.userimagename, .actionimagename {
+.userimagename,
+.actionimagename {
   font-weight: normal;
   font-size: 14px;
   width: 100px;

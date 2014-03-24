@@ -31,10 +31,7 @@ class SkvallraUserManager(BaseUserManager):
 		"""
 		print >>sys.stderr, "DID THIS"
 		now = timezone.now()
-		user = self.model(username=username, password=password, 
-						  is_staff=is_staff, is_active=True,
-						  is_superuser=is_superuser, last_login=now,
-						  date_joined=now, **extra_fields)
+		user = self.model(username=username, password=password, is_staff=is_staff, is_active=True, is_superuser=is_superuser, last_login=now, date_joined=now, **extra_fields)
 		user.save(using=self._db)
 		return user
 
@@ -43,7 +40,6 @@ class SkvallraUserManager(BaseUserManager):
 
 	def create_superuser(self, username, password, **extra_fields):
 		return self._create_user(username, password, True, True, **extra_fields)
-
 
 class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 	"""
@@ -56,9 +52,9 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 	last_name = models.CharField(_('last name'), max_length=30, blank=True)
 	birthday = models.DateTimeField(_('birthday'), default=timezone.now)
 	gender = models.BooleanField(_('user gender'), default=True) 
-	activities = models.ManyToManyField(Tag, related_name='user_activities', blank=True, null=True)
-	interests = models.ManyToManyField(Tag, related_name='user_interests', blank=True, null=True)
-	friends = models.ManyToManyField('self', related_name='user_friends', blank=True, null=True)
+	activities = models.ManyToManyField(Tag, related_name='activities', blank=True, null=True)
+	interests = models.ManyToManyField(Tag, related_name='interests', blank=True, null=True)
+	friends = models.ManyToManyField('self', related_name='friends', blank=True, null=True)
 	address = models.CharField('address', max_length=200, blank=True, null=True)
 	coordinates = models.CharField('coordinates', max_length=50, blank=True)
 	image = models.ForeignKey('Image', blank=True, null=True, related_name='userpic')

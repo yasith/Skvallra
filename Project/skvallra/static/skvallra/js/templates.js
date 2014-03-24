@@ -8,6 +8,10 @@ $.app.OAuthToken = $.cookie('OAuthToken');
 $.app._organizer = 1;
 $.app._participant = 2;
 
+$.app.client_id = "b54456c016e657c9c580";
+
+$.app.client_secret = "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab";
+
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
 	beforeSend: function (xhr, settings)
@@ -254,6 +258,13 @@ ActionFriendListView = Backbone.View.extend({
 		this.$el.html(html);
 
 		this.render_image();
+		// if (model.get('id') === $.app.profile.get('id')) {
+			// $('friends > .editable').hover(function() {
+				$('div.userimage').prepend("<div class='remove'>remove</div>");
+			// }, function() {
+				// $(this).prev('.remove').remove();
+			// });
+		// }
 	},
 	render_image: function() {
 		$(this.collection.models).each(function() {
@@ -299,12 +310,30 @@ SearchUserView = Backbone.View.extend({
 	},
 	events: {
 		// event, element and function to bind together
-		"click .user": "navi",
+		'click .user': 'navi',
+		'click .addfriend' : 'add_friend',
+		'click .removefriend' : 'remove_friend'
 	},
 	render: function() {
 		var source = $.app.templates.userSearchTemplate;
 		var template = Handlebars.compile(source);
-		var html = template(this.collection.toJSON());
+
+		var temp = this.collection.toJSON();
+
+		$(temp).each(function (index, element) {
+			$.ajax({
+				url: '/api/users/' + element.id + '/isfriend',
+				type: 'GET',
+				dataType: 'json',
+				async: false,
+			})
+			.done(function(data) {
+				element.isfriend = data.status;
+			});
+		});
+
+		// console.log(temp);
+		var html = template(temp);
 
 		this.$el.html(html);
 
@@ -324,6 +353,26 @@ SearchUserView = Backbone.View.extend({
 		} else {
 			router.navigate("/" + event.currentTarget.id, {trigger: true});
 		}
+	},
+	add_friend: function (event) {
+		var friends = $.app.user.get('friends');
+		friends.push(parseInt(event.currentTarget.id));
+		console.log($.app.user);
+		$.app.user.save();
+		this.collection.fetch();
+		// console.log(event);
+		// console.log($(this));
+	},
+	remove_friend: function (event) {
+		var friends = $.app.user.get('friends');
+		var index = friends.indexOf(parseInt(event.currentTarget.id));
+		friends.splice(index,1)
+		// friends.push(parseInt(event.currentTarget.id));
+		console.log($.app.user);
+		$.app.user.save();
+		this.collection.fetch();
+		// console.log(event);
+		// console.log($(this));
 	},
 });
 
@@ -392,7 +441,7 @@ SearchView = Backbone.View.extend({
 			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
 			image.fetch();
 		});
-	}
+	},
 });
 
 // Backbone view to display a users profile
@@ -409,10 +458,12 @@ ProfileView = Backbone.View.extend({
 		// if a user is not logged in, use an empty user object as the model to display
 		// an empty user object is used since the login form is displayed overtop of the
 		// profile view
-		this.model = new User({});
+		this.model = new User({'first_name' : "FirstName", 'last_name' : "LastName"});
 		this.render();
 	},
 	render: function() {
+		// console.log(this.model);
+
 		var source = $.app.templates.profileTemplate;
 		var template = Handlebars.compile(source);
 
@@ -420,6 +471,9 @@ ProfileView = Backbone.View.extend({
 		
 		var temp = this.model.toJSON()
 		temp.OAuthToken = $.app.OAuthToken;
+
+		d = new Date(temp.birthday);
+		temp.birthday = d.toLocaleDateString();
 		
 		var html = template(temp);
 
@@ -430,12 +484,71 @@ ProfileView = Backbone.View.extend({
 		this.render_actions();
 		this.render_activities();
 		this.render_interests();
+		var model = this.model;
+		$(document).ready(function() {
+			if (model.get('id') === $.app.profile.get('id')) {
+				$('.editable').hover(function() {
+					$(this).append("<div class='edit' style='display: inline-block;'>edit</div>");
+					$(this).children('.edit').click(function (event) {
+						var parent = $(this).parent();
+						$(this).remove();
+						parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
+						parent.unbind();
+						// parent.unbind('mouseout');
+						$('#editing').trigger('focus');
+						$('#editing').blur(function (event) {
+							var text = $(this).val();
+							parent.html(text + " ");
+							var classes = parent.attr('class');
+							classes = classes.split(" ");
+							classes.splice(classes.indexOf('editable'),1);
+							console.log(classes);
+							if (classes[0] === 'birthday') {
+								d = new Date(text);
+								text = d.toISOString();
+								$.app.user.set(classes[0], text);
+								$.app.user.save();
+							} else if (classes[0] === 'name') {
+								var names = text.split(" ");
+								var first_name = names.shift();
+								var last_name = names.join(" ");
+								$.app.user.set('first_name', first_name);
+								$.app.user.set('last_name', last_name);
+								$.app.user.save();
+							} else {
+								$.app.user.set(classes[0], text);
+								$.app.user.save();
+							}
+						});
+						// console.log($(this));
+						// console.log(this);
+					})
+				}, function() {
+					$(this).children('div').remove();
+				});
+			};
+		});
 	},
 	render_image: function() {
 		var image = new Images({id: this.model.attributes.image});
 		var imageView = new ImageView({model: image});
 		imageView.$el = $('.profileimage');
-		image.fetch();
+		var model = this.model;
+		image.fetch({
+			success: function () {
+				if (model.get('id') === $.app.profile.get('id')) {
+					$('.profileimage > img.editable').hover(function() {
+						$(this).before("<div class='edit'>edit</div>");
+						$(this).click(function (event) {
+							// do click stuff
+							console.log('edit image');
+						});
+					}, function () {
+						$(this).prev('.edit').remove();
+					});
+				}
+			},
+		});
 	},
 	render_friends: function() {
 		var friends = this.model.attributes.friends;
@@ -477,6 +590,15 @@ ProfileView = Backbone.View.extend({
 			acts.add(act);
 			act.fetch();
 		});
+	}
+});
+
+MainView = Backbone.View.extend({
+	render: function () {
+		var source = $.app.templates.mainTemplate;
+		var template = Handlebars.compile(source);
+		var html = template({'OAuthToken': $.app.OAuthToken});
+		this.$el.html(html);
 	}
 });
 
@@ -636,8 +758,12 @@ Router = Backbone.Router.extend({
 			$.app.actions = temp;
 		});
 
+		$.app.mainView = new MainView();
+		$.app.mainView.$el = $("#content");
+		$.app.mainView.render();
+
 		$.app.profileView = new ProfileView({model: $.app.profile});
-		$.app.profileView.$el = $("#content");
+		$.app.profileView.$el = $(".container");
 		$.app.profile.fetch();
 	},
 	show_suggested: function() {
@@ -688,8 +814,8 @@ $.app.authenticate = function() {
 		type: "POST",
 		url: "/oauth2/access_token",
 		data: {
-			client_id: "b54456c016e657c9c580",
-			client_secret: "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab",
+			client_id: $.app.client_id,
+			client_secret: $.app.client_secret,
 			grant_type: "password",
 			username: username,
 			password: password,
@@ -699,14 +825,37 @@ $.app.authenticate = function() {
 		$.app.OAuthToken = data.access_token;
 		$.cookie("OAuthToken", $.app.OAuthToken);
 		// remove the login form
-		$(".login").remove();
+		// $(".login").remove();
 		// remove the blur filter from the behind content
-		$(".container").css("-webkit-filter", "");
+		// $(".container").css("-webkit-filter", "");
 		// add the logout button
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 		// reload the users profile
-		router.show_profile();
+		// router.show_profile();
+		// $.app.profile.fetch();
+		$('.container').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "unblur"});
+		$('.login').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "fade"});
+		$.app.profileView.model = $.app.profile;
+		$.app.profile.fetch();
+
 	});
+}
+
+$.app.register = function () {
+	var username = $('#username').val();
+	var email = $('#email').val();
+	var password = $('#password').val();
+	var passwordconfirm = $('#passwordconfirm').val();
+	var fname = $('#fname').val();
+	var lname = $('#lname').val();
+	if (password != passwordconfirm) {
+		return false;
+	}
+	var d = new Date();
+	var user = new Profile({'username' : username, 'email' : email, 'password' : password, 'first_name' : fname, 'last_name' : lname, 'birthday' : d.toISOString()});
+	user.save({}, {success: function () {
+		$.app.authenticate();
+	}});
 }
 
 // used to validate a user/OAuth Token, if not valid removes the token from the app
@@ -722,7 +871,6 @@ $.app.validate = function() {
 				$('#logout').remove();
 			},
 			200: function() {
-				console.log("200");
 				$(".login").remove();
 				$(".container").css("-webkit-filter", "");
 				$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
@@ -742,7 +890,7 @@ $.app.search = function() {
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
-					"userSearchTemplate", "commentList"];
+					"userSearchTemplate", "commentList", "mainTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {

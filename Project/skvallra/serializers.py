@@ -1,15 +1,18 @@
-from skvallra.models import SkvallraUser, Action, Tag, Image, UserAction, Setting, Comment
+from skvallra.models import SkvallraUser, SkvallraUserManager, Action, Tag, Image, UserAction, Setting, Comment
+
 from rest_framework import serializers
+
+from django.contrib.auth.hashers import make_password
 
 import sys
 
 class SkvallraUserSerializer(serializers.ModelSerializer):
-    birthday = serializers.DateTimeField(format='%B %d, %Y')
+    # birthday = serializers.DateTimeField(format='%B %d, %Y')
 
     class Meta:
         model = SkvallraUser
 
-        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'birthday', 'activities', 'interests', 'friends', 'address', 'coordinates', 'image', 'is_staff', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'birthday', 'activities', 'interests', 'friends', 'address', 'coordinates', 'image')
         # depth = 1
 
     def restore_object(self, attrs, instance=None):
@@ -20,8 +23,7 @@ class SkvallraUserSerializer(serializers.ModelSerializer):
         print >>sys.stderr, "this got called"
         if instance is not None:
             instance.username = attrs.get('username', instance.username)
-            instance.password = instance.password if attrs.get('password', None) == None else make_password(attrs.get('password', None))
-            print instance.password
+            instance.password = attrs.get('password', instance.password)
             instance.email = attrs.get('email', instance.email)
             instance.first_name = attrs.get('first_name', instance.first_name)
             instance.last_name = attrs.get('last_name', instance.last_name)
@@ -32,15 +34,28 @@ class SkvallraUserSerializer(serializers.ModelSerializer):
             instance.address = attrs.get('address', instance.address)
             instance.coordinates = attrs.get('coordinates', instance.coordinates)
             instance.image = attrs.get('image', instance.image)
-            instance.is_staff = attrs.get('is_staff', instance.is_staff)
-            instance.is_active = attrs.get('is_active', instance.is_active)
-            instance.date_joined = attrs.get('date_joined', instance.date_joined)
+            # instance.is_staff = attrs.get('is_staff', instance.is_staff)
+            # instance.is_active = attrs.get('is_active', instance.is_active)
+            # instance.date_joined = attrs.get('date_joined', instance.date_joined)
             return instance
+        print attrs
+        activities = attrs['activities']
+        del attrs['activities']
+        interests = attrs['interests']
+        del attrs['interests']
+        friends = attrs['friends']
+        del attrs['friends']
         instance = SkvallraUser(**attrs)
-        instance.password = make_password(instance.password)
+        # instance.activities = activities
+        # instance.interests = interests
+        # instance.friends = friends
+
+        # instance.password = make_password(instance.password)
         return instance
 
 class MeSerializer(serializers.ModelSerializer):
+    # birthday = serializers.DateTimeField(format='%B %d, %Y')
+
     class Meta:
         model = SkvallraUser
         fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'birthday', 'activities', 'interests', 'friends', 'address', 'coordinates', 'image', 'is_staff', 'is_active', 'date_joined')
@@ -60,17 +75,19 @@ class MeSerializer(serializers.ModelSerializer):
             instance.first_name = attrs.get('first_name', instance.first_name)
             instance.last_name = attrs.get('last_name', instance.last_name)
             instance.birthday = attrs.get('birthday', instance.birthday)
+            print(instance.birthday)
             instance.activities = attrs.get('activities', instance.activities)
             instance.interests = attrs.get('interests', instance.interests)
             instance.friends = attrs.get('friends', instance.friends)
             instance.address = attrs.get('address', instance.address)
             instance.coordinates = attrs.get('coordinates', instance.coordinates)
             instance.image = attrs.get('image', instance.image)
-            instance.is_staff = attrs.get('is_staff', instance.is_staff)
-            instance.is_active = attrs.get('is_active', instance.is_active)
+            # instance.is_staff = attrs.get('is_staff', instance.is_staff)
+            # instance.is_active = attrs.get('is_active', instance.is_active)
             instance.date_joined = attrs.get('date_joined', instance.date_joined)
             return instance
-        instance = SkvallraUser(**attrs)
+        SUM = SkvallraUserManager()
+        instance = SUM.create_user(**attrs)
         instance.password = make_password(instance.password)
         return instance
 

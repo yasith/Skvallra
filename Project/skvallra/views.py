@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import link
+from rest_framework.decorators import link, permission_classes
 
 from rest_framework.permissions import TokenHasReadWriteScope
 
@@ -20,27 +20,41 @@ class SkvallraUserViewSet(viewsets.ModelViewSet):
 
     permission_classes = (TokenHasReadWriteScope,)
 
+    @link()
+    def isfriend(self, request, pk=None):
+        user = request.user
+        if user.is_authenticated():
+            if SkvallraUser.objects.get(pk=pk).friends.filter(pk=user.pk):
+                return Response({'status': True})
+            else:
+                return Response({'status': False})
+        else:
+            return Response(status=401)
+
 class meViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
     serializer_class = SkvallraUserSerializer
     model = SkvallraUser
-    permission_classes = (TokenHasReadWriteScope,)
+    # permission_classes = (TokenHasReadWriteScope,)
 
+    @permission_classes((TokenHasReadWriteScope, ))
     def list(self, request):
         user = request.user
         if not user.is_anonymous():
             serializer = SkvallraUserSerializer(user)
             return Response(serializer.data)
-        return Response({})
+        return Response(status=401)
 
+
+    @permission_classes((TokenHasReadWriteScope, ))
     def retrieve(self, request, pk=None):
         user = request.user
         if not user.is_anonymous():
             serializer = SkvallraUserSerializer(user)
             return Response(serializer.data)
-        return Response({})
+        return Response(status=401)
 
 class TagViewSet(viewsets.ModelViewSet):
     """

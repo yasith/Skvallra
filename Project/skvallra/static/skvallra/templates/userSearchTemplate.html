@@ -1,13 +1,24 @@
 {{#each []}}
-	<div class="user box-item row" id="{{id}}">
-		<div class="left usersearchimage" id="{{id}}">
+	<div class="box-item row" id="{{id}}">
+		<div class="user md-col-5">
+			<div class="left usersearchimage" id="{{id}}">
+			</div>
+			<div class="usersearchname" >
+				{{this.first_name}} {{this.last_name}}
+			</div>
+			<div class="usersearchaddress" >
+				{{this.address}}
+			</div>
 		</div>
-		<div class="usersearchname" >
-			{{this.first_name}} {{this.last_name}}
-		</div>
-		<div class="usersearchaddress" >
-			{{this.address}}
-		</div>
+		{{#if this.isfriend}}
+			<div class='pull-right'>
+				<input type="button" id="{{id}}" class="btn btn-default removefriend" value="Remove Friend" />
+			</div>
+		{{else}}
+			<div class='pull-right'>
+				<input type="button" id="{{id}}" class="btn btn-default addfriend" value="Add Friend" />
+			</div>
+		{{/if}}
 	</div>
 	<br>
 {{/each}}
