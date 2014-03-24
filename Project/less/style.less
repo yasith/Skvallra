@@ -252,6 +252,9 @@ div {
 	width: @friend-item-width;
 }
 
+#new_comment {
+}
+
 .name{
 	font-weight: bold;
 	font-size: @larger-font-size;
@@ -300,5 +303,19 @@ div {
 .box-item{
 	border: 2px solid darken(@green, 20%);
 	border-radius: 4px;
-	padding: 8px;
+	padding: 8px 8px 8px 0px;
+}
+
+.action_status_bar {
+	> .rating {
+		padding-top: 7px;
+		padding-bottom: 7px;
+		display: inline-block;
+	}
+	> .action_status {
+		display: inline-block;
+	}
+	> .participation {
+		display: inline-block;
+	}
 }

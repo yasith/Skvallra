@@ -6097,5 +6097,16 @@ div.register > form > div > input::-webkit-input-placeholder {
 .box-item {
   border: 2px solid #2f993d;
   border-radius: 4px;
-  padding: 8px;
+  padding: 8px 8px 8px 0px;
+}
+.action_status_bar > .rating {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  display: inline-block;
+}
+.action_status_bar > .action_status {
+  display: inline-block;
+}
+.action_status_bar > .participation {
+  display: inline-block;
 }

@@ -29,7 +29,6 @@ class SkvallraUserManager(BaseUserManager):
 		"""
 		Creates and saves a User with the given email and password.
 		"""
-		print >>sys.stderr, "DID THIS"
 		now = timezone.now()
 		user = self.model(username=username, password=password, is_staff=is_staff, is_active=True, is_superuser=is_superuser, last_login=now, date_joined=now, **extra_fields)
 		user.save(using=self._db)
@@ -96,6 +95,25 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 		"Returns the short name for the user."
 		return self.first_name
 
+class Setting(models.Model):
+	""" Admin settings. Supported settings include: 
+			default userpic (based on user's gender)
+			userpic dimensions
+			default action picture  
+			minimum number of participants
+			maximum number of participants
+			number of successive invalid login attempts after which the user gets blocked
+	"""
+
+	setting_id = models.CharField('setting_name', max_length=100, primary_key=True)
+	min_participants = models.IntegerField(default=1)
+	max_participants = models.IntegerField(default=1)
+
+	def save(self, *args, **kwargs):
+		if(self.min_participants <= self.max_participants):
+			super(Setting, self).save()
+		else:
+			raise Exception, "Maximum number of participants should be greater than minimum number of participants."
 
 class Action(models.Model):
 	""" Action model. """
@@ -114,22 +132,25 @@ class Action(models.Model):
 	thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
 	tags = models.ManyToManyField(Tag, related_name='action_tags', blank=True, null=True)
 
+	def save(self, *args, **kwargs):
+		if (self.min_participants <= self.max_participants):
+			global_settings = Setting.objects.all()
+			if global_settings.count() != 0:
+				global_settings = global_settings[0]
+				if (self.min_participants < global_settings.min_participants):
+					raise Exception, "Minimum number of participants should be at least " + str(global_settings.min_participants) + "."
+				elif (self.max_participants > global_settings.max_participants):
+					raise Exception, "Maximum number of participants should be at most " + str(global_settings.max_participants) + "."
+				else:
+					super(Action, self).save()			
+			else:
+				super(Action, self).save()
+		else:
+			raise Exception, "Maximum number of participants should be greater than minimum number of participants."
+
 
 	def __unicode__(self):
 		return u'%s' % self.action_id
-
-	# def clean(self, *args, **kwargs):
-	#	 if (start_date is not None) and (end_date is not None) and (start_date >= end_date):
-	#		 raise ValidationError('End date must be later than start date.')
-
-	#	 if min_participants > max_participants:
-	#		 raise ValidationError('Minimum number of participants must be less or equal to \
-	#										 maximum number of participants.')
-	#	 if min_participants > global_min_participants:
-	#		 raise ValidationError('Minimum number of participants must be greater or equal to ' +
-	#										  str(global_min_participants) + '.')
-
-	#	 super(Action, self).clean(*args, **kwargs)
 
 
 class Image(models.Model):
@@ -145,21 +166,14 @@ class UserAction(models.Model):
 	role = models.IntegerField()
 	rating = models.IntegerField(blank=True, null=True)
 
-
-class Setting(models.Model):
-	""" Admin settings. Supported settings include: 
-			default userpic (based on user's gender)
-			userpic dimensions
-			default action picture  
-			minimum number of participants
-			maximum number of participants
-			number of successive invalid login attempts after which the user gets blocked
-	"""
-
-	setting_id = models.CharField('setting_name', max_length=100, primary_key=True)
-	description = models.TextField('setting_description')
-	setting_type = models.CharField('type', max_length=20)
-	value = models.CharField('value', max_length=20)
+	def save(self, *args, **kwargs):
+		global_settings = Setting.objects.all()[0]
+		action_id = self.action
+		number_of_participants = UserAction.objects.filter(action=action_id).count()
+		if (number_of_participants > global_settings.max_participants):
+			raise Exception, "Unfortunately, no more users can participate in this action."
+		else:
+			super(UserAction, self).save()
 
 class Comment(models.Model):
 	""" User comments on Action wall """
