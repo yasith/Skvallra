@@ -80,7 +80,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['tag_id']
 
 class ActionSerializer(serializers.ModelSerializer):
-    start_date = end_date = serializers.DateTimeField(format='%b %d, %Y %H:%M:%S')
+    # start_date = end_date = serializers.DateTimeField(format='%b %d, %Y %H:%M:%S')
 
     class Meta:
         model = Action
