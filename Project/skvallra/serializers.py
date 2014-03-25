@@ -8,11 +8,12 @@ import sys
 
 class SkvallraUserSerializer(serializers.ModelSerializer):
     # birthday = serializers.DateTimeField(format='%B %d, %Y')
+    rating = serializers.IntegerField(source='get_rating', read_only=True)
 
     class Meta:
         model = SkvallraUser
 
-        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'birthday', 'activities', 'interests', 'friends', 'address', 'coordinates', 'image')
+        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'rating', 'birthday', 'activities', 'interests', 'friends', 'address', 'coordinates', 'image')
         # depth = 1
 
     def restore_object(self, attrs, instance=None):

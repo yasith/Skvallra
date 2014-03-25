@@ -6025,20 +6025,56 @@ div.register > form > div > input::-webkit-input-placeholder {
 #form-button img {
   height: 15px;
 }
+#profileimagebox {
+  position: relative;
+}
+#profileimagebox:before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+.userimage,
+.actionimage,
+.usersearchimage,
+.actionsearchimage {
+  position: relative;
+}
+.userimage:before,
+.actionimage:before,
+.usersearchimage:before,
+.actionsearchimage:before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+.userimage > img,
+.actionimage > img,
+.usersearchimage > img,
+.actionsearchimage > img {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
 .profileimage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border: 1px solid #e6e6e6;
   border-radius: 4px;
+  z-index: 0;
 }
 .profileimage > div.edit {
-  margin-bottom: -20px;
+  position: relative;
+  margin-top: -24px;
   padding-right: 3px;
   background-color: rgba(179, 179, 179, 0.4);
   padding-left: 3px;
   float: right;
   z-index: 1000;
-}
-.profileimage > img {
-  z-index: -1;
 }
 .left {
   float: left;

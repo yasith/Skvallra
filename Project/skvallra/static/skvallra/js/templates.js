@@ -219,7 +219,20 @@ ActionListView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.action_id + '.actionimage');
-			image.fetch();
+			image.fetch({
+				success: function () {
+					setTimeout(function () {
+						$('.actionimage').each(function () {
+							var boxheight = $(this).height();
+							var imgheight = $(this).children('img').height();
+							var pad = (boxheight - imgheight) / 2;
+							if (pad > 0) {
+								$(this).children('img').css('margin-top', pad);
+							};
+						});
+					}, 10);
+				}
+			});
 		});
 	},
 	navi: function(event) {
@@ -280,7 +293,7 @@ ActionFriendListView = Backbone.View.extend({
 		this.render_image();
 		// if (model.get('id') === $.app.profile.get('id')) {
 			// $('friends > .editable').hover(function() {
-				$('div.userimage').prepend("<div class='remove'>remove</div>");
+				// $('div.userimage').prepend("<div class='remove'>remove</div>");
 			// }, function() {
 				// $(this).prev('.remove').remove();
 			// });
@@ -291,7 +304,20 @@ ActionFriendListView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.id + '.userimage');
-			image.fetch();
+			image.fetch({
+				success: function () {
+					setTimeout(function () {
+						$('.userimage').each(function () {
+							var boxheight = $(this).height();
+							var imgheight = $(this).children('img').height();
+							var pad = (boxheight - imgheight) / 2;
+							if (pad > 0) {
+								$(this).children('img').css('margin-top', pad);
+							};
+						});
+					}, 10);
+				}
+			});
 		});
 	},
 	navi: function(event) {
@@ -352,7 +378,6 @@ SearchUserView = Backbone.View.extend({
 			});
 		});
 
-		// console.log(temp);
 		var html = template(temp);
 
 		this.$el.html(html);
@@ -364,7 +389,20 @@ SearchUserView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
-			image.fetch();
+			image.fetch({
+				success: function () {
+					setTimeout(function () {
+						$('.usersearchimage').each(function () {
+							var boxheight = $(this).height();
+							var imgheight = $(this).children('img').height();
+							var pad = (boxheight - imgheight) / 2;
+							if (pad > 0) {
+								$(this).children('img').css('margin-top', pad);
+							};
+						});
+					}, 10);
+				}
+			});
 		});
 	},
 	navi: function(event) {
@@ -377,22 +415,16 @@ SearchUserView = Backbone.View.extend({
 	add_friend: function (event) {
 		var friends = $.app.user.get('friends');
 		friends.push(parseInt(event.currentTarget.id));
-		console.log($.app.user);
 		$.app.user.save();
 		this.collection.fetch();
-		// console.log(event);
-		// console.log($(this));
 	},
 	remove_friend: function (event) {
 		var friends = $.app.user.get('friends');
 		var index = friends.indexOf(parseInt(event.currentTarget.id));
 		friends.splice(index,1)
 		// friends.push(parseInt(event.currentTarget.id));
-		console.log($.app.user);
 		$.app.user.save();
 		this.collection.fetch();
-		// console.log(event);
-		// console.log($(this));
 	},
 });
 
@@ -422,7 +454,20 @@ SearchActionView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.action_id + '.actionsearchimage');
-			image.fetch();
+			image.fetch({
+				success: function () {
+					setTimeout(function () {
+						$('.actionsearchimage').each(function () {
+							var boxheight = $(this).height();
+							var imgheight = $(this).children('img').height();
+							var pad = (boxheight - imgheight) / 2;
+							if (pad > 0) {
+								$(this).children('img').css('margin-top', pad);
+							};
+						});
+					}, 10);
+				}
+			});
 		});
 	},
 	navi: function(event) {
@@ -482,7 +527,6 @@ ProfileView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		// console.log(this.model);
 
 		var source = $.app.templates.profileTemplate;
 		var template = Handlebars.compile(source);
@@ -506,7 +550,7 @@ ProfileView = Backbone.View.extend({
 		this.render_interests();
 		var model = this.model;
 		$(document).ready(function() {
-			if (model.get('id') === $.app.profile.get('id')) {
+			if (model.get('id') === $.app.user.get('id')) {
 				$('.editable').hover(function() {
 					$(this).append("<div class='edit' style='display: inline-block;'>edit</div>");
 					$(this).children('.edit').click(function (event) {
@@ -522,7 +566,6 @@ ProfileView = Backbone.View.extend({
 							var classes = parent.attr('class');
 							classes = classes.split(" ");
 							classes.splice(classes.indexOf('editable'),1);
-							console.log(classes);
 							if (classes[0] === 'birthday') {
 								d = new Date(text);
 								text = d.toISOString();
@@ -540,8 +583,6 @@ ProfileView = Backbone.View.extend({
 								$.app.user.save();
 							}
 						});
-						// console.log($(this));
-						// console.log(this);
 					})
 				}, function() {
 					$(this).children('div').remove();
@@ -556,15 +597,24 @@ ProfileView = Backbone.View.extend({
 		var model = this.model;
 		image.fetch({
 			success: function () {
-				if (model.get('id') === $.app.profile.get('id')) {
-					$('.profileimage > img.editable').hover(function() {
-						$(this).before("<div class='edit'>edit</div>");
-						$(this).click(function (event) {
+				setTimeout(function () {
+					var boxheight = $('.profileimage').height();
+					var imgheight = $('.profileimage > img').height();
+					var pad = (boxheight - imgheight) / 2;
+					if (pad > 0) {
+						$('.profileimage > img').css('margin-top', pad);
+					};
+				}, 10);
+				if (model.get('id') === $.app.user.get('id')) {
+					$('.profileimage').unbind();
+					$('.profileimage').hover(function() {
+						$(this).append("<div class='edit'>edit</div>");
+						$(this).unbind('click');
+						$(this).children('.edit').click(function (event) {
 							// do click stuff
-							console.log('edit image');
 						});
 					}, function () {
-						$(this).prev('.edit').remove();
+						$(this).children('.edit').remove();
 					});
 				}
 			},
@@ -708,7 +758,6 @@ ActionStatusBarView = Backbone.View.extend({
 		var temp = this;
 		actionUpdate.fetch({
 			success: function(){
-				console.log(actionUpdate);
 				var newActionStatus = !actionUpdate.get('public')
 				actionUpdate.save({'public': newActionStatus});
 				temp.set_lock_icon(newActionStatus);
@@ -893,7 +942,6 @@ Router = Backbone.Router.extend({
 		var settingsView = new SettingsView({model: settings});
 		settingsView.$el = $("#content");
 		settings.fetch();
-		console.log(settings);
 	},
 	show_action: function(id) {
 		var action = new Action({id: id});

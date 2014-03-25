@@ -95,6 +95,23 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 		"Returns the short name for the user."
 		return self.first_name
 
+	def get_rating(self):
+		actions = UserAction.objects.filter(user=self, role=1).values_list('action', flat=True)
+
+		total = 0
+		count = 0
+		for a in actions:
+			usractions = UserAction.objects.filter(action=a)
+			for u in usractions:
+				if u.rating != None:
+					total += u.rating
+					count += 1
+		if count != 0:
+			print(total)
+			print(count)
+			total = total / count
+		return total
+
 class Setting(models.Model):
 	""" Admin settings. Supported settings include: 
 			default userpic (based on user's gender)
