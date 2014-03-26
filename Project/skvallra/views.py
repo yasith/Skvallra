@@ -107,7 +107,6 @@ class UserActionsView(viewsets.ModelViewSet):
     def get_useraction(self, request, pk=None):
         try:
             queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
-            print(pk)
             serializer = UserActionSerializer(queryset)
             data = serializer.data
         except ObjectDoesNotExist:
@@ -196,7 +195,6 @@ class SearchViewSet(viewsets.ModelViewSet):
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
-
 
 def index(request):
     return render(request, "skvallra/index.html", {})

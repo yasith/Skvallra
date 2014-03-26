@@ -12,6 +12,10 @@ $.app.client_id = "b54456c016e657c9c580";
 
 $.app.client_secret = "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab";
 
+// app error messages
+$.app.errors_messages = {};
+$.app.errors_messages.internal_error = "An internal error has happened while processing your request.";
+
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
 	beforeSend: function (xhr, settings)
@@ -165,13 +169,6 @@ RatingAndParticipation = Backbone.Model.extend({
     	this.actionId = options.id;    
   	},
 
-  // 	methodToURL: {
-  //   'read': "/api/user_actions/" + this.actionId + "/get_useraction",
-  //   'create': '/api/useractions/',
-  //   'update': '/api/useractions/',
-  //   'delete': '/api/useractions/'
-  // },
-
 	url: function() {
 		return "/api/user_actions/" + this.actionId + "/get_useraction";
 	}
@@ -289,15 +286,7 @@ ActionFriendListView = Backbone.View.extend({
 		var html = template(this.collection.toJSON());
 
 		this.$el.html(html);
-
 		this.render_image();
-		// if (model.get('id') === $.app.profile.get('id')) {
-			// $('friends > .editable').hover(function() {
-				// $('div.userimage').prepend("<div class='remove'>remove</div>");
-			// }, function() {
-				// $(this).prev('.remove').remove();
-			// });
-		// }
 	},
 	render_image: function() {
 		$(this.collection.models).each(function() {
@@ -672,7 +661,7 @@ MainView = Backbone.View.extend({
 	}
 });
 
-ActionStatusBarView = Backbone.View.extend({
+ActionControlsView = Backbone.View.extend({
 	initialize: function() {
 		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
@@ -682,8 +671,8 @@ ActionStatusBarView = Backbone.View.extend({
 	events: {
 		// event, element and function to bind together
 		"click .rating" : "update_rating",
-		"click .leave" : "remove_user",
-		"click .join" : "add_user",
+		"click .leave" : "leave_action",
+		"click .join" : "join_action",
 		"click .unlock" : "toggle_private_status",
 		"click .lock" : "toggle_private_status",
 	},
@@ -694,27 +683,32 @@ ActionStatusBarView = Backbone.View.extend({
 
 		var html = template(temp);
 		this.$el.html(html);
-		this.render_status_bar();
 
+		var isOrganizer = this.model.get('role') == $.app._organizer;
+		$(".participants_limit").empty();
+		this.render_status_bar(isOrganizer);
+		this.render_participant_constraints(isOrganizer);
  	},
-	remove_user: function() {
+	leave_action: function() {
 		// Remove current user from the current Action. 
 		this.model.url = "/api/useractions/" + this.model.get('id');
 		this.model.destroy({
-			// success() does not function properly with empty responses, check statusCode instead. 
+			// success does not function properly with empty responses, check statusCode instead. 
 			statusCode: {
 				204: function() {
 					$(".leave").html("Join").switchClass("leave", "join");
-					$(".rating").empty();				
+					$(".rating").empty();	
+					$(".action_status").empty();	
+					// TODO: remove class editable
 				}
 			},
 			error: function() {
-				alert("Internal error has happened while processing your request.");
+				alert($.app.errors_messages.internal_error);
 			},
 
 		});
 	},
-	add_user: function() {
+	join_action: function() {
 		// Add current user to the current Action.
 		var UserAction = new UserActionInteraction({
 			"action": $.app.actionView.model.get('id'), 
@@ -737,11 +731,10 @@ ActionStatusBarView = Backbone.View.extend({
 			},
 		})
 	},	
-	render_status_bar: function() {
+	render_status_bar: function(isOrganizer) {
 		// Display status bar controls: rating, public/private status, add user, and join/leave buttons. 
 		if (this.model.has('action')) {
 			$(".participation").html('<button type="button" class="btn btn-default leave">Leave</button>');
-			var isOrganizer = this.model.get('role') == $.app._organizer;
 			if (isOrganizer) {
 				var actionPublicStatus = $.app.actionView.model.get('public');
 				this.set_lock_icon(actionPublicStatus);
@@ -750,6 +743,15 @@ ActionStatusBarView = Backbone.View.extend({
 
 		} else {
 			$(".participation").html('<button type="button" class="btn btn-default join">Join</button>');
+		}
+	},
+	render_participant_constraints: function(isOrganizer) {
+		if (isOrganizer) {
+				var minUsers = $("<br><label>Minimum participants: </label><div class='action_min_user_limit constraint'>" + 
+					$.app.actionView.model.get('min_participants') + "</div>");
+				var maxUsers = $("<br><label>Maximum participants: </label><div class='action_max_user_limit constraint'>" + 
+					$.app.actionView.model.get('max_participants') + "</div>");
+			$(".participants_limit").append(minUsers, maxUsers);
 		}
 	},
 	toggle_private_status: function() {
@@ -796,7 +798,6 @@ ActionStatusBarView = Backbone.View.extend({
 
 // Backbone view to display an action
 ActionView = Backbone.View.extend({
-// TODO: add address on comment
 
 	initialize: function() {
 		// bind render function to add, change and sync events
@@ -808,11 +809,12 @@ ActionView = Backbone.View.extend({
 		var source = $.app.templates.actionTemplate;
 		var template = Handlebars.compile(source);	
 		var temp = this.model.toJSON();
-
+		
+		var options = {year: "numeric", month: "long", day: "numeric"};
 		var start_date = new Date(temp.start_date);
-		temp.start_date = start_date.toLocaleDateString();
+		temp.start_date = start_date.toLocaleDateString("en-US", options) + " " + start_date.toLocaleTimeString();
 		var end_date = new Date(temp.end_date);
-		temp.end_date = end_date.toLocaleDateString();
+		temp.end_date = end_date.toLocaleDateString("en-US", options) + " " + end_date.toLocaleTimeString();
 
 		var html = template(temp);
 		this.$el.html(html);
@@ -822,6 +824,12 @@ ActionView = Backbone.View.extend({
 		this.render_participants();
 		this.render_comments();
 		this.render_rating();
+
+		// add document ready here
+		// do fetch
+		// on success do editing
+
+		
 	},
 
 	render_image: function() {
@@ -864,12 +872,89 @@ ActionView = Backbone.View.extend({
 	},
 	render_rating: function() {
 		var actionStatusBar = new RatingAndParticipation([], {id: this.model.get('action_id')});
-		var myActionStatusBarView = new ActionStatusBarView({model: actionStatusBar});
-		myActionStatusBarView.$el = $(".action_status_bar");
+		var myActionControlsView = new ActionControlsView({model: actionStatusBar});
+		myActionControlsView.$el = $(".action_status_bar");
+		myActionControlsView.delegateEvents();
 		actionStatusBar.fetch();
-		myActionStatusBarView.delegateEvents();
 	},
 });
+
+CreateActionView = Backbone.View.extend({
+	render: function() {
+		var source = $.app.templates.createActionTemplate;
+		var template = Handlebars.compile(source);
+		var temp = this.model.toJSON();
+
+		var options = {year: "numeric", month: "long", day: "numeric"};
+		var start_date = new Date(temp.start_date);
+		temp.start_date = start_date.toLocaleDateString("en-US", options) + " " + start_date.toLocaleTimeString();
+		var end_date = new Date(temp.end_date);
+		temp.end_date = end_date.toLocaleDateString("en-US", options) + " " + end_date.toLocaleTimeString();
+
+		var html = template(temp);
+		this.$el.html(html);
+
+		var actionPrivateStatus = this.model.get("public");
+		this.set_lock_icon(actionPrivateStatus);
+
+	},
+	events: {
+		"click .unlock" : "toggle_private_status",
+		"click .lock" : "toggle_private_status",
+		"click .create" : "create_action",
+	},
+	toggle_private_status: function() {
+		// Toggle public / private status of Action.
+		var actionPrivateStatus = !this.model.get("public");
+		this.model.set({"public": actionPrivateStatus});
+		this.set_lock_icon(actionPrivateStatus);
+		console.log(this.model);
+	},
+	set_lock_icon: function(actionStatus) {
+		// Display icon corresponding to the Action's public status.
+		var lockIcon;
+		if (actionStatus) {
+			lockIcon = $('<img src="/static/skvallra/images/unlock_small.png" class="unlock" alt="unlock" />');
+		} else {
+			lockIcon = $('<img src="/static/skvallra/images/lock_small.png" class="lock" alt="lock" />');
+		}
+		$(".action_status").html(lockIcon);
+	},
+	create_action: function() {
+		var newAction = this;
+		newAction.model.save({}, {
+			success: function(model, response, options)	{
+				console.log("success");
+
+				var userAction = new UserActionInteraction({
+										"action": newAction.model.get('action_id'), 
+							        	"user": $.app.user.id,  
+							        	"role": $.app._organizer });
+				userAction.save({}, {
+					success: function() {
+						console.log("created userAction");		
+
+					},
+					error: function(model, response, options) {
+						// set an id so a model is considered 'old' by Backbone so destroy() can be fired
+						newAction.model.set('id', newAction.model.get('action_id'));
+						newAction.model.destroy();
+						alert($.app.errors_messages.internal_error);
+					}
+				});
+			}, 
+			error: function(model, response, options) {
+				var responseText = response.responseText;
+				var messageStart = responseText.indexOf("\n");
+				var messageEnd = responseText.indexOf("\n", messageStart + 1);
+				var errorMessage = responseText.substring(messageStart, messageEnd);
+				alert(errorMessage);
+				console.log(response);
+			},
+		});
+	}
+}); 
+
 
 // Backbone view to display the settings page
 SettingsView = Backbone.View.extend({
@@ -894,6 +979,7 @@ Router = Backbone.Router.extend({
 	routes: {
 		"": "show_profile",
 		"suggested": "show_suggested",
+		"configure_action": "configure_action",
 		"nearby": "show_nearby",
 		"settings": "show_settings",
 		"logout": "logout",
@@ -960,6 +1046,23 @@ Router = Backbone.Router.extend({
 	show_interests: function(term) {
 		// TODO: display search page with users and actions who have a specified interest
 	},
+	configure_action: function() {
+		var d = new Date();
+		var action = new Action({
+			"title": "Action Title",
+			"description": "Action Description",
+			"start_date": d,
+			"end_date": d,
+			"public": true, 
+			"min_participants": 1,
+			"max_participants": 1,
+			"address": "Action Location",
+		});
+		var newActionView = new CreateActionView({model: action});
+		newActionView.$el = $("#content");
+		newActionView.render();
+		newActionView.delegateEvents();
+	},
 	logout: function() {
 		delete $.app.OAuthToken;
 		$.removeCookie("OAuthToken");
@@ -993,6 +1096,7 @@ $.app.authenticate = function() {
 		// $(".container").css("-webkit-filter", "");
 		// add the logout button
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
+		$("#navbar-form").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
 		// reload the users profile
 		// router.show_profile();
 		// $.app.profile.fetch();
@@ -1032,11 +1136,13 @@ $.app.validate = function() {
 				delete $.app.OAuthToken;
 				$.removeCookie("OAuthToken");
 				$('#logout').remove();
+				$('#configure_action').remove();
 			},
 			200: function() {
 				$(".login").remove();
 				$(".container").css("-webkit-filter", "");
 				$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
+				$("#navbar-form").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
 			}
 		}
 	});
@@ -1053,7 +1159,8 @@ $.app.search = function() {
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
-					"userSearchTemplate", "commentList", "mainTemplate", "actionStatusBarTemplate"];
+					"userSearchTemplate", "commentList", "mainTemplate", "actionStatusBarTemplate", 
+					"createActionTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {

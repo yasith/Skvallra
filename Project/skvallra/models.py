@@ -137,13 +137,13 @@ class Action(models.Model):
 
 	action_id = models.AutoField("action_id", primary_key=True)
 	title = models.CharField(_('action title'), max_length=256)
-	description = models.TextField("action description", blank=True, null=True)
+	description = models.TextField("action description")
 	start_date = models.DateTimeField(blank=True, null=True)
 	end_date = models.DateTimeField(blank=True, null=True)
 	public = models.BooleanField(default=True)
 	min_participants = models.IntegerField(default=1)
 	max_participants = models.IntegerField(default=1)
-	address = models.CharField('address', max_length=200, blank=True, null=True)
+	address = models.CharField('address', max_length=200)
 	coordinates = models.CharField('coordinates', max_length=50, blank=True, null=True)
 	image = models.ForeignKey('Image', blank=True, null=True)
 	thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
@@ -173,7 +173,7 @@ class Action(models.Model):
 class Image(models.Model):
 	""" Image model """
 
-	image_hash = models.CharField('hash', max_length=50)
+	image_hash = models.CharField('hash', max_length=150)
 
 class UserAction(models.Model):
 	""" UserActions """
@@ -184,10 +184,13 @@ class UserAction(models.Model):
 	rating = models.IntegerField(blank=True, null=True)
 
 	def save(self, *args, **kwargs):
-		global_settings = Setting.objects.all()[0]
 		action_id = self.action
-		number_of_participants = UserAction.objects.filter(action=action_id).count()
-		if (number_of_participants > global_settings.max_participants):
+		user_id = self.user
+		all_participants = UserAction.objects.filter(action=action_id)
+		number_of_participants = all_participants.count()
+		action_max_participants = Action.objects.get(pk=action_id.pk).max_participants
+		new_user = all_participants.filter(user=user_id).count() == 0
+		if (new_user and (number_of_participants >= action_max_participants)):
 			raise Exception, "Unfortunately, no more users can participate in this action."
 		else:
 			super(UserAction, self).save()

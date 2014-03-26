@@ -1,14 +1,16 @@
 <div class="container">
-	<div class="row actionpageimage"></div>
+	<div class="actionpageimage"></div>
 	<div class="row">
-		<div class="col-md-4 title name" id="{{id}}">{{this.title}}</div>
+		<div class="col-md-4 title name editable" id="{{id}}">{{this.title}}</div>
 		<div class="col-md-8 action_status_bar"></div>
 	</div>
 	<br>
 	<div class="row">
-		<div class="col-md-4">
-			<div class="start_date">Start date {{this.start_date}}</div>
-			<div class="end_date">End date {{this.end_date}}</div>
+		<div class="col-md-4 action_details">
+			<label>Starts on:</label> <div class="start_date date">{{this.start_date}}</div>
+			<br>
+			<label>Ends on: </label> <div class="end_date date">{{this.end_date}}</div>
+			<div class="participants_limit"></div>
 			<br>
 			<div class="address">{{this.address}}</div>
 			<div class="tags">

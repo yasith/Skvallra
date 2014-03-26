@@ -178,10 +178,6 @@ div {
 	}
 }
 
-.top{
-
-}
-
 #profileimagebox {
 	position: relative;
 	&:before {
@@ -233,9 +229,6 @@ div {
 	float: left;
 }
 
-.information{
-
-}
 
 .right{
 	float: left;
@@ -245,11 +238,12 @@ div {
 	clear: both;
 }
 
+.action_title
 .friend, .action {
 	display: inline-block;
 }
 
-.userimage, .actionimage{
+.userimage, .actionimage {
 	border: 1px solid lighten(#000, 90%);
 	border-radius: 4px;
 	width: @friend-item-width;
@@ -281,58 +275,39 @@ div {
 	width: @friend-item-width;
 }
 
-#new_comment {
-}
 
-.name{
+.name {
 	font-weight: bold;
 	font-size: @larger-font-size;
 }
 
-.birthday{
+.birthday {
 	color: @light-font-color;
 }
 
-.address{
+.address {
 	color: @light-font-color;
 }
 
-.tag{
-
-}
-
-.pagebar{
-
-}
-
-.list{
-
-}
-
-.login{
-
-}
-
-.activities{
-
-}
-
-.interests{
-
-}
-
-.friends{
-
-}
-
-.actions{
-
-}
-
-.box-item{
+.box-item {
 	border: 2px solid darken(@green, 20%);
 	border-radius: 4px;
-	padding: 8px 8px 8px 0px;
+	padding: 8px;
+}
+
+
+/* Action page */
+
+.actionpageimage {
+	border: 1px solid lighten(#000, 90%);
+	border-radius: 4px;
+	margin-bottom: 10px;
+	> img {
+		max-height: 250px;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
 }
 
 .action_status_bar {
@@ -346,5 +321,19 @@ div {
 	}
 	> .participation {
 		display: inline-block;
+	}
+}
+
+.action_details {
+	> label {
+		display: inline-block;
+	}
+	> .date {
+		display: inline-block;
+	}
+	> .participants_limit {
+		> .constraint {
+			display: inline-block;
+		}
 	}
 }

@@ -6085,7 +6085,7 @@ div.register > form > div > input::-webkit-input-placeholder {
 .bottom {
   clear: both;
 }
-.friend,
+.action_title .friend,
 .action {
   display: inline-block;
 }
@@ -6133,7 +6133,19 @@ div.register > form > div > input::-webkit-input-placeholder {
 .box-item {
   border: 2px solid #2f993d;
   border-radius: 4px;
-  padding: 8px 8px 8px 0px;
+  padding: 8px;
+}
+/* Action page */
+.actionpageimage {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.actionpageimage > img {
+  max-height: 250px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 .action_status_bar > .rating {
   padding-top: 7px;
@@ -6144,5 +6156,14 @@ div.register > form > div > input::-webkit-input-placeholder {
   display: inline-block;
 }
 .action_status_bar > .participation {
+  display: inline-block;
+}
+.action_details > label {
+  display: inline-block;
+}
+.action_details > .date {
+  display: inline-block;
+}
+.action_details > .participants_limit > .constraint {
   display: inline-block;
 }

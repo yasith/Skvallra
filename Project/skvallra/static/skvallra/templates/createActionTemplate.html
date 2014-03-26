@@ -1,0 +1,29 @@
+<div class="container">
+	<div class="actionpageimage"></div>
+	<div class="row">
+		<div class="col-md-1 action_status"></div>
+		<div class="col-md-10 title name editable">{{this.title}}</div>
+		<button type="button" class="btn btn-default create col-md-1">Create</button>
+	</div>
+	<br>
+	<div class="row">
+		<div class="col-md-4 action_details">
+			<label>Starts on:</label> <div class="start_date date">{{this.start_date}}</div>
+			<br>
+			<label>Ends on: </label> <div class="end_date date">{{this.end_date}}</div>
+			<div class="participants_limit">
+				<br>
+				<label>Minimum participants: </label> <div class="action_min_user_limit constraint">{{this.min_participants}}</div>
+				<br>
+				<label>Maximum participants: </label> <div class="action_max_user_limit constraint">{{this.max_participants}}</div>
+			</div>
+			<br>
+			<div class="address">{{this.address}}</div>
+			<div class="tags"></div>
+			<div class="users"></div>
+		</div>
+		<div class="col-md-8">
+			<div class="action_description">{{this.description}}</div>
+		</div>	
+	</div>
+</div>
