@@ -395,6 +395,7 @@ SearchUserView = Backbone.View.extend({
 		});
 	},
 	navi: function(event) {
+		console.log(event.currentTarget);
 		if (event.currentTarget.id == $.app.user.attributes.id) {
 			router.navigate("/", {trigger: true});
 		} else {
@@ -508,11 +509,15 @@ ProfileView = Backbone.View.extend({
 		// bind error function to error event
 		this.model.on('error', this.error, this);
 	},
+	events: {
+		"click #addbutton": 'add_friend',
+		"click #rembutton": 'remove_friend',
+	},
 	error: function() {
 		// if a user is not logged in, use an empty user object as the model to display
 		// an empty user object is used since the login form is displayed overtop of the
 		// profile view
-		this.model = new User({'first_name' : "FirstName", 'last_name' : "LastName"});
+		this.model = new User({'first_name' : "FirstName", 'last_name' : "LastName", 'image': '1'});
 		this.render();
 	},
 	render: function() {
@@ -527,6 +532,22 @@ ProfileView = Backbone.View.extend({
 
 		d = new Date(temp.birthday);
 		temp.birthday = d.toLocaleDateString();
+		if (typeof $.app.user === 'undefined') {
+			temp.me = $.app.profile.get('id') == this.model.get('id');
+		} else {
+			temp.me = $.app.user.get('id') == this.model.get('id');
+		}
+		if (!temp.me) {
+			$.ajax({
+				url: '/api/users/' + this.model.get('id') + '/isfriend',
+				type: 'GET',
+				dataType: 'json',
+				async: false,
+			})
+			.done(function(data) {
+				temp.friend = data.status;
+			});
+		}
 		
 		var html = template(temp);
 
@@ -601,7 +622,7 @@ ProfileView = Backbone.View.extend({
 						$(this).append("<div class='edit'>edit</div>");
 						$(this).unbind('click');
 						$(this).children('.edit').click(function (event) {
-							$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><progress style="display: none;"></progress></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
+							$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><div class="progress progress-striped active" style="display: none;"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
 							// $(".upload").fadeIn('1000');
 							// $('.container')[0].style.animation = "blur 1s";
 							// $('.container')[0].style.webkitAnimationDuration = "1s";
@@ -629,7 +650,7 @@ ProfileView = Backbone.View.extend({
 								$.each($('#file')[0].files, function (key, value) {
 									data.append(key, value);
 								});
-								$('progress').css('display', 'block');
+								$('.progress').css({'display': 'block', 'margin-bottom': '0px'});
 								$.ajax({
 									url: '/api/upload_image',
 									type: 'POST',
@@ -740,7 +761,33 @@ ProfileView = Backbone.View.extend({
 			// cancelPlace: 'right', // put cancel icon on the right
 			score: rating, // startup score
 		});
-	}
+	},
+	add_friend: function (event) {
+		var friends = $.app.user.get('friends');
+		friends.push(this.model.get('id'));
+		var model = this.model;
+		$.app.user.save({}, {
+			success: function () {
+				console.log("add");
+				model.fetch();
+			}
+		});
+	},
+	remove_friend: function (event) {
+		var friends = $.app.user.get('friends');
+
+		var index = friends.indexOf(this.model.get('id'));
+		friends.splice(index,1)
+		
+		// friends.push(parseInt(event.currentTarget.id));
+		var model = this.model;
+		$.app.user.save({}, {
+			success: function () {
+				console.log("remove");
+				model.fetch();
+			}
+		});
+	},
 });
 
 MainView = Backbone.View.extend({
@@ -1160,6 +1207,7 @@ Router = Backbone.Router.extend({
 
 		$.app.profileView = new ProfileView({model: $.app.profile});
 		$.app.profileView.$el = $(".container");
+		$.app.profileView.delegateEvents();
 		$.app.profile.fetch();
 	},
 	show_suggested: function() {
@@ -1241,24 +1289,27 @@ $.app.authenticate = function() {
 		// $(".container").css("-webkit-filter", "");
 		// add the logout button
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
-		$("#navbar-form").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
+		$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
+		$("#changepw").click($.app.changepw);
+		$("#links").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
 		// reload the users profile
 		// router.show_profile();
 		// $.app.profile.fetch();
 
-		$('.login, .login-animate').removeClass('fadein').addClass('fadeout');
+		$('.register').removeClass('register-animate');
+		$('.login-animate').removeClass('login-animate').addClass('login');
+		$('.login, .login-animate, .register').removeClass('fadein').addClass('fadeout');
 		$('.container').removeClass('blur').addClass('unblur');
 		// $('.container').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "unblur"});
 		// $('.login, .login-animate').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "fadeout"});
-		$('.login, .login-animate').bind('oanimationend animationend webkitAnimationEnd', function () {
-			$('.login, .login-animate').unbind();
-			$('.login, .login-animate').remove();
+		$('.login, .login-animate, .register').bind('oanimationend animationend webkitAnimationEnd', function () {
+			$('.login, .login-animate, .register').unbind();
+			$('.login, .login-animate, .register').remove();
 		});
 		$.app.profileView.model = $.app.profile;
 		$.app.profile.fetch();
 
 	}).fail(function () {
-		console.log("balhblah");
 		$('#error').text("Username/Password Incorrect.");
 	});
 }
@@ -1276,9 +1327,14 @@ $.app.register = function () {
 	}
 	var d = new Date();
 	var user = new Profile({'username' : username, 'email' : email, 'password' : password, 'first_name' : fname, 'last_name' : lname, 'birthday' : d.toISOString()});
-	user.save({}, {success: function () {
-		$.app.authenticate();
-	}});
+	user.save({}, {
+		success: function () {
+			$.app.authenticate();
+		},
+		error: function () {
+			$('#error').text("Username already exists.");
+		},
+	});
 }
 
 // used to validate a user/OAuth Token, if not valid removes the token from the app
@@ -1292,13 +1348,16 @@ $.app.validate = function() {
 				delete $.app.OAuthToken;
 				$.removeCookie("OAuthToken");
 				$('#logout').remove();
+				$('#links').remove();
 				$('#configure_action').remove();
 			},
 			200: function() {
 				$(".login, .login-animate").remove();
 				$(".container").css("-webkit-filter", "");
 				$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
-				$("#navbar-form").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
+				$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
+				$("#changepw").click($.app.changepw);
+				$("#links").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
 			}
 		}
 	});
@@ -1327,15 +1386,6 @@ $.app.changepw = function () {
 			type: 'POST',
 			dataType: 'json',
 			data: {'new_password': password},
-		})
-		.done(function(data) {
-			console.log("success");
-		})
-		.fail(function() {
-			console.log("error");
-		})
-		.always(function() {
-			console.log("complete");
 		});
 		
 		$('#change').bind('oanimationend animationend webkitAnimationEnd', function () {
@@ -1411,7 +1461,6 @@ $.app.loadTemplates({
 
 			// bind search function to the search form
 			$("#navbar-form").submit($.app.search);
-			$("#changepw").click($.app.changepw);
 
 			// attempt to retrieve the users profile
 			var temp = new Profile();

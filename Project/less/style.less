@@ -210,7 +210,9 @@ div {
 		}
 	}
 	&.register {
-		.animate(register, 1s, forwards);
+		width: 400px;
+		height: 380px;
+		left: 36%;
 		position: absolute;
 		top: 30%;
 		margin-left: auto;
@@ -277,6 +279,10 @@ div {
 
 .login-inputs-animate {
 	.animate(login-inputs, 1s, forwards);
+}
+
+.register-animate {
+	.animate(register, 1s, forwards);
 }
 
 @-webkit-keyframes unblur {
@@ -431,7 +437,6 @@ div {
 	clear: both;
 }
 
-.action_title
 .friend, .action {
 	display: inline-block;
 }

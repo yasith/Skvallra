@@ -121,38 +121,6 @@ class UserActionsView(viewsets.ModelViewSet):
             data = {}
         return Response(data)
 
-	serializer_class = UserActionSerializer
-	model = UserAction
-	# permission_classes = (TokenHasReadWriteScope, )
-
-	def list(self, request):
-		user = request.user
-		temp = UserAction.objects.filter(user_id=user.id)
-		actions = []
-		for t in temp:
-			actions.append(Action.objects.get(pk=t.action_id))
-		serializer = ActionSerializer(actions, many=True)
-		return Response(serializer.data)
-
-	def retrieve(self, request, pk=None):
-		temp = UserAction.objects.filter(user_id=pk)
-		actions = []
-		for t in temp:
-			actions.append(Action.objects.get(pk=t.action_id))
-		serializer = ActionSerializer(actions, many=True)
-		return Response(serializer.data)
-
-	@link()
-	def get_useraction(self, request, pk=None):
-		try:
-			queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
-			print(pk)
-			serializer = UserActionSerializer(queryset)
-			data = serializer.data
-		except ObjectDoesNotExist:
-			data = {}
-		return Response(data)
-
 class ActionUsersView(viewsets.ModelViewSet):   
 	serializer_class = SkvallraUserSerializer
 	model = SkvallraUser

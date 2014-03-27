@@ -19,7 +19,7 @@
 			// $('.login > form > div > #lname').removeClass('login-inputs-animate');
 			// $('.login').removeClass('login-animate');
 			console.log($(".login, .login-animate"));
-			$(".login, .login-animate").switchClass('login login-animate', 'register');
+			$(".login, .login-animate").switchClass('login login-animate', 'register register-animate');
 		};
 
 		function collapselogin () {
@@ -37,7 +37,7 @@
 			});
 			// console.log($(".register").style);
 			// $(".register").style.webkitAnimationFillMode = "backwards";
-			$('.register').switchClass('register', 'login-animate');
+			$('.register').switchClass('register register-animate', 'login-animate');
 			// $('.login > form > div > #email').addClass('login-inputs-animate');
 			// $('.login > form > div > #passwordconfirm').addClass('login-inputs-animate');
 			// $('.login > form > div > #fname').addClass('login-inputs-animate');
@@ -50,6 +50,7 @@
 			$("#login").click($.app.authenticate);
 			$("#expandregister").click(expandregister);
 			$("#logout").remove();
+			$('#links').remove();
 			$('#configure_action').remove();
 		});
 	</script>

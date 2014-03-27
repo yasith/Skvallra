@@ -21,7 +21,6 @@ class SkvallraUserSerializer(serializers.ModelSerializer):
         Given a dictionary of deserialized field values, either update
         an existing model instance, or create a new model instance.
         """
-        print >>sys.stderr, "this got called"
         if instance is not None:
             instance.username = attrs.get('username', instance.username)
             instance.password = attrs.get('password', instance.password)
@@ -39,13 +38,14 @@ class SkvallraUserSerializer(serializers.ModelSerializer):
             # instance.is_active = attrs.get('is_active', instance.is_active)
             # instance.date_joined = attrs.get('date_joined', instance.date_joined)
             return instance
-        print attrs
         activities = attrs['activities']
         del attrs['activities']
         interests = attrs['interests']
         del attrs['interests']
         friends = attrs['friends']
         del attrs['friends']
+        if attrs['image'] == None:
+            attrs['image'] = Image.objects.get(pk=1)
         instance = SkvallraUser(**attrs)
         # instance.activities = activities
         # instance.interests = interests
