@@ -90,7 +90,6 @@ class UserActionViewSet(viewsets.ModelViewSet):
 	# permission_classes = (TokenHasReadWriteScope, )
 
 class UserActionsView(viewsets.ModelViewSet):   
-<<<<<<< Updated upstream
     serializer_class = UserActionSerializer
     model = UserAction
     # permission_classes = (TokenHasReadWriteScope, )
@@ -121,7 +120,7 @@ class UserActionsView(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             data = {}
         return Response(data)
-=======
+
 	serializer_class = UserActionSerializer
 	model = UserAction
 	# permission_classes = (TokenHasReadWriteScope, )
@@ -153,7 +152,6 @@ class UserActionsView(viewsets.ModelViewSet):
 		except ObjectDoesNotExist:
 			data = {}
 		return Response(data)
->>>>>>> Stashed changes
 
 class ActionUsersView(viewsets.ModelViewSet):   
 	serializer_class = SkvallraUserSerializer

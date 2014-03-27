@@ -503,20 +503,6 @@ div {
 	}
 }
 
-.action_status_bar {
-	> .rating {
-		padding-top: 7px;
-		padding-bottom: 7px;
-		display: inline-block;
-	}
-	> .action_status {
-		display: inline-block;
-	}
-	> .participation {
-		display: inline-block;
-	}
-}
-
 .action_details {
 	> label {
 		display: inline-block;
@@ -527,6 +513,34 @@ div {
 	> .participants_limit {
 		> .constraint {
 			display: inline-block;
+		}
+	}
+}
+
+.action_page {
+	.action_title_bar {
+		> #action_status {
+			display: inline-block;
+			padding-left: 0px;
+			> .lock, .unlock {
+				padding-right: 10px;
+				padding-bottom: 15px;
+			}
+		}
+		> .name {
+			display: inline-block;
+		}
+		> .join, .leave {
+			display: inline-block;
+			margin-right: 0px;
+		}
+	}
+	.editable {
+		> .edit {
+			display: inline-block;
+			color: @light-font-color;
+			margin-left: 5px;
+			font-size: @font-size;
 		}
 	}
 }
