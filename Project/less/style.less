@@ -17,6 +17,17 @@
 	animation-fill-mode: @fill;
 }
 
+.animate(@animation, @duration, @fill, @state) {
+	-webkit-animation-name: @animation;
+	-webkit-animation-duration: @duration;
+	-webkit-animation-fill-mode: @fill;
+	-webkit-animation-play-state: @state;
+	animation-name: @animation;
+	animation-duration: @duration;
+	animation-fill-mode: @fill;
+	animation-play-state: @state;
+}
+
 body {
 	font-size: @font-size;
 	color: @font-color
@@ -30,6 +41,73 @@ a {
 	color: darken(@green, 20%);
 }
 
+div.upload {
+	position: absolute;
+	top: 30%;
+	left: 39.5%;
+	// margin-left: auto;
+	width: 350px;
+	height: 155px;
+	// margin-right: auto;
+	background-color: #eee;
+	border: 1px solid #eee;
+	border-radius: 30px;
+	overflow: hidden;
+	> form {
+		width: 250px;
+		margin-top: 47px;
+		margin-left: auto;
+		margin-right: auto;
+		> div {
+			width: 100%;
+			margin-left: auto;
+			margin-right: auto;
+			&:nth-last-child(2) {
+				> progress {
+					width: 100%;
+				}
+			}
+			&:last-child {
+				width: 69px;
+			}
+			> input {
+				width: 100%;
+				margin: 2px;
+				.placeholder(darken(@green, 20%))
+			}
+		}
+	}
+}
+
+div#change {
+	position: absolute;
+	top: 30%;
+	left: 39.5%;
+	// margin-left: auto;
+	width: 300px;
+	height: 220px;
+	// margin-right: auto;
+	background-color: #eee;
+	border: 1px solid #eee;
+	border-radius: 30px;
+	overflow: hidden;
+	> form {
+		width: 200px;
+		margin-top: 40px;
+		margin-left: auto;
+		margin-right: auto;
+		> div {
+			margin-left: auto;
+			margin-right: auto;
+			> input {
+				width: 100%;
+				margin: 2px;
+				.placeholder(darken(@green, 20%))
+			}
+		}
+	}
+}
+
 div {
 	&.login {
 		position: absolute;
@@ -37,7 +115,7 @@ div {
 		left: 39.5%;
 		// margin-left: auto;
 		width: 300px;
-		height: 200px;
+		height: 230px;
 		// margin-right: auto;
 		background-color: #eee;
 		border: 1px solid #eee;
@@ -45,7 +123,7 @@ div {
 		overflow: hidden;
 		> form {
 			width: 200px;
-			margin-top: 47px;
+			margin-top: 40px;
 			margin-left: auto;
 			margin-right: auto;
 			> div, > a {
@@ -54,6 +132,57 @@ div {
 			}
 			> div {
 				> #email,#passwordconfirm, #fname, #lname {
+					margin: 0px;
+					padding-top: 0px;
+					padding-bottom: 0px;
+					border-width: 0px;
+					/*display: none;*/
+					/*opacity: 0.0;*/
+					height: 0px;
+				}
+				> a {
+					font-size: 0.75em;
+				}
+				&:last-child {
+					width: 41px;
+					height: 12px;
+				}
+				&:nth-last-of-type(2) {
+					width: 61px;
+				}
+				> input {
+					width: 100%;
+					margin: 2px;
+					.placeholder(darken(@green, 20%))
+				}
+			}
+		}
+	}
+	&.login-animate {
+		.animate(login, 1s, forwards);
+		position: absolute;
+		top: 30%;
+		left: 39.5%;
+		// margin-left: auto;
+		width: 300px;
+		height: 230px;
+		// margin-right: auto;
+		background-color: #eee;
+		border: 1px solid #eee;
+		border-radius: 30px;
+		overflow: hidden;
+		> form {
+			width: 200px;
+			margin-top: 40px;
+			margin-left: auto;
+			margin-right: auto;
+			> div, > a {
+				margin-left: auto;
+				margin-right: auto;
+			}
+			> div {
+				> #email,#passwordconfirm, #fname, #lname {
+					.animate(login-inputs, 1s, forwards);
 					margin: 0px;
 					padding-top: 0px;
 					padding-bottom: 0px;
@@ -91,7 +220,7 @@ div {
 		border-radius: 30px;
 		> form {
 			width: 200px;
-			margin-top: 47px;
+			margin-top: 40px;
 			margin-left: auto;
 			margin-right: auto;
 			> div, > a {
@@ -122,19 +251,62 @@ div {
 	}
 }
 
-@-webkit-keyframes unblur {
-  from {-webkit-filter: blur(6px);}
-  to {-webkit-filter: blur(0);}
+.blur {
+	-webkit-filter: blur(0px);
+	.animate(blur, 1s, forwards);
 }
 
-@-webkit-keyframes fade {
-  from {opacity: 1.0;}
-  to {opacity: 0.0;}
+.unblur {
+	-webkit-filter: blur(6px);
+	.animate(unblur, 1s, forwards);
+}
+
+.fadein {
+	opacity: 0.0;
+	.animate(fadein, 1s, forwards);
+}
+
+.fadeout {
+	opacity: 1.0;
+	.animate(fadeout, 1s, forwards);
+}
+
+.login-animate {
+	.animate(login, 1s, forwards);
+}
+
+.login-inputs-animate {
+	.animate(login-inputs, 1s, forwards);
+}
+
+@-webkit-keyframes unblur {
+	from {-webkit-filter: blur(6px);}
+	to {-webkit-filter: blur(0px);}
+}
+
+@-webkit-keyframes blur {
+	from {-webkit-filter: blur(0px);}
+	to {-webkit-filter: blur(6px);}
+}
+
+@-webkit-keyframes fadeout {
+	from {opacity: 1.0;}
+	to {opacity: 0.0;}
+}
+
+@-webkit-keyframes fadein {
+	from {opacity: 0.0;}
+	to {opacity: 1.0;}
 }
 
 @-webkit-keyframes register {
-  from {width: 300px; height: 200px; left: 39.5%;}
-  to {width: 400px; height: 350px; left: 36%;}
+	from {width: 300px; height: 230px; left: 39.5%;}
+	to {width: 400px; height: 380px; left: 36%;}
+}
+
+@-webkit-keyframes login {
+	from {width: 400px; height: 380px; left: 36%;}
+	to {width: 300px; height: 230px; left: 39.5%;}
 }
 
 @-webkit-keyframes register-inputs {
@@ -150,6 +322,27 @@ div {
         border-width: 1px;
         height: 34px;
    	}
+}
+
+@-webkit-keyframes login-inputs {
+	0% {margin: 2px;
+    	padding-top: 6px;
+        padding-bottom: 6px;
+        border-width: 1px;
+        height: 34px;
+   	}
+  	100% {margin: 0px;
+    	padding-top: 0px;
+    	padding-bottom: 0px;
+    	border-width: 0px;
+    	height: 0px;
+   	}
+}
+
+#error {
+	min-height: 20px;
+	text-align: center;
+	color: red;
 }
 
 #content {
@@ -185,6 +378,17 @@ div {
 		display: block;
 		padding-top: 100%;
 	}
+	> div {
+		&.edit {
+			position: relative;
+			margin-top: -20px;
+			padding-right: 3px;
+			background-color: fade(lighten(@font-color, 70%), 40%);
+			padding-left: 3px;
+			float: right;
+			z-index: 1000;
+		}
+	}
 }
 
 .userimage, .actionimage, .usersearchimage, .actionsearchimage {
@@ -212,17 +416,6 @@ div {
 	border: 1px solid lighten(#000, 90%);
 	border-radius: 4px;
 	z-index: 0;
-	> div {
-		&.edit {
-			position: relative;
-			margin-top: -24px;
-			padding-right: 3px;
-			background-color: fade(lighten(@font-color, 70%), 40%);
-			padding-left: 3px;
-			float: right;
-			z-index: 1000;
-		}
-	}
 }
 
 .left{

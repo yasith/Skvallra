@@ -107,8 +107,6 @@ class SkvallraUser(AbstractBaseUser, PermissionsMixin):
 					total += u.rating
 					count += 1
 		if count != 0:
-			print(total)
-			print(count)
 			total = total / count
 		return total
 
