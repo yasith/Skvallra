@@ -396,7 +396,7 @@ SearchUserView = Backbone.View.extend({
 		});
 	},
 	navi: function(event) {
-		console.log(event.currentTarget);
+		// console.log(event.currentTarget);
 		if (event.currentTarget.id == $.app.user.attributes.id) {
 			router.navigate("/", {trigger: true});
 		} else {
@@ -842,7 +842,83 @@ MainView = Backbone.View.extend({
 	}
 });
 
-ActionLockView = Backbone.View.extend({
+ActionMainView = Backbone.View.extend({
+	edit_data: function (model, actionExists) {
+		$('.editable').hover(function () {
+			$(this).children($(".edit")).remove();
+			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+			$(this).children('.edit').click(function (event) {
+				var parent = $(this).parent();
+				$(this).remove();
+
+				var classes = parent.attr('class');
+				classes = classes.split(" ");
+				classes.splice(classes.indexOf('editable'),1);
+
+				var parentClass = classes[0];
+				if (parentClass !== 'description') {
+					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
+					$('#editing').trigger('focus');
+				} else {
+					parent.html("<textarea rows='4' cols='50' class='form-control' id='editing' value='" + $.trim(parent.text()) + "'>"+$.trim(parent.text())+"</textarea>");
+					$('#editing').trigger('select');
+				}
+
+				parent.unbind();
+
+				$('#editing').blur(function (event) {
+					var text = ActionMainView.prototype.encodeHTML($(this).val());
+					parent.html(text + " ");
+
+					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
+						d = new Date(text);
+						text = d.toISOString();
+					}
+					model.set(parentClass, text);
+
+					if (actionExists) {
+						model.save({}, {
+							error: function(model, response, options) {
+								ActionMainView.prototype.action_save_error(model, response, options);
+							}
+							
+						});
+					}
+				});
+			})
+		}, function() {
+			$(this).children($(".edit")).remove();
+		});
+	},
+	set_lock_icon: function(actionStatus) {
+		// Display icon corresponding to the Action's public status.
+		var lockIcon;
+		if (actionStatus) {
+			lockIcon = $('<img src="/static/skvallra/images/unlock_small.png" class="unlock" alt="unlock" />');
+		} else {
+			lockIcon = $('<img src="/static/skvallra/images/lock_small.png" class="lock" alt="lock" />');
+		}
+		$(".action_status").html(lockIcon);
+	},
+	action_save_error: function(model, response, options) {
+		var responseText = response.responseText;
+		var messageStart = responseText.indexOf("\n");
+		var messageEnd = responseText.indexOf("\n", messageStart + 1);
+		var errorMessage = responseText.substring(messageStart, messageEnd);
+		alert($.app.errors_messages.internal_error + "\n" + errorMessage);			
+	},
+	encodeHTML: function(s) {
+    	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+	},
+	pretare_date_for_render: function(given_date) {
+		var options = {year: "numeric", month: "long", day: "numeric"};
+		var new_date = new Date(given_date);
+		return (new_date.toLocaleDateString("en-US", options) + " " + new_date.toLocaleTimeString());
+
+	},
+});
+
+ActionLockView = ActionMainView.extend({
 	initialize: function() {
 		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
@@ -869,7 +945,7 @@ ActionLockView = Backbone.View.extend({
 
 			var view = this;
 			$(document).ready(function() {
-				view.edit_data();
+				view.edit_data($.app.actionView.model, true);
 			});
 
 		}
@@ -886,69 +962,8 @@ ActionLockView = Backbone.View.extend({
 			}
 		})
 	},
-	set_lock_icon: function(actionStatus) {
-		// Display icon corresponding to the Action's public status.
-		var lockIcon;
-		if (actionStatus) {
-			lockIcon = $('<img src="/static/skvallra/images/unlock_small.png" class="unlock" alt="unlock" />');
-		} else {
-			lockIcon = $('<img src="/static/skvallra/images/lock_small.png" class="lock" alt="lock" />');
-		}
-		$(".action_status").html(lockIcon);
-	},
-	edit_data: function() {
-		var model =  $.app.actionView.model;
-		$('.editable').hover(function () {
-			$(this).children($(".edit")).remove();
-			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
-			$(this).children('.edit').click(function (event) {
-				var parent = $(this).parent();
-				$(this).remove();
+});
 
-				var classes = parent.attr('class');
-				classes = classes.split(" ");
-				classes.splice(classes.indexOf('editable'),1);
-
-				var parentClass = classes[0];
-				if (parentClass !== 'description') {
-					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
-				} else {
-					parent.html("<textarea rows='4' cols='50' class='form-control' id='editing' value='" + $.trim(parent.text()) + "'>"+$.trim(parent.text())+"</textarea>");
-				}
-
-				parent.unbind();
-
-				$('#editing').trigger('focus');
-				$('#editing').blur(function (event) {
-					var text = $(this).val();
-					parent.html(text + " ");
-
-					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
-						d = new Date(text);
-						text = d.toISOString();
-					}
-					model.set(parentClass, text);
-					model.save({}, {
-						success: function() {
-							console.log("created userAction");		
-						},
-						error: function(model, response, options) {
-							var responseText = response.responseText;
-							var messageStart = responseText.indexOf("\n");
-							var messageEnd = responseText.indexOf("\n", messageStart + 1);
-							var errorMessage = responseText.substring(messageStart, messageEnd);
-							alert($.app.errors_messages.action_update_error + "\n" + errorMessage);
-							console.log(response);
-						}
-					});
-				});
-			})
-		}, function() {
-			$(this).children($(".edit")).remove();
-		});
-	},
-
-})
 
 ActionControlsView = Backbone.View.extend({
 	initialize: function() {
@@ -978,8 +993,11 @@ ActionControlsView = Backbone.View.extend({
 				204: function() {
 					$(".leave").html("Join").switchClass("leave", "join");
 					$(".rating").empty();	
-					$(".action_status").empty();	
-					// TODO: remove class editable
+					$(".action_status").empty();
+					$(".editable").each(function(){
+						$(this).removeClass("editable");
+						$(this).unbind();
+					});	
 				}
 			},
 			error: function() {
@@ -1039,7 +1057,6 @@ ActionControlsView = Backbone.View.extend({
 		this.model.url = "/api/useractions/" + this.model.get('id');
 		this.model.save({'rating': score});
 	},
-
 });
 
 // Backbone view to display an action
@@ -1049,18 +1066,15 @@ ActionView = Backbone.View.extend({
 		// bind render function to add, change and sync events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
-		this.model.on('sync', this.render, this);
+		// this.model.on('sync', this.render, this);
 	},
 	render: function() {
 		var source = $.app.templates.actionTemplate;
 		var template = Handlebars.compile(source);	
 		var temp = this.model.toJSON();
 		
-		var options = {year: "numeric", month: "long", day: "numeric"};
-		var start_date = new Date(temp.start_date);
-		temp.start_date = start_date.toLocaleDateString("en-US", options) + " " + start_date.toLocaleTimeString();
-		var end_date = new Date(temp.end_date);
-		temp.end_date = end_date.toLocaleDateString("en-US", options) + " " + end_date.toLocaleTimeString();
+		temp.start_date = ActionMainView.prototype.pretare_date_for_render(temp.start_date);
+		temp.end_date = ActionMainView.prototype.pretare_date_for_render(temp.end_date);
 
 		var html = template(temp);
 		this.$el.html(html);
@@ -1127,25 +1141,21 @@ ActionView = Backbone.View.extend({
 	},
 });
 
-CreateActionView = Backbone.View.extend({
+CreateActionView = ActionMainView.extend({
 	render: function() {
 		var source = $.app.templates.createActionTemplate;
 		var template = Handlebars.compile(source);
 		var temp = this.model.toJSON();
 
-		var options = {year: "numeric", month: "long", day: "numeric"};
-		var start_date = new Date(temp.start_date);
-		temp.start_date = start_date.toLocaleDateString("en-US", options) + " " + start_date.toLocaleTimeString();
-		var end_date = new Date(temp.end_date);
-		temp.end_date = end_date.toLocaleDateString("en-US", options) + " " + end_date.toLocaleTimeString();
+		temp.start_date = this.pretare_date_for_render(temp.start_date);
+		temp.end_date = this.pretare_date_for_render(temp.end_date);
 
 		var html = template(temp);
 		this.$el.html(html);
 
 		var actionPrivateStatus = this.model.get("public");
 		this.set_lock_icon(actionPrivateStatus);
-
-		this.edit_data();
+		this.edit_data(this.model, false);
 	},
 	events: {
 		"click .unlock" : "toggle_private_status",
@@ -1153,25 +1163,12 @@ CreateActionView = Backbone.View.extend({
 		"click .create" : "create_action",
 	},
 	toggle_private_status: function() {
-		// Toggle public / private status of Action.
 		var actionPrivateStatus = !this.model.get("public");
 		this.model.set({"public": actionPrivateStatus});
 		this.set_lock_icon(actionPrivateStatus);
-		console.log(this.model);
-	},
-	set_lock_icon: function(actionStatus) {
-		// Display icon corresponding to the Action's public status.
-		var lockIcon;
-		if (actionStatus) {
-			lockIcon = $('<img src="/static/skvallra/images/unlock_small.png" class="unlock" alt="unlock" />');
-		} else {
-			lockIcon = $('<img src="/static/skvallra/images/lock_small.png" class="lock" alt="lock" />');
-		}
-		$(".action_status").html(lockIcon);
 	},
 	create_action: function() {
 		var newAction = this;
-		console.log(this.model);
 		newAction.model.save({}, {
 			success: function(model, response, options)	{
 				// create new UserAction relation
@@ -1181,62 +1178,19 @@ CreateActionView = Backbone.View.extend({
 							        	"role": $.app._organizer });
 				userAction.save({}, {
 					success: function() {
-						console.log("created userAction");		
 						router.navigate("/action/" + newAction.model.get('action_id'), {trigger: true});
 					},
 					error: function(model, response, options) {
 						// set an id so a model is considered 'old' by Backbone so destroy() can be fired
 						newAction.model.set('id', newAction.model.get('action_id'));
 						newAction.model.destroy(); // remove Action from database. 
-						alert($.app.errors_messages.internal_error);
+						alert($.app.errors_messages.internal_error + "\n" + errorMessage);
 					}
 				});
 			}, 
 			error: function(model, response, options) {
-				var responseText = response.responseText;
-				var messageStart = responseText.indexOf("\n");
-				var messageEnd = responseText.indexOf("\n", messageStart + 1);
-				var errorMessage = responseText.substring(messageStart, messageEnd);
-				alert(errorMessage);
-				console.log(response);
+				newAction.action_save_error(model, response, options);
 			},
-		});
-	},
-	edit_data: function() {
-		var model = this.model;
-		$('.editable').hover(function () {
-			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
-			$(this).children('.edit').click(function (event) {
-				var parent = $(this).parent();
-				$(this).remove();
-
-				var classes = parent.attr('class');
-				classes = classes.split(" ");
-				classes.splice(classes.indexOf('editable'),1);
-
-				var parentClass = classes[0];
-				if (parentClass !== 'description') {
-					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
-				} else {
-					parent.html("<textarea rows='4' cols='50' class='form-control' id='editing' value='" + $.trim(parent.text()) + "'>"+$.trim(parent.text())+"</textarea>");
-				}
-
-				parent.unbind();
-
-				$('#editing').trigger('focus');
-				$('#editing').blur(function (event) {
-					var text = $(this).val();
-					parent.html(text + " ");
-
-					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
-						d = new Date(text);
-						text = d.toISOString();
-					}
-					model.set(parentClass, text);
-				});
-			})
-		}, function() {
-			$(this).children($(".edit")).remove();
 		});
 	},
 }); 
