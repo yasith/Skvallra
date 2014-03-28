@@ -6398,17 +6398,6 @@ div.register > form > div > input::-webkit-input-placeholder {
   padding: 8px;
 }
 /* Action page */
-.actionpageimage {
-  border: 1px solid #e6e6e6;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-.actionpageimage > img {
-  max-height: 250px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
 .action_details > label {
   display: inline-block;
 }
@@ -6443,4 +6432,22 @@ div.register > form > div > input::-webkit-input-placeholder {
   color: #808080;
   margin-left: 5px;
   font-size: 14px;
+}
+.action_page .actionpageimage {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.action_page .actionpageimage > img {
+  max-height: 250px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.action_page .actionpageimage > .edit {
+  position: relative;
+  padding-right: 3px;
+  padding-left: 3px;
+  float: right;
+  z-index: 1000;
 }

@@ -224,9 +224,13 @@ ActionListView = Backbone.View.extend({
 							var boxheight = $(this).height();
 							var imgheight = $(this).children('img').height();
 							var pad = (boxheight - imgheight) / 2;
+							var img = $(this).children('img');
 							if (pad > 0) {
-								$(this).children('img').css('margin-top', pad);
+								img.css('margin-top', pad);
 							};
+							img.css('max-height', boxheight);
+							var leftPad = (boxheight - img.width()) / 2;
+							img.css('margin-left', leftPad);	
 						});
 					}, 30);
 				}
@@ -301,9 +305,13 @@ ActionFriendListView = Backbone.View.extend({
 							var boxheight = $(this).height();
 							var imgheight = $(this).children('img').height();
 							var pad = (boxheight - imgheight) / 2;
+							var img = $(this).children('img');
 							if (pad > 0) {
-								$(this).children('img').css('margin-top', pad);
+								img.css('margin-top', pad);
 							};
+							img.css('max-height', boxheight);
+							var leftPad = (boxheight - img.width()) / 2;
+							img.css('margin-left', leftPad);							
 						});
 					}, 100);
 				}
@@ -658,6 +666,10 @@ ProfileView = Backbone.View.extend({
 					if (pad > 0) {
 						$('.profileimage > img').css('margin-top', pad);
 					};
+					var constraint = $(".profileimage").width();
+					$('.profileimage > img').css({"max-width": constraint, "max-height": constraint});
+					var leftpad = (constraint - $('.profileimage > img').width()) / 2;
+					$('.profileimage > img').css("margin-left", leftpad);
 				}, 30);
 				if (model.get('id') === $.app.user.get('id')) {
 					$('#profileimagebox').unbind();
@@ -890,6 +902,85 @@ ActionMainView = Backbone.View.extend({
 			$(this).children($(".edit")).remove();
 		});
 	},
+	edit_image: function() {
+		$('#actionpageimage').unbind();
+		$('#actionpageimage').hover(function() {
+			var imgheight = $('.actionpageimage > img').height();
+			$(this).append("<div class='edit pull-right'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+			$('.actionpageimage > .edit').css('margin-top', 0 - imgheight);
+			$(this).unbind('click');
+			$(this).children('.edit').click(function (event) {
+				$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><div class="progress progress-striped active" style="display: none;"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
+				$('.container').removeClass('unblur');
+				$('.container').addClass('blur');
+				$('#submit').click(function(event) {
+					event.stopPropagation();
+					event.preventDefault();
+					if ($('#file')[0].files.length == 0) {
+						return;
+					}
+					var data = new FormData();
+					$.each($('#file')[0].files, function (key, value) {
+						data.append(key, value);
+					});
+					$('.progress').css({'display': 'block', 'margin-bottom': '0px'});
+					$.ajax({
+						url: '/api/upload_image',
+						type: 'POST',
+						cache: false,
+						dataType: 'json',
+						data: data,
+						processData: false,
+						contentType: false,
+						xhr: function() {  // Custom XMLHttpRequest
+							var myXhr = $.ajaxSettings.xhr();
+							if(myXhr.upload){ // Check if upload property exists
+								myXhr.upload.addEventListener('progress',function (e) {
+									if (e.lengthComputable) {
+										$('progress').attr({value:e.loaded,max:e.total});
+									}
+								}, false); // For handling the progress of the upload
+							}
+							return myXhr;
+						},
+					})
+					.done(function(data) {
+						$('.upload').removeClass('fadein');
+						$('.upload').addClass('fadeout');
+						$('.upload').bind('oanimationend animationend webkitAnimationEnd', function () {
+							$('.upload').unbind();
+							$('.upload').remove();
+						});
+						// $('.container').next('.upload').remove();
+						$('.container').unbind('click');
+						$('.container').removeClass('blur');
+						$('.container').addClass('unblur');
+						$.app.actionView.model.set('image', data.id);
+						$.app.actionView.model.save();
+					})
+				});
+				setTimeout(function () {
+					$('.container').click(function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$('.upload').removeClass('fadein');
+						$('.upload').addClass('fadeout');
+						$('.upload').bind('oanimationend animationend webkitAnimationEnd', function () {
+							$('.upload').unbind();
+							$('.upload').remove();
+						});
+						// $('.container').next('.upload').remove();
+						$('.container').unbind('click');
+						$('.container').removeClass('blur');
+						$('.container').addClass('unblur');
+					});
+				}, 100);
+			});
+		}, function () {
+			$(this).children('.edit').remove();
+		});
+
+	},
 	set_lock_icon: function(actionStatus) {
 		// Display icon corresponding to the Action's public status.
 		var lockIcon;
@@ -946,6 +1037,7 @@ ActionLockView = ActionMainView.extend({
 			var view = this;
 			$(document).ready(function() {
 				view.edit_data($.app.actionView.model, true);
+				view.edit_image();
 			});
 
 		}
@@ -1091,7 +1183,11 @@ ActionView = Backbone.View.extend({
 		var image = new Images({id: this.model.get('image')});
 		var imageView = new ImageView({model: image});
 		imageView.$el = $('.actionpageimage');
-		image.fetch();
+		image.fetch({
+			success: function() {
+				$('.actionpageimage > img').css("max-width", $(".actionpageimage").width());
+			}
+		});
 	},
 	render_tags: function() {
 		var activities = this.model.get('tags');

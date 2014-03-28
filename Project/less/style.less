@@ -496,17 +496,7 @@ div {
 
 /* Action page */
 
-.actionpageimage {
-	border: 1px solid lighten(#000, 90%);
-	border-radius: 4px;
-	margin-bottom: 10px;
-	> img {
-		max-height: 250px;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-	}
-}
+
 
 .action_details {
 	> label {
@@ -555,4 +545,23 @@ div {
 			font-size: @font-size;
 		}
 	}
+	.actionpageimage {
+		border: 1px solid lighten(#000, 90%);
+		border-radius: 4px;
+		margin-bottom: 10px;
+		> img {
+			max-height: 250px;
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		> .edit {
+			position: relative;
+			padding-right: 3px;
+			padding-left: 3px;
+			float: right;
+			z-index: 1000;
+		}
+	}
 }
+
