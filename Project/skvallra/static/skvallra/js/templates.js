@@ -227,7 +227,7 @@ ActionListView = Backbone.View.extend({
 								$(this).children('img').css('margin-top', pad);
 							};
 						});
-					}, 10);
+					}, 30);
 				}
 			});
 		});
@@ -304,7 +304,7 @@ ActionFriendListView = Backbone.View.extend({
 								$(this).children('img').css('margin-top', pad);
 							};
 						});
-					}, 10);
+					}, 100);
 				}
 			});
 		});
@@ -389,7 +389,7 @@ SearchUserView = Backbone.View.extend({
 								$(this).children('img').css('margin-top', pad);
 							};
 						});
-					}, 10);
+					}, 30);
 				}
 			});
 		});
@@ -429,11 +429,27 @@ SearchActionView = Backbone.View.extend({
 	events: {
 		// event, element and function to bind together
 		"click .search-action": "navi",
+		"click .joinaction": "join_action",
+		"click .leaveaction": "leave_action",
 	},
 	render: function() {
 		var source = $.app.templates.actionSearchTemplate;
 		var template = Handlebars.compile(source);
-		var html = template(this.collection.toJSON());
+
+		var temp = this.collection.toJSON();
+		$(temp).each(function (index, element) {
+			$.ajax({
+				url: '/api/user_actions/' + element.action_id + '/get_useraction',
+				type: 'GET',
+				dataType: 'json',
+				async: false,
+			})
+			.done(function(data) {
+				element.ismember = !$.isEmptyObject(data);
+			});
+		});
+
+		var html = template(temp);
 
 		this.$el.html(html);
 
@@ -455,14 +471,40 @@ SearchActionView = Backbone.View.extend({
 								$(this).children('img').css('margin-top', pad);
 							};
 						});
-					}, 10);
+					}, 30);
 				}
 			});
 		});
 	},
 	navi: function(event) {
 		router.navigate("/action/" + event.currentTarget.id, {trigger: true});
-	}
+	},
+	join_action: function (event) {
+		var action_id = parseInt(event.currentTarget.id);
+		var user_id = $.app.user.get('id');
+		var userAction = new UserActionInteraction({'user': user_id, 'action': action_id, 'role': $.app._participant});
+		userAction.save();
+		this.collection.fetch();
+	},
+	leave_action: function (event) {
+		var action_id = parseInt(event.currentTarget.id);
+
+		$.ajax({
+			url: '/api/user_actions/' + action_id + '/get_useraction',
+			type: 'GET',
+			dataType: 'json',
+			async: false,
+		})
+		.done(function(data) {
+			console.log(data)
+			var userAction = new UserActionInteraction(data);
+			console.log(userAction);
+			// userAction.isNew = false;
+			userAction.destroy();
+		});
+
+		this.collection.fetch();
+	},
 });
 
 // Backbone view to display the search results page
@@ -615,7 +657,7 @@ ProfileView = Backbone.View.extend({
 					if (pad > 0) {
 						$('.profileimage > img').css('margin-top', pad);
 					};
-				}, 10);
+				}, 30);
 				if (model.get('id') === $.app.user.get('id')) {
 					$('#profileimagebox').unbind();
 					$('#profileimagebox').hover(function() {

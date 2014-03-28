@@ -27,8 +27,18 @@ urlpatterns = patterns('',
 
 	url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
 	url(r'^admin/', include(admin.site.urls)),
+
+	url(r'^api/top_tags/(?P<number>\d+)/(?P<offset>\d+)/', views.TopTags.as_view()),
+	url(r'^api/top_tags/(?P<number>\d+)/', views.TopTags.as_view(), {'offset': 0}),
+	url(r'^api/top_tags/', views.TopTags.as_view(), {'number': 5, 'offset': 0}),
+
+	url(r'^api/top_organizers/(?P<number>\d+)/(?P<offset>\d+)/', views.TopOrganizers.as_view()),
+	url(r'^api/top_organizers/(?P<number>\d+)/', views.TopOrganizers.as_view(), {'offset': 0}),
+	url(r'^api/top_organizers/', views.TopOrganizers.as_view(), {'number': 5, 'offset': 0}),
+
 	url(r'^api/upload_image/', views.UploadImage.as_view()),
 	url(r'^api/change_password/', views.ChangePassword.as_view()),
+
 	url(r'^api/', include(router.urls)),
 	url(r'(^.{1,2}$|^.{3}(?<!api).*)', include("skvallra.urls")),
 	# url(r'^[^api/]', include("skvallra.urls")),

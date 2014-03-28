@@ -192,14 +192,14 @@ class SearchViewSet(viewsets.ModelViewSet):
 
 	@link()
 	def users(self, request, pk=None):
-		users = SkvallraUser.objects.filter((Q(first_name__contains=pk) | Q(last_name__contains=pk)) & ~Q(pk=request.user.pk))
+		users = SkvallraUser.objects.filter((Q(first_name__icontains=pk) | Q(last_name__icontains=pk)) & ~Q(pk=request.user.pk))
 
 		serializer = SkvallraUserSerializer(users, many=True)
 		return Response(serializer.data)
 
 	@link()
 	def actions(self, request, pk=None):
-		actions = Action.objects.filter(Q(title__contains=pk, public=True) | Q(description__contains=pk, public=True))
+		actions = Action.objects.filter(Q(title__icontains=pk, public=True) | Q(description__icontains=pk, public=True))
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
@@ -250,3 +250,68 @@ class UploadImage(views.APIView):
 		os.remove(os.path.dirname(os.path.realpath(__file__)) + '/static/skvallra/temp/' + original_hex + '.png')
 		return Response({'id': new_image.pk}, status=200)
 		
+class TopOrganizers(views.APIView):
+
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+		ranks = {}
+		for u in SkvallraUser.objects.all():
+			try:
+				ranks[u.get_rating()].append(u)
+			except KeyError:
+				ranks[u.get_rating()] = [u]
+
+		srt = sorted(ranks.items(), reverse=True)
+		output = []
+		while len(output) < number and len(srt) > 0:
+			top = srt.pop(0)
+			rank = top[0]
+			users = top[1]
+			while len(output) < number and len(users) > 0:
+				usr = users.pop(0)
+				if offset <= 0:
+					output.append([usr.username, rank])
+				offset -= 1
+				offset = max(offset, 0)
+		
+		return Response(output, status=200)
+
+class TopTags(views.APIView):
+	
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+
+		tags = {}
+		users = SkvallraUser.objects.all()
+		actions = Action.objects.all()
+		for u in users:
+			for t in u.activities.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+			for t in u.interests.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+		for a in actions:
+			for t in a.tags.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+
+		srt = sorted(tags.items(), key=lambda x : x[1], reverse=True)
+		output = []
+		while len(output) < number and len(srt) > 0:
+			top = srt.pop(0)
+			if offset <= 0:
+				output.append([top[0].tag_id, top[1]])
+			offset -= 1
+			offset = max(offset, 0)
+
+
+		return Response(output, status=200)
