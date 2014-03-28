@@ -15,6 +15,7 @@ $.app.client_secret = "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab";
 // app error messages
 $.app.errors_messages = {};
 $.app.errors_messages.internal_error = "An internal error has happened while processing your request.";
+$.app.errors_messages.action_update_error = "An internal error has happened while processing your request. Your action was not updated.";
 
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
@@ -855,17 +856,22 @@ ActionLockView = Backbone.View.extend({
 	},
 	render: function() {
 		$(".participants_limit").empty();
-		console.log("foo");
 		var isOrganizer = this.model.get('role') == $.app._organizer;
 		if (isOrganizer) {
 			var actionPublicStatus = $.app.actionView.model.get('public');
 			this.set_lock_icon(actionPublicStatus);
 
-			var minUsers = $("<br><label>Minimum participants: </label><div class='action_min_user_limit constraint'>" + 
+			var minUsers = $("<br><label>Minimum participants: </label> <div class='min_participants constraint editable'>" + 
 				$.app.actionView.model.get('min_participants') + "</div>");
-			var maxUsers = $("<br><label>Maximum participants: </label><div class='action_max_user_limit constraint'>" + 
+			var maxUsers = $("<br><label>Maximum participants: </label> <div class='max_participants constraint editable'>" + 
 				$.app.actionView.model.get('max_participants') + "</div>");
 			$(".participants_limit").append(minUsers, maxUsers);
+
+			var view = this;
+			$(document).ready(function() {
+				view.edit_data();
+			});
+
 		}
 	},
 	toggle_private_status: function() {
@@ -889,6 +895,57 @@ ActionLockView = Backbone.View.extend({
 			lockIcon = $('<img src="/static/skvallra/images/lock_small.png" class="lock" alt="lock" />');
 		}
 		$(".action_status").html(lockIcon);
+	},
+	edit_data: function() {
+		var model =  $.app.actionView.model;
+		$('.editable').hover(function () {
+			$(this).children($(".edit")).remove();
+			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+			$(this).children('.edit').click(function (event) {
+				var parent = $(this).parent();
+				$(this).remove();
+
+				var classes = parent.attr('class');
+				classes = classes.split(" ");
+				classes.splice(classes.indexOf('editable'),1);
+
+				var parentClass = classes[0];
+				if (parentClass !== 'description') {
+					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
+				} else {
+					parent.html("<textarea rows='4' cols='50' class='form-control' id='editing' value='" + $.trim(parent.text()) + "'>"+$.trim(parent.text())+"</textarea>");
+				}
+
+				parent.unbind();
+
+				$('#editing').trigger('focus');
+				$('#editing').blur(function (event) {
+					var text = $(this).val();
+					parent.html(text + " ");
+
+					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
+						d = new Date(text);
+						text = d.toISOString();
+					}
+					model.set(parentClass, text);
+					model.save({}, {
+						success: function() {
+							console.log("created userAction");		
+						},
+						error: function(model, response, options) {
+							var responseText = response.responseText;
+							var messageStart = responseText.indexOf("\n");
+							var messageEnd = responseText.indexOf("\n", messageStart + 1);
+							var errorMessage = responseText.substring(messageStart, messageEnd);
+							alert($.app.errors_messages.action_update_error + "\n" + errorMessage);
+							console.log(response);
+						}
+					});
+				});
+			})
+		}, function() {
+			$(this).children($(".edit")).remove();
+		});
 	},
 
 })
@@ -1014,12 +1071,6 @@ ActionView = Backbone.View.extend({
 		this.render_comments();
 		this.render_action_controls();
 		this.render_rating_and_participation();
-
-		// add document ready here
-		// do fetch
-		// on success do editing
-
-		
 	},
 
 	render_image: function() {
@@ -1094,44 +1145,7 @@ CreateActionView = Backbone.View.extend({
 		var actionPrivateStatus = this.model.get("public");
 		this.set_lock_icon(actionPrivateStatus);
 
-		var model = this.model;
-		$(document).ready(function() {
-			$('.editable').hover(function() {
-				$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png'></div>");
-				$(this).children('.edit').click(function (event) {
-					var parent = $(this).parent();
-					$(this).remove();
-					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
-					parent.unbind();
-					$('#editing').trigger('focus');
-					$('#editing').blur(function (event) {
-						var text = $(this).val();
-						parent.html(text + " ");
-						var classes = parent.attr('class');
-						classes = classes.split(" ");
-						classes.splice(classes.indexOf('editable'),1);
-						// if (classes[0] === 'birthday') {
-						// 	d = new Date(text);
-						// 	text = d.toISOString();
-						// 	$.app.user.set(classes[0], text);
-						// 	$.app.user.save();
-						// } else if (classes[0] === 'name') {
-						// 	var names = text.split(" ");
-						// 	var first_name = names.shift();
-						// 	var last_name = names.join(" ");
-						// 	$.app.user.set('first_name', first_name);
-						// 	$.app.user.set('last_name', last_name);
-						// 	$.app.user.save();
-						// } else {
-						// 	$.app.user.set(classes[0], text);
-						// 	$.app.user.save();
-						// }
-					});
-				})
-			}, function() {
-				$(this).children('div').remove();
-			});
-		});
+		this.edit_data();
 	},
 	events: {
 		"click .unlock" : "toggle_private_status",
@@ -1157,6 +1171,7 @@ CreateActionView = Backbone.View.extend({
 	},
 	create_action: function() {
 		var newAction = this;
+		console.log(this.model);
 		newAction.model.save({}, {
 			success: function(model, response, options)	{
 				// create new UserAction relation
@@ -1186,7 +1201,44 @@ CreateActionView = Backbone.View.extend({
 				console.log(response);
 			},
 		});
-	}
+	},
+	edit_data: function() {
+		var model = this.model;
+		$('.editable').hover(function () {
+			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+			$(this).children('.edit').click(function (event) {
+				var parent = $(this).parent();
+				$(this).remove();
+
+				var classes = parent.attr('class');
+				classes = classes.split(" ");
+				classes.splice(classes.indexOf('editable'),1);
+
+				var parentClass = classes[0];
+				if (parentClass !== 'description') {
+					parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
+				} else {
+					parent.html("<textarea rows='4' cols='50' class='form-control' id='editing' value='" + $.trim(parent.text()) + "'>"+$.trim(parent.text())+"</textarea>");
+				}
+
+				parent.unbind();
+
+				$('#editing').trigger('focus');
+				$('#editing').blur(function (event) {
+					var text = $(this).val();
+					parent.html(text + " ");
+
+					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
+						d = new Date(text);
+						text = d.toISOString();
+					}
+					model.set(parentClass, text);
+				});
+			})
+		}, function() {
+			$(this).children($(".edit")).remove();
+		});
+	},
 }); 
 
 

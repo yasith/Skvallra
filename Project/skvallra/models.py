@@ -153,9 +153,9 @@ class Action(models.Model):
 			if global_settings.count() != 0:
 				global_settings = global_settings[0]
 				if (self.min_participants < global_settings.min_participants):
-					raise Exception, "Minimum number of participants should be at least " + str(global_settings.min_participants) + "."
+					raise Exception, "Minimum number of participants is set to at least " + str(global_settings.min_participants) + "."
 				elif (self.max_participants > global_settings.max_participants):
-					raise Exception, "Maximum number of participants should be at most " + str(global_settings.max_participants) + "."
+					raise Exception, "Maximum number of participants is set to at most " + str(global_settings.max_participants) + "."
 				else:
 					super(Action, self).save()			
 			else:

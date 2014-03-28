@@ -2,7 +2,7 @@
 	<div class="actionpageimage"></div>
 	<div class="action_title_bar">
 		<div class="action_status" id="action_status"></div>
-		<div class="title name" id="{{id}}">{{this.title}}</div>
+		<div class="title name editable" id="{{id}}">{{this.title}}</div>
 		<div class="action_controls">
 			<div class="rating"></div>
 			<div class="participation pull-right"></div>
@@ -11,12 +11,12 @@
  	<br>
 	<div class="row">
 		<div class="col-md-4 action_details">
-			<label>Starts on:</label> <div class="start_date date">{{this.start_date}}</div>
+			<label>Starts on:</label> <div class="start_date date editable">{{this.start_date}}</div>
 			<br>
-			<label>Ends on: </label> <div class="end_date date">{{this.end_date}}</div>
+			<label>Ends on: </label> <div class="end_date date editable">{{this.end_date}}</div>
 			<div class="participants_limit"></div>
 			<br>
-			<div class="address">{{this.address}}</div>
+			<div class="address editable">{{this.address}}</div>
 			<div class="tags">
 				{{> activitiesList}}
 			</div>
@@ -25,7 +25,7 @@
 			</div>
 		</div>
 		<div class="col-md-8">
-			<div class="action_description">{{this.description}}</div>
+			<div class="description editable">{{this.description}}</div>
 			<div class="user_comments"></div>
 		</div>	
 	</div>
