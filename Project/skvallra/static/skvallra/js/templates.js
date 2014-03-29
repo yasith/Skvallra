@@ -1,5 +1,5 @@
 String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
 // create a dictionary that will contain data relevent to the app.
@@ -20,6 +20,7 @@ $.app.client_secret = "56e69e9d5e6962f532db25f2b5fe1dbc6966f5ab";
 $.app.errors_messages = {};
 $.app.errors_messages.internal_error = "An internal error has happened while processing your request.";
 $.app.errors_messages.action_update_error = "An internal error has happened while processing your request. Your action was not updated.";
+$.app.errors_messages.geo_error = "The address you entered is not valid. Your address will be updated but map location will not change.";
 
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
@@ -336,9 +337,9 @@ ActionCommentsView = Backbone.View.extend({
 		// bind render function to sync event
 		this.collection.on('sync', this.render, this);
 		this.collection.on('add', this.render, this);
-		this.collection.on('all', function(eventName){
-			console.log('Name of View: ' + eventName);
-		});
+		// this.collection.on('all', function(eventName){
+		// 	console.log('Name of View: ' + eventName);
+		// });
 	},
 	events: {
 		// event, element and function to bind together
@@ -351,23 +352,7 @@ ActionCommentsView = Backbone.View.extend({
 		this.$el.html(html);
 
 		var renderElem = $(".comment > .col-md-2 > .userimage");
-		setTimeout(function () {
-			$(renderElem).each(function () {
-				// dynamically calculate height and width of a thumbnail to fill the image box;
-				var childImg = $(this).children('img');
-				var boxheight = $(this).height();
-				var boxwidth = $(this).width();
-				var imgheight = childImg.height();
-				var pad = (boxheight - imgheight) / 2;
-				if (pad > 0) {
-					childImg.css('margin-top', pad);
-				};
-				childImg.css({'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
-				var imgwidth = childImg.width();
-				var leftPad = (boxwidth - imgwidth) / 2;
-				childImg.css('margin-left', leftPad);
-			});
-		}, 30);
+		ImageView.prototype.render_thumbnail(renderElem);
 	},
 	add_comment: function(event) {
 		var NewComment = new Comment({
@@ -434,23 +419,32 @@ ImageView = Backbone.View.extend({
 
 		this.$el.html(html);
 		var renderElem = this.$el;
+		this.render_thumbnail(renderElem);
+	},
+	render_thumbnail: function(renderElem) {
 		setTimeout(function () {
 			$(renderElem).each(function () {
-				// dynamically calculate height and width of a thumbnail to fill the image box;
+				// dynamically calculate height and width of a thumbnail to fit in the image box;
 				var childImg = $(this).children('img');
 				var boxheight = $(this).height();
 				var boxwidth = $(this).width();
-				var imgheight = childImg.height();
-				var pad = (boxheight - imgheight) / 2;
-				if (pad > 0) {
-					childImg.css('margin-top', pad);
-				};
 				childImg.css({'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
+				
+				// create the padding
+				var imgheight = childImg.height();
 				var imgwidth = childImg.width();
-				var leftPad = (boxwidth - imgwidth) / 2;
-				childImg.css('margin-left', leftPad);
+				var topPad = ImageView.prototype.get_pad(boxheight, imgheight);
+				var leftPad = ImageView.prototype.get_pad(boxwidth, imgwidth);
+				childImg.css({'margin-top': topPad, 'margin-left': leftPad});
 			});
 		}, 30);
+	},
+	get_pad: function(boxparam, targetparam) {
+		var pad = 0;
+		if (targetparam > 0) {
+			pad = (boxparam - targetparam) / 2;
+		}
+		return pad;
 	}
 });
 
@@ -556,7 +550,6 @@ SearchActionView = Backbone.View.extend({
 		});
 
 		var html = template(temp);
-
 		this.$el.html(html);
 
 		this.render_image();
@@ -691,6 +684,8 @@ ProfileView = Backbone.View.extend({
 		this.render_activities();
 		this.render_interests();
 		this.render_rating(this.model.get('rating'))
+		this.render_map();
+
 		var model = this.model;
 		$(document).ready(function() {
 			if (model.get('id') === $.app.user.get('id')) {
@@ -709,20 +704,41 @@ ProfileView = Backbone.View.extend({
 							var classes = parent.attr('class');
 							classes = classes.split(" ");
 							classes.splice(classes.indexOf('editable'),1);
-							if (classes[0] === 'birthday') {
+							var parentClass = classes[0];
+							if (parentClass === 'birthday') {
 								d = new Date(text);
 								text = d.toISOString();
 								$.app.user.set(classes[0], text);
 								$.app.user.save();
-							} else if (classes[0] === 'name') {
+							} else if (parentClass === 'name') {
 								var names = text.split(" ");
 								var first_name = names.shift();
 								var last_name = names.join(" ");
 								$.app.user.set('first_name', first_name);
 								$.app.user.set('last_name', last_name);
 								$.app.user.save();
+							} else if (parentClass === 'address') {
+								var geocoder = new google.maps.Geocoder();
+								var address = text.replace(/, /g, ',').replace(/ /g, "+");
+
+								if (geocoder) {
+									geocoder.geocode({ 'address': address }, function (results, status) {
+										if (status == google.maps.GeocoderStatus.OK) {
+											var lat = results[0].geometry.location.k;
+											var lon = results[0].geometry.location.A;
+											var coords = lat + ',' + lon;
+											$.app.user.set('coordinates', coords);
+											$.app.user.set(parentClass, text);
+										}
+										else {
+											alert($.app.errors_messages.geo_error);
+											console.log("Geocoding failed: " + status);
+											$.app.user.set(parentClass, text);
+										}
+									});
+								}    
 							} else {
-								$.app.user.set(classes[0], text);
+								$.app.user.set(parentClass, text);
 								$.app.user.save();
 							}
 						});
@@ -925,6 +941,21 @@ ProfileView = Backbone.View.extend({
 			}
 		});
 	},
+	render_map: function(){
+		var mapDimensions = $(".googleMap").parent().width();
+		console.log(mapDimensions);
+		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
+		var coords = this.model.get('coordinates').split(",");
+		var lat = coords[0];
+		var lon = coords[1];
+		var myCenter = new google.maps.LatLng(lat, lon)
+		var mapProp = {	center: myCenter,
+						zoom:15,
+						mapTypeId:google.maps.MapTypeId.ROADMAP };
+		var map = new google.maps.Map($('#googleMap')[0],mapProp);
+		var marker = new google.maps.Marker({ position: myCenter});
+		marker.setMap(map);
+	},
 });
 
 MainView = Backbone.View.extend({
@@ -968,15 +999,31 @@ ActionMainView = Backbone.View.extend({
 					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
 						d = new Date(text);
 						text = d.toISOString();
-					}
-					model.set(parentClass, text);
+					} else if (parentClass === 'address') {
+						var geocoder = new google.maps.Geocoder();
+						var address = text.replace(/, /g, ',').replace(/ /g, "+");
 
-					if (actionExists) {
-						model.save({}, {
-							error: function(model, response, options) {
-								ActionMainView.prototype.action_save_error(model, response, options);
-							}							
-						});
+						if (geocoder) {
+							geocoder.geocode({ 'address': address }, function (results, status) {
+								if (status == google.maps.GeocoderStatus.OK) {
+									var lat = results[0].geometry.location.k;
+									var lon = results[0].geometry.location.A;
+									var coords = lat + ',' + lon;
+									model.set('coordinates', coords);
+									model.set(parentClass, text);
+									ActionMainView.prototype.save_model(model, actionExists);
+								}
+								else {
+									alert($.app.errors_messages.geo_error);
+									console.log("Geocoding failed: " + status);
+									model.set(parentClass, text);
+									ActionMainView.prototype.save_model(model, actionExists);
+								}
+							});
+						}    
+					} else { 
+						model.set(parentClass, text);
+						ActionMainView.prototype.save_model(model, actionExists);
 					}
 				});
 			})
@@ -1089,6 +1136,17 @@ ActionMainView = Backbone.View.extend({
 		return (new_date.toLocaleDateString("en-US", options) + " " + new_date.toLocaleTimeString());
 
 	},
+	save_model: function(model, actionExists) {
+		if (actionExists) {
+			console.log(model);
+
+			model.save({}, {
+				error: function(model, response, options) {
+					ActionMainView.prototype.action_save_error(model, response, options);
+				}							
+			});
+		}
+	}
 });
 
 ActionLockView = ActionMainView.extend({
@@ -1258,6 +1316,7 @@ ActionView = Backbone.View.extend({
 		this.render_comments();
 		this.render_action_controls();
 		this.render_rating_and_participation();
+		this.render_map();
 	},
 
 	render_image: function() {
@@ -1311,6 +1370,20 @@ ActionView = Backbone.View.extend({
 		myActionControlsView.$el = $(".action_controls");
 		actionStatusBar.fetch();
 		myActionControlsView.delegateEvents();
+	},
+	render_map: function(){
+		var mapDimensions = $(".action_details").width();
+		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
+		var coords = this.model.get('coordinates').split(",");
+		var lat = coords[0];
+		var lon = coords[1];
+		var myCenter = new google.maps.LatLng(lat, lon)
+		var mapProp = {	center: myCenter,
+						zoom:15,
+						mapTypeId:google.maps.MapTypeId.ROADMAP };
+		var map = new google.maps.Map($('#googleMap')[0],mapProp);
+		var marker = new google.maps.Marker({ position: myCenter});
+		marker.setMap(map);
 	},
 });
 
