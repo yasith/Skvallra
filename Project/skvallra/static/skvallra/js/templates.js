@@ -949,7 +949,8 @@ ProfileView = Backbone.View.extend({
 		var mapDimensions = $("#googleMap").parent().width();
 		console.log(mapDimensions);
 		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
-		var coords = this.model.get('coordinates').split(",");
+		console.log($.app.user);
+		var coords = $.app.user.get('coordinates').split(",");
 		var lat = coords[0];
 		var lon = coords[1];
 		var myCenter = new google.maps.LatLng(lat, lon)
