@@ -335,6 +335,10 @@ ActionCommentsView = Backbone.View.extend({
 		this.collection.on('change', $.app.actionView.render_comments, $.app.actionView);
 		// bind render function to sync event
 		this.collection.on('sync', this.render, this);
+		this.collection.on('add', this.render, this);
+		this.collection.on('all', function(eventName){
+			console.log('Name of View: ' + eventName);
+		});
 	},
 	events: {
 		// event, element and function to bind together
@@ -345,6 +349,25 @@ ActionCommentsView = Backbone.View.extend({
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
 		this.$el.html(html);
+
+		var renderElem = $(".comment > .col-md-2 > .userimage");
+		setTimeout(function () {
+			$(renderElem).each(function () {
+				// dynamically calculate height and width of a thumbnail to fill the image box;
+				var childImg = $(this).children('img');
+				var boxheight = $(this).height();
+				var boxwidth = $(this).width();
+				var imgheight = childImg.height();
+				var pad = (boxheight - imgheight) / 2;
+				if (pad > 0) {
+					childImg.css('margin-top', pad);
+				};
+				childImg.css({'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
+				var imgwidth = childImg.width();
+				var leftPad = (boxwidth - imgwidth) / 2;
+				childImg.css('margin-left', leftPad);
+			});
+		}, 30);
 	},
 	add_comment: function(event) {
 		var NewComment = new Comment({
@@ -353,8 +376,8 @@ ActionCommentsView = Backbone.View.extend({
 			"comment_time": new Date().toISOString(), 
 			"comment": $("#new_comment").val(),
 		});
-		this.collection.add(NewComment);
 		NewComment.save();
+		this.collection.add(NewComment);
 	},
 })
 
@@ -422,9 +445,10 @@ ImageView = Backbone.View.extend({
 				if (pad > 0) {
 					childImg.css('margin-top', pad);
 				};
+				childImg.css({'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
 				var imgwidth = childImg.width();
 				var leftPad = (boxwidth - imgwidth) / 2;
-				childImg.css({'margin-left': leftPad, 'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
+				childImg.css('margin-left', leftPad);
 			});
 		}, 30);
 	}
@@ -1114,7 +1138,6 @@ ActionLockView = ActionMainView.extend({
 	},
 });
 
-
 ActionControlsView = Backbone.View.extend({
 	initialize: function() {
 		// bind render function to add, change and sync events
@@ -1241,13 +1264,7 @@ ActionView = Backbone.View.extend({
 		var image = new Images({id: this.model.get('image')});
 		var imageView = new ImageView({model: image});
 		imageView.$el = $('.actionpageimage');
-		image.fetch(
-		// 	{
-		// 	success: function() {
-		// 		$('.actionpageimage > img').css("max-width", $(".actionpageimage").width());
-		// 	}
-		// }
-		);
+		image.fetch();
 	},
 	render_tags: function() {
 		var activities = this.model.get('tags');

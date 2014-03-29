@@ -170,7 +170,7 @@ class ActionCommentViewSet(viewsets.ModelViewSet):
 		return Response({})
 
 	def retrieve(self, request, pk=None):
-		comments = Comment.objects.filter(action_id=pk)
+		comments = Comment.objects.filter(action_id=pk).order_by('-comment_time')
 		serializer = CommentSerializer(comments, many=True)
 		return Response(serializer.data)
 
