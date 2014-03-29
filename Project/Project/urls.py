@@ -31,6 +31,10 @@ urlpatterns = patterns('',
 	url(r'^api/number_of_users/', views.NumberOfUsers.as_view()),
 	url(r'^api/actions_per_user/', views.NumberOfActionsPerUser.as_view()),
 
+	url(r'^api/page_views/(?P<type>\w+)/(?P<number>\d+)/(?P<offset>\d+)/', views.PageViewsByDay.as_view()),
+	url(r'^api/page_views/(?P<type>\w+)/(?P<number>\d+)/', views.PageViewsByDay.as_view(), {'offset': 0}),
+	url(r'^api/page_views/(?P<type>\w+)/', views.PageViewsByDay.as_view(), {'number': 7, 'offset': 0}),
+
 	url(r'^api/top_actions/(?P<number>\d+)/(?P<offset>\d+)/', views.TopActions.as_view()),
 	url(r'^api/top_actions/(?P<number>\d+)/', views.TopActions.as_view(), {'offset': 0}),
 	url(r'^api/top_actions/', views.TopActions.as_view(), {'number': 5, 'offset': 0}),

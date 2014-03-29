@@ -16,12 +16,16 @@ import os
 from PIL import Image as pilImage
 from StringIO import StringIO
 
+from django.utils import timezone
+
 from datetime import datetime
+from datetime import date
+from datetime import timedelta
 import pytz
 
 from collections import OrderedDict
 
-from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment
+from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment, PageView
 from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSerializer, UserActionSerializer, ImageSerializer, SettingSerializer, CommentSerializer, CommentInputSerializer
 
 
@@ -33,6 +37,16 @@ class SkvallraUserViewSet(viewsets.ModelViewSet):
 	serializer_class = SkvallraUserSerializer
 
 	permission_classes = (TokenHasReadWriteScope,)
+
+	def list(self, request):
+		pv = PageView(page="User")
+		pv.save()
+		return Response(SkvallraUserSerializer(SkvallraUser.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="User")
+		pv.save()
+		return Response(SkvallraUserSerializer(SkvallraUser.objects.get(pk=pk)).data)
 
 	@link()
 	def isfriend(self, request, pk=None):
@@ -57,6 +71,8 @@ class meViewSet(viewsets.ModelViewSet):
 	def list(self, request):
 		user = request.user
 		if not user.is_anonymous():
+			pv = PageView(page="Profile")
+			pv.save()
 			serializer = SkvallraUserSerializer(user)
 			return Response(serializer.data)
 		return Response(status=401)
@@ -66,6 +82,8 @@ class meViewSet(viewsets.ModelViewSet):
 	def retrieve(self, request, pk=None):
 		user = request.user
 		if not user.is_anonymous():
+			pv = PageView(page="Profile")
+			pv.save()
 			serializer = SkvallraUserSerializer(user)
 			return Response(serializer.data)
 		return Response(status=401)
@@ -78,6 +96,16 @@ class TagViewSet(viewsets.ModelViewSet):
 	serializer_class = TagSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="Tag")
+		pv.save()
+		return Response(TagSerializer(Tag.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Tag")
+		pv.save()
+		return Response(TagSerializer(Tag.objects.get(pk=pk)).data)
+
 class ActionViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows actions to be viewed or edited.
@@ -85,6 +113,16 @@ class ActionViewSet(viewsets.ModelViewSet):
 	queryset = Action.objects.all()
 	serializer_class = ActionSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Action")
+		pv.save()
+		return Response(ActionSerializer(Action.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Action")
+		pv.save()
+		return Response(ActionSerializer(Action.objects.get(pk=pk)).data)
 
 class UserActionViewSet(viewsets.ModelViewSet):
 	"""
@@ -94,37 +132,51 @@ class UserActionViewSet(viewsets.ModelViewSet):
 	serializer_class = UserActionSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="UserAction")
+		pv.save()
+		return Response(UserActionSerializer(UserAction.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="UserAction")
+		pv.save()
+		return Response(UserActionSerializer(UserAction.objects.get(pk=pk)).data)
+
 class UserActionsView(viewsets.ModelViewSet):   
-    serializer_class = UserActionSerializer
-    model = UserAction
-    # permission_classes = (TokenHasReadWriteScope, )
+	serializer_class = UserActionSerializer
+	model = UserAction
+	# permission_classes = (TokenHasReadWriteScope, )
 
-    def list(self, request):
-        user = request.user
-        temp = UserAction.objects.filter(user_id=user.id)
-        actions = []
-        for t in temp:
-            actions.append(Action.objects.get(pk=t.action_id))
-        serializer = ActionSerializer(actions, many=True)
-        return Response(serializer.data)
+	def list(self, request):
+		pv = PageView(page="User_Action")
+		pv.save()
+		user = request.user
+		temp = UserAction.objects.filter(user_id=user.id)
+		actions = []
+		for t in temp:
+			actions.append(Action.objects.get(pk=t.action_id))
+		serializer = ActionSerializer(actions, many=True)
+		return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        temp = UserAction.objects.filter(user_id=pk)
-        actions = []
-        for t in temp:
-            actions.append(Action.objects.get(pk=t.action_id))
-        serializer = ActionSerializer(actions, many=True)
-        return Response(serializer.data)
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="User_Action")
+		pv.save()
+		temp = UserAction.objects.filter(user_id=pk)
+		actions = []
+		for t in temp:
+			actions.append(Action.objects.get(pk=t.action_id))
+		serializer = ActionSerializer(actions, many=True)
+		return Response(serializer.data)
 
-    @link()
-    def get_useraction(self, request, pk=None):
-        try:
-            queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
-            serializer = UserActionSerializer(queryset)
-            data = serializer.data
-        except ObjectDoesNotExist:
-            data = {}
-        return Response(data)
+	@link()
+	def get_useraction(self, request, pk=None):
+		try:
+			queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
+			serializer = UserActionSerializer(queryset)
+			data = serializer.data
+		except ObjectDoesNotExist:
+			data = {}
+		return Response(data)
 
 class ActionUsersView(viewsets.ModelViewSet):   
 	serializer_class = SkvallraUserSerializer
@@ -135,6 +187,8 @@ class ActionUsersView(viewsets.ModelViewSet):
 		return Response({})
 
 	def retrieve(self, request, pk=None):
+		pv = PageView(page="Action_User")
+		pv.save()
 		temp = UserAction.objects.filter(action_id=pk)
 		users = []
 		for t in temp:
@@ -150,6 +204,16 @@ class ImageViewSet(viewsets.ModelViewSet):
 	serializer_class = ImageSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="Image")
+		pv.save()
+		return Response(ImageSerializer(Image.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Image")
+		pv.save()
+		return Response(ImageSerializer(Image.objects.get(pk=pk)).data)
+
 class SettingViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows settings to be viewed or edited.
@@ -157,6 +221,16 @@ class SettingViewSet(viewsets.ModelViewSet):
 	queryset = Setting.objects.all()
 	serializer_class = SettingSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Setting")
+		pv.save()
+		return Response(SettingSerializer(Setting.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Setting")
+		pv.save()
+		return Response(SettingSerializer(Setting.objects.get(pk=pk)).data)
 
 class ActionCommentViewSet(viewsets.ModelViewSet):
 	"""
@@ -170,6 +244,8 @@ class ActionCommentViewSet(viewsets.ModelViewSet):
 		return Response({})
 
 	def retrieve(self, request, pk=None):
+		pv = PageView(page="ActionComment")
+		pv.save()
 		comments = Comment.objects.filter(action_id=pk).order_by('-comment_time')
 		serializer = CommentSerializer(comments, many=True)
 		return Response(serializer.data)
@@ -181,6 +257,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 	queryset = Comment.objects.all()
 	serializer_class = CommentInputSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Comment")
+		pv.save()
+		return Response(CommentSerializer(Comment.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Comment")
+		pv.save()
+		return Response(CommentSerializer(Comment.objects.get(pk=pk)).data)
 
 class SearchViewSet(viewsets.ModelViewSet):
 	"""
@@ -414,6 +500,32 @@ class NumberOfActionsPerUser(views.APIView):
 
 
 		# print(output)
+
+		return Response(output, status=200)
+
+class PageViewsByDay(views.APIView):
+
+	def get(self, request, type, number, offset):
+		number = int(number)
+		offset = int(offset)
+		current = timezone.now().date()
+		td = timedelta(days=offset)
+		end_date = current - td + timedelta(days=1)
+		start_date = end_date - timedelta(days=number)
+
+		pageViews = PageView.objects.filter(date__range=(start_date, end_date), page=type)
+		count = {}
+		for i in range((end_date - start_date).days):
+			count[start_date + timedelta(days=i)] = 0
+		for pv in pageViews:
+			count[pv.date.date()] += 1
+
+		srt = sorted(count.items(), key=lambda x : x)
+		output = []
+
+		while len(srt) > 0:
+			top = srt.pop(0)
+			output.append([top[0], top[1]])
 
 		return Response(output, status=200)
 

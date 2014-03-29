@@ -222,6 +222,7 @@ GraphView = Backbone.View.extend({
 			var template = Handlebars.compile(source);
 			data = {}
 			data.title = view.pretify(view.url);
+			data.id = view.url;
 			data.elements = new Array();
 			$(temp.elements).each(function(index, el) {
 				data.elements.push({x: el[0], y: el[1]});
@@ -236,6 +237,50 @@ GraphView = Backbone.View.extend({
 		return string;
 	},
 });
+
+HitsView = Backbone.View.extend({
+	render: function () {
+		var data = {};
+		data.title = "Hits Per Page";
+		data.values = [];
+		data.id = "hitsperpage";
+		var views = ["User", "Profile", "Tag", "Action", "UserAction", "User_Action", "Action_User", "Image", "Setting", "ActionComment", "Comment"]
+		var requests = []
+		var view = this;
+		$(document).ajaxStop(function () {
+			console.log(data);
+			var source = $.app.templates.hitsViewTemplate;
+			var template = Handlebars.compile(source);
+			var html = template(data);
+			view.$el.html(html);
+		});
+		// bind another handler that removes all handlers to clean up after ourselves
+		$(document).ajaxStop(function() {
+			$(document).off("ajaxStop");
+		});
+		$(views).each(function(index, el) {
+			requests.push(
+			$.ajax({
+				url: '/api/page_views/' + el,
+				type: 'GET',
+				dataType: 'json',
+				sync: true,
+			}).done(function (response) {
+				d = [el, response];
+				data.labels = [];
+				$(response).each(function (index, el) {
+					data.labels.push(el[0]);
+				});
+				data.values.push(d)
+			}));
+		});
+	},
+	pretify: function (string) {
+		string = string.replace(/_/g, ' ');
+		string = string.toProperCase();
+		return string;
+	}
+})
 
 StatisticsView = Backbone.View.extend({
 	render: function() {
@@ -255,7 +300,7 @@ StatisticsView = Backbone.View.extend({
 
 		var graphs = ["actions_per_user"];
 		var graphHtml = "";
-		for (var i = 0; i <= graphs.length - 1; i++) {
+		for (var i = 0; i <= graphs.length; i++) {
 			graphHtml += '<div id="graph' + i + '" class="panel panel-default"></div>';
 		};
 		$('.graphs').html(graphHtml);
@@ -276,6 +321,9 @@ StatisticsView = Backbone.View.extend({
 			graphView.$el = $('#graph' + index);
 			graphView.render();
 		});
+		var hitsView = new HitsView();
+		hitsView.$el = $('#graph' + graphs.length);
+		hitsView.render();
 	},
 });
 
@@ -1739,7 +1787,7 @@ $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "acti
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
 					"userSearchTemplate", "commentList", "mainTemplate",  "createActionTemplate", "statisticsViewTemplate",
-					"listViewTemplate", "graphViewTemplate"];
+					"listViewTemplate", "graphViewTemplate", "hitsViewTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {

@@ -212,4 +212,10 @@ class Comment(models.Model):
 	comment_time = models.DateTimeField(_('comment time'), default=timezone.now)
 	comment =  models.TextField('user_comment')
 
+class PageView(models.Model):
 
+	page = models.CharField(max_length=30)
+	date = models.DateTimeField(default=timezone.now)
+
+	def __unicode__(self):
+		return self.page + " " + str(self.date)
