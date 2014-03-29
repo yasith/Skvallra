@@ -6429,10 +6429,6 @@ div.register > form > div > input::-webkit-input-placeholder {
   display: inline-block;
   margin-right: 0px;
 }
-.action_page #googleMap {
-  border: 1px solid #1a1a1a;
-  width: inherit;
-}
 .action_page .editable > .edit {
   display: inline-block;
   color: #808080;
@@ -6465,4 +6461,8 @@ td {
 thead {
   font-weight: bold;
   background-color: #e6e6e6;
+}
+#googleMap {
+  border: 1px solid #1a1a1a;
+  width: inherit;
 }

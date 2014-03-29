@@ -729,11 +729,15 @@ ProfileView = Backbone.View.extend({
 											var coords = lat + ',' + lon;
 											$.app.user.set('coordinates', coords);
 											$.app.user.set(parentClass, text);
+											$.app.user.save();
+
 										}
 										else {
 											alert($.app.errors_messages.geo_error);
 											console.log("Geocoding failed: " + status);
 											$.app.user.set(parentClass, text);
+											$.app.user.save();
+
 										}
 									});
 								}    
@@ -942,7 +946,7 @@ ProfileView = Backbone.View.extend({
 		});
 	},
 	render_map: function(){
-		var mapDimensions = $(".googleMap").parent().width();
+		var mapDimensions = $("#googleMap").parent().width();
 		console.log(mapDimensions);
 		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
 		var coords = this.model.get('coordinates').split(",");

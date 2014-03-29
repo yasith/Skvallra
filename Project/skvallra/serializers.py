@@ -46,6 +46,12 @@ class SkvallraUserSerializer(serializers.ModelSerializer):
         del attrs['friends']
         if attrs['image'] == None:
             attrs['image'] = Image.objects.get(pk=1)
+        try: 
+            if attrs['address'] == None:
+                attrs['address'] = "Default address"
+        except KeyError:
+            attrs['address'] = "Default address"
+
         instance = SkvallraUser(**attrs)
         # instance.activities = activities
         # instance.interests = interests
