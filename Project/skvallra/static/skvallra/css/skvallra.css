@@ -6299,7 +6299,6 @@ div.register > form > div > input::-webkit-input-placeholder {
   position: relative;
   margin-top: -20px;
   padding-right: 3px;
-  background-color: rgba(179, 179, 179, 0.4);
   padding-left: 3px;
   float: right;
   z-index: 1000;
@@ -6441,8 +6440,6 @@ div.register > form > div > input::-webkit-input-placeholder {
 .action_page .actionpageimage > img {
   max-height: 250px;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 .action_page .actionpageimage > .edit {
   position: relative;

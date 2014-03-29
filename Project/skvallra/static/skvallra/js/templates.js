@@ -216,25 +216,8 @@ ActionListView = Backbone.View.extend({
 		$(this.collection.models).each(function() {
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
-			imageView.$el = $('#' + this.attributes.action_id + '.actionimage');
-			image.fetch({
-				success: function () {
-					setTimeout(function () {
-						$('.actionimage').each(function () {
-							var boxheight = $(this).height();
-							var imgheight = $(this).children('img').height();
-							var pad = (boxheight - imgheight) / 2;
-							var img = $(this).children('img');
-							if (pad > 0) {
-								img.css('margin-top', pad);
-							};
-							img.css('max-height', boxheight);
-							var leftPad = (boxheight - img.width()) / 2;
-							img.css('margin-left', leftPad);	
-						});
-					}, 30);
-				}
-			});
+			imageView.$el = $('#' + this.attributes.action_id + '.actionimage');			
+			image.fetch();
 		});
 	},
 	navi: function(event) {
@@ -298,24 +281,7 @@ ActionFriendListView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.id + '.userimage');
-			image.fetch({
-				success: function () {
-					setTimeout(function () {
-						$('.userimage').each(function () {
-							var boxheight = $(this).height();
-							var imgheight = $(this).children('img').height();
-							var pad = (boxheight - imgheight) / 2;
-							var img = $(this).children('img');
-							if (pad > 0) {
-								img.css('margin-top', pad);
-							};
-							img.css('max-height', boxheight);
-							var leftPad = (boxheight - img.width()) / 2;
-							img.css('margin-left', leftPad);							
-						});
-					}, 100);
-				}
-			});
+			image.fetch();
 		});
 	},
 	navi: function(event) {
@@ -341,6 +307,23 @@ ImageView = Backbone.View.extend({
 		var html = template(this.model.toJSON());
 
 		this.$el.html(html);
+		var renderElem = this.$el;
+		setTimeout(function () {
+			$(renderElem).each(function () {
+				// dynamically calculate height and width of a thumbnail to fill the image box;
+				var childImg = $(this).children('img');
+				var boxheight = $(this).height();
+				var boxwidth = $(this).width();
+				var imgheight = childImg.height();
+				var pad = (boxheight - imgheight) / 2;
+				if (pad > 0) {
+					childImg.css('margin-top', pad);
+				};
+				var imgwidth = childImg.width();
+				var leftPad = (boxwidth - imgwidth) / 2;
+				childImg.css({'margin-left': leftPad, 'max-width': boxwidth+'px', 'max-height':boxheight+'px'});
+			});
+		}, 30);
 	}
 });
 
@@ -387,20 +370,7 @@ SearchUserView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
-			image.fetch({
-				success: function () {
-					setTimeout(function () {
-						$('.usersearchimage').each(function () {
-							var boxheight = $(this).height();
-							var imgheight = $(this).children('img').height();
-							var pad = (boxheight - imgheight) / 2;
-							if (pad > 0) {
-								$(this).children('img').css('margin-top', pad);
-							};
-						});
-					}, 30);
-				}
-			});
+			image.fetch();
 		});
 	},
 	navi: function(event) {
@@ -469,20 +439,7 @@ SearchActionView = Backbone.View.extend({
 			var image = new Images({id: this.attributes.image});
 			var imageView = new ImageView({model: image});
 			imageView.$el = $('#' + this.attributes.action_id + '.actionsearchimage');
-			image.fetch({
-				success: function () {
-					setTimeout(function () {
-						$('.actionsearchimage').each(function () {
-							var boxheight = $(this).height();
-							var imgheight = $(this).children('img').height();
-							var pad = (boxheight - imgheight) / 2;
-							if (pad > 0) {
-								$(this).children('img').css('margin-top', pad);
-							};
-						});
-					}, 30);
-				}
-			});
+			image.fetch();
 		});
 	},
 	navi: function(event) {
@@ -505,10 +462,7 @@ SearchActionView = Backbone.View.extend({
 			async: false,
 		})
 		.done(function(data) {
-			console.log(data)
 			var userAction = new UserActionInteraction(data);
-			console.log(userAction);
-			// userAction.isNew = false;
 			userAction.destroy();
 		});
 
@@ -614,7 +568,7 @@ ProfileView = Backbone.View.extend({
 		$(document).ready(function() {
 			if (model.get('id') === $.app.user.get('id')) {
 				$('.editable').hover(function() {
-					$(this).append("<div class='edit' style='display: inline-block;'>edit</div>");
+					$(this).append("<div class='edit' style='display: inline-block;'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
 					$(this).children('.edit').click(function (event) {
 						var parent = $(this).parent();
 						$(this).remove();
@@ -674,7 +628,8 @@ ProfileView = Backbone.View.extend({
 				if (model.get('id') === $.app.user.get('id')) {
 					$('#profileimagebox').unbind();
 					$('#profileimagebox').hover(function() {
-						$(this).append("<div class='edit'>edit</div>");
+						$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+						$(".edit").css("margin-top", - $('.profileimage > img').height());
 						$(this).unbind('click');
 						$(this).children('.edit').click(function (event) {
 							$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><div class="progress progress-striped active" style="display: none;"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
@@ -859,6 +814,7 @@ ActionMainView = Backbone.View.extend({
 		$('.editable').hover(function () {
 			$(this).children($(".edit")).remove();
 			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+
 			$(this).children('.edit').click(function (event) {
 				var parent = $(this).parent();
 				$(this).remove();
@@ -892,8 +848,7 @@ ActionMainView = Backbone.View.extend({
 						model.save({}, {
 							error: function(model, response, options) {
 								ActionMainView.prototype.action_save_error(model, response, options);
-							}
-							
+							}							
 						});
 					}
 				});
@@ -999,7 +954,7 @@ ActionMainView = Backbone.View.extend({
 		alert($.app.errors_messages.internal_error + "\n" + errorMessage);			
 	},
 	encodeHTML: function(s) {
-    	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+		return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 	},
 	pretare_date_for_render: function(given_date) {
 		var options = {year: "numeric", month: "long", day: "numeric"};
@@ -1064,8 +1019,8 @@ ActionControlsView = Backbone.View.extend({
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
 		// this.model.on('all', function(eventName){
- 	// 		console.log('Name of View: ' + eventName);
- 	// 	});
+	// 		console.log('Name of View: ' + eventName);
+	// 	});
 	},
 	events: {
 		// event, element and function to bind together
@@ -1075,7 +1030,7 @@ ActionControlsView = Backbone.View.extend({
 	},
 	render: function() {
 		this.render_status_bar();
- 	},
+	},
 	leave_action: function() {
 		// Remove current user from the current Action. 
 		this.model.url = "/api/useractions/" + this.model.get('id');
@@ -1102,8 +1057,8 @@ ActionControlsView = Backbone.View.extend({
 		// Add current user to the current Action.
 		var UserAction = new UserActionInteraction({
 			"action": $.app.actionView.model.get('id'), 
-        	"user": $.app.user.id,  
-        	"role": $.app._participant,
+			"user": $.app.user.id,  
+			"role": $.app._participant,
 		});
 		var temp = this;
 		UserAction.save({}, {
@@ -1183,11 +1138,13 @@ ActionView = Backbone.View.extend({
 		var image = new Images({id: this.model.get('image')});
 		var imageView = new ImageView({model: image});
 		imageView.$el = $('.actionpageimage');
-		image.fetch({
-			success: function() {
-				$('.actionpageimage > img').css("max-width", $(".actionpageimage").width());
-			}
-		});
+		image.fetch(
+		// 	{
+		// 	success: function() {
+		// 		$('.actionpageimage > img').css("max-width", $(".actionpageimage").width());
+		// 	}
+		// }
+		);
 	},
 	render_tags: function() {
 		var activities = this.model.get('tags');
@@ -1270,8 +1227,8 @@ CreateActionView = ActionMainView.extend({
 				// create new UserAction relation
 				var userAction = new UserActionInteraction({
 										"action": newAction.model.get('action_id'), 
-							        	"user": $.app.user.id,  
-							        	"role": $.app._organizer });
+										"user": $.app.user.id,  
+										"role": $.app._organizer });
 				userAction.save({}, {
 					success: function() {
 						router.navigate("/action/" + newAction.model.get('action_id'), {trigger: true});
