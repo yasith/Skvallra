@@ -16,6 +16,11 @@ import os
 from PIL import Image as pilImage
 from StringIO import StringIO
 
+from datetime import datetime
+import pytz
+
+from collections import OrderedDict
+
 from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment
 from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSerializer, UserActionSerializer, ImageSerializer, SettingSerializer, CommentSerializer, CommentInputSerializer
 
@@ -263,15 +268,17 @@ class TopOrganizers(views.APIView):
 				ranks[u.get_rating()] = [u]
 
 		srt = sorted(ranks.items(), reverse=True)
-		output = []
-		while len(output) < number and len(srt) > 0:
+		output = {}
+		output['headers'] = ["Username", "Rank"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
 			top = srt.pop(0)
 			rank = top[0]
 			users = top[1]
-			while len(output) < number and len(users) > 0:
+			while len(output['elements']) < number and len(users) > 0:
 				usr = users.pop(0)
 				if offset <= 0:
-					output.append([usr.username, rank])
+					output['elements'].append([usr.username, rank])
 				offset -= 1
 				offset = max(offset, 0)
 		
@@ -305,13 +312,112 @@ class TopTags(views.APIView):
 					tags[t] = 1
 
 		srt = sorted(tags.items(), key=lambda x : x[1], reverse=True)
-		output = []
-		while len(output) < number and len(srt) > 0:
+		output = {}
+		output['headers'] = ["Tag", "Count"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
 			top = srt.pop(0)
 			if offset <= 0:
-				output.append([top[0].tag_id, top[1]])
+				output['elements'].append([top[0].tag_id, top[1]])
 			offset -= 1
 			offset = max(offset, 0)
 
 
 		return Response(output, status=200)
+
+class TopActions(views.APIView):
+
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+		current = datetime.now(pytz.utc)
+
+		actions = Action.objects.filter(Q(start_date__lte=current, end_date__gt=current) | Q(start_date__gte=current))
+		useractions = UserAction.objects.filter(action_id__in=actions)
+
+		acts = {}
+		for u in useractions:
+			try:
+				acts[Action.objects.get(pk=u.action_id)] += 1
+			except KeyError:
+				acts[Action.objects.get(pk=u.action_id)] = 1
+
+		srt = sorted(acts.items(), key=lambda x : x[1], reverse=True)
+		output = {}
+		output['headers'] = ["Title", "Number of Users"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
+			top = srt.pop(0)
+			if offset <= 0:
+				output['elements'].append([top[0].title, top[1]])
+			offset -= 1
+			offset = max(offset, 0)
+
+		return Response(output, status=200)
+
+class NumberOfUsers(views.APIView):
+
+	def get(self, request):
+		return Response(len(SkvallraUser.objects.all()), status=200)
+
+class NumberOfActionsPerUser(views.APIView):
+
+	def get(self, request):
+		number_of_buckets = 10
+
+		useractions = UserAction.objects.filter(role=1)
+
+		users = {}
+		for ua in useractions:
+			try:
+				users[SkvallraUser.objects.get(pk=ua.user_id)] += 1
+			except KeyError:
+				users[SkvallraUser.objects.get(pk=ua.user_id)] = 1
+		
+		temp = OrderedDict()
+		largest_amount = max(users.values())
+		smallest_amount = 0
+
+		if largest_amount - smallest_amount < 10:
+			number_of_buckets = largest_amount - smallest_amount + 1
+
+		number_of_counts_per_bucket = (largest_amount + 1) / number_of_buckets
+
+		for i in range(number_of_buckets):
+			if i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1:
+				key = str(i * number_of_counts_per_bucket)
+			else:
+				key = str(i * number_of_counts_per_bucket) + "-" + str((i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1)
+			temp[key] = 0
+
+
+		for k,v in users.iteritems():
+			for i in range(number_of_buckets):
+				if (i * number_of_counts_per_bucket <= v and (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1 > v) or (i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1 and v == i * number_of_counts_per_bucket):
+					if i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1:
+						temp[str(i * number_of_counts_per_bucket)] += 1
+					else:
+						temp[str(i * number_of_counts_per_bucket) + "-" + str((i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1)] += 1
+					break
+
+		output = {}
+		output['headers'] = ["Number of Actions", "Number of Users"]
+		output['elements'] = temp.items()
+		# srt = sorted(temp.items(), key=lambda x : x[1], reverse=True)
+		# # print(srt)
+		# for item in srt:
+		# 	k,v = item
+		# 	if int(k[:k.index("-")]) == int(k[k.index("-") + 1:]):
+		# 		output['elements'].append([k[:k.index("-")],v])
+		# 	else:
+		# 		output['elements'].append([k,v])
+
+
+		# print(output)
+
+		return Response(output, status=200)
+
+class IsAdmin(views.APIView):
+
+	def get(self, request):
+		return Response(request.user.is_staff, status=200)

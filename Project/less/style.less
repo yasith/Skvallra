@@ -471,6 +471,9 @@ div {
 	font-weight: normal;
 	font-size: @font-size;
 	width: @friend-item-width;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
 }
 
 
@@ -565,3 +568,16 @@ div {
 	}
 }
 
+.lists {
+	margin-left: 20px;
+}
+
+td {
+	width: 50%;
+	text-align: center;
+}
+
+thead {
+	font-weight: bold;
+	background-color: lighten(@font-color, 90%);
+}

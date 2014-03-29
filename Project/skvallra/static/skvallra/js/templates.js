@@ -1,3 +1,7 @@
+String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
 // create a dictionary that will contain data relevent to the app.
 $.app = {};
 
@@ -173,7 +177,106 @@ RatingAndParticipation = Backbone.Model.extend({
 	url: function() {
 		return "/api/user_actions/" + this.actionId + "/get_useraction";
 	}
-})
+});
+
+ListView = Backbone.View.extend({
+	initialize: function (options) {
+		this.url = options.url;
+	},
+	render: function () {
+		var view = this;
+		$.ajax({
+			url: '/api/' + this.url,
+			type: 'GET',
+			dataType: 'json',
+		})
+		.done(function (data) {
+			var source = $.app.templates.listViewTemplate;
+			var template = Handlebars.compile(source);
+			data.title = view.pretify(view.url);
+			var html = template(data);
+			view.$el.html(html);
+		});
+	},
+	pretify: function (string) {
+		string = string.replace(/_/g, ' ');
+		string = string.toProperCase();
+		return string;
+	},
+});
+
+GraphView = Backbone.View.extend({
+	initialize: function (options) {
+		this.url = options.url;
+	},
+	render: function () {
+		var view = this;
+		$.ajax({
+			url: '/api/' + this.url,
+			type: 'GET',
+			dataType: 'json',
+		})
+		.done(function (temp) {
+			var source = $.app.templates.graphViewTemplate;
+			var template = Handlebars.compile(source);
+			data = {}
+			data.title = view.pretify(view.url);
+			data.elements = new Array();
+			$(temp.elements).each(function(index, el) {
+				data.elements.push({x: el[0], y: el[1]});
+			});
+			var html = template(data);
+			view.$el.html(html);
+		});
+	},
+	pretify: function (string) {
+		string = string.replace(/_/g, ' ');
+		string = string.toProperCase();
+		return string;
+	},
+});
+
+StatisticsView = Backbone.View.extend({
+	render: function() {
+		var source = $.app.templates.statisticsViewTemplate;
+		var template = Handlebars.compile(source);
+		var html = template({});
+		this.$el.html(html);
+
+		var lists = ["top_organizers", "top_tags", "top_actions"];
+		var listHtml = "";
+		for (var i = 0; i <= lists.length - 1; i++) {
+			listHtml += '<div id="list' + i + '" class="panel panel-default"></div>';
+		};
+		$('.lists').html(listHtml);
+
+		this.render_lists(lists);
+
+		var graphs = ["actions_per_user"];
+		var graphHtml = "";
+		for (var i = 0; i <= graphs.length - 1; i++) {
+			graphHtml += '<div id="graph' + i + '" class="panel panel-default"></div>';
+		};
+		$('.graphs').html(graphHtml);
+
+		this.render_graphs(graphs);
+
+	},
+	render_lists: function (lists) {
+		$(lists).each(function(index, el) {
+			var listView = new ListView({'url': el});
+			listView.$el = $('#list' + index);
+			listView.render();
+		});
+	},
+	render_graphs: function (graphs) {
+		$(graphs).each(function (index, el) {
+			var graphView = new GraphView({'url': el});
+			graphView.$el = $('#graph' + index);
+			graphView.render();
+		});
+	},
+});
 
 // Backbone view to display a list of Activities
 ActivitiesView = Backbone.View.extend({
@@ -812,7 +915,7 @@ MainView = Backbone.View.extend({
 ActionMainView = Backbone.View.extend({
 	edit_data: function (model, actionExists) {
 		$('.editable').hover(function () {
-			$(this).children($(".edit")).remove();
+			$(this).children(".edit").remove();
 			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
 
 			$(this).children('.edit').click(function (event) {
@@ -854,7 +957,7 @@ ActionMainView = Backbone.View.extend({
 				});
 			})
 		}, function() {
-			$(this).children($(".edit")).remove();
+			$(this).children(".edit").remove();
 		});
 	},
 	edit_image: function() {
@@ -1276,6 +1379,7 @@ Router = Backbone.Router.extend({
 		"nearby": "show_nearby",
 		"settings": "show_settings",
 		"logout": "logout",
+		"statistics": "statistics",
 		"action/:id": "show_action",
 		"search/:term": "show_search",
 		"activities/:term": "show_activities",
@@ -1322,6 +1426,11 @@ Router = Backbone.Router.extend({
 		var settingsView = new SettingsView({model: settings});
 		settingsView.$el = $("#content");
 		settings.fetch();
+	},
+	statistics: function() {
+		var statsView = new StatisticsView();
+		statsView.$el = $("#content");
+		statsView.render();
 	},
 	show_action: function(id) {
 		var action = new Action({id: id});
@@ -1392,7 +1501,18 @@ $.app.authenticate = function() {
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 		$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
 		$("#changepw").click($.app.changepw);
-		$("#links").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
+		$("#links").find('ul').prepend('<li id="configure_action"><a href="/configure_action">Create Action</a></li>');
+		$.ajax({
+			url: '/api/is_admin',
+			type: 'GET',
+			dataType: 'json',
+		})
+		.done(function(data) {
+			if (data) {
+				$("#links").find('ul').append('<li id="display_statistics"><a href="/statistics">Display Statistics</a></li>');
+			}
+		});
+		
 		// reload the users profile
 		// router.show_profile();
 		// $.app.profile.fetch();
@@ -1451,6 +1571,7 @@ $.app.validate = function() {
 				$('#logout').remove();
 				$('#links').remove();
 				$('#configure_action').remove();
+				$('#display_statistics').remove();
 			},
 			200: function() {
 				$(".login, .login-animate").remove();
@@ -1458,7 +1579,17 @@ $.app.validate = function() {
 				$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 				$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
 				$("#changepw").click($.app.changepw);
-				$("#links").after('<ul class="nav navbar-nav navbar-right" id="configure_action"><li><a class="navbar-link" href="/configure_action">Create Action</a></li></ul>');
+				$("#links").find('ul').prepend('<li id="configure_action"><a href="/configure_action">Create Action</a></li>');
+				$.ajax({
+					url: '/api/is_admin',
+					type: 'GET',
+					dataType: 'json',
+				})
+				.done(function(data) {
+					if (data) {
+						$("#links").find('ul').append('<li id="display_statistics"><a href="/statistics">Display Statistics</a></li>');
+					}
+				});
 			}
 		}
 	});
@@ -1512,7 +1643,8 @@ $.app.changepw = function () {
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
 					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
-					"userSearchTemplate", "commentList", "mainTemplate",  "createActionTemplate"];
+					"userSearchTemplate", "commentList", "mainTemplate",  "createActionTemplate", "statisticsViewTemplate",
+					"listViewTemplate", "graphViewTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {

@@ -10,6 +10,8 @@ from django.contrib.auth.hashers import make_password
 
 import sys
 
+import datetime
+
 class Tag(models.Model):
 	""" 
 	Tag model. Each tag can be associated with any number of Users or Actions. 
@@ -166,6 +168,14 @@ class Action(models.Model):
 
 	def __unicode__(self):
 		return u'%s' % self.action_id
+
+	def is_current(self):
+		current = datetime.datetime.now(self.start_date.tzinfo)
+		print(current, self.start_date, self.end_date)
+		if (self.start_date <= current and current <= self.end_date) or current <= self.start_date:
+			return True
+		else:
+			return False
 
 
 class Image(models.Model):
