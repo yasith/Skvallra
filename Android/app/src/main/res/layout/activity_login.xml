@@ -1,0 +1,58 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/relative_layout"
+    tools:context="com.skvallra.activities.LoginActivity">
+
+
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        tools:ignore="ContentDescription" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:hint="Username"
+        android:id="@+id/username"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:hint="******"
+        android:ems="10"
+        android:id="@+id/password"
+        android:layout_below="@+id/username"
+        android:layout_alignLeft="@+id/username"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log In"
+        android:id="@+id/login"
+        android:layout_below="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:onClick="login"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Login Failed. Invalid Credentials."
+        android:id="@+id/login_failed"
+        android:textColor="#c00e1a"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        android:layout_above="@+id/username"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>
