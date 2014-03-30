@@ -180,6 +180,27 @@ RatingAndParticipation = Backbone.Model.extend({
 	}
 });
 
+Suggested = Backbone.Collection.extend({
+	url: function () {
+		return '/api/suggested/';
+	}
+});
+
+SuggestedView = Backbone.View.extend({
+	render: function () {
+		var source = $.app.templates.suggestedViewTemplate;
+		var template = Handlebars.compile(source);
+		var html = template({});
+		this.$el.html(html);
+
+		var suggested = new Suggested();
+		var searchUserView = new SearchUserView({collection: suggested});
+		searchUserView.$el = $('#users');
+		suggested.fetch();
+		searchUserView.delegateEvents();
+	},
+});
+
 ListView = Backbone.View.extend({
 	initialize: function (options) {
 		this.url = options.url;
@@ -779,16 +800,17 @@ ProfileView = Backbone.View.extend({
 											$.app.user.set(parentClass, text);
 											$.app.user.save();
 
-										}
-										else {
+										} else {
 											alert($.app.errors_messages.geo_error);
 											console.log("Geocoding failed: " + status);
 											$.app.user.set(parentClass, text);
 											$.app.user.save();
-
 										}
 									});
-								}    
+								} else {
+									$.app.user.set(parentClass, text);
+									$.app.user.save();
+								}
 							} else {
 								$.app.user.set(parentClass, text);
 								$.app.user.save();
@@ -995,9 +1017,7 @@ ProfileView = Backbone.View.extend({
 	},
 	render_map: function(){
 		var mapDimensions = $("#googleMap").parent().width();
-		console.log(mapDimensions);
 		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
-		console.log($.app.user);
 		var coords = $.app.user.get('coordinates').split(",");
 		var lat = coords[0];
 		var lon = coords[1];
@@ -1559,7 +1579,10 @@ Router = Backbone.Router.extend({
 		$.app.profile.fetch();
 	},
 	show_suggested: function() {
-		// TODO: display the suggested friends page
+		console.log("HEREREE");
+		var suggestedView = new SuggestedView();
+		suggestedView.$el = $('#content');
+		suggestedView.render();
 	},
 	show_nearby: function() {
 		// TODO: display the nearby actions page
@@ -1645,6 +1668,7 @@ $.app.authenticate = function() {
 		$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
 		$("#changepw").click($.app.changepw);
 		$("#links").find('ul').prepend('<li id="configure_action"><a href="/configure_action">Create Action</a></li>');
+		$("#links").prepend('<li><a href="/suggested"><img src="/static/skvallra/images/friends_small.png" /></a></li>');
 		$.ajax({
 			url: '/api/is_admin',
 			type: 'GET',
@@ -1723,6 +1747,7 @@ $.app.validate = function() {
 				$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
 				$("#changepw").click($.app.changepw);
 				$("#links").find('ul').prepend('<li id="configure_action"><a href="/configure_action">Create Action</a></li>');
+				$("#links").prepend('<li><a href="/suggested"><img src="/static/skvallra/images/friends_small.png" /></a></li>');
 				$.ajax({
 					url: '/api/is_admin',
 					type: 'GET',
@@ -1784,10 +1809,10 @@ $.app.changepw = function () {
 
 // list of templates the app should load
 $.app.templates = ["actionList", "actionSearchTemplate", "actionTemplate", "activitiesList", "alistItemTemplate", 
-					"flistItemTemplate", "friendList", "imageTemplate", "interestsList", "loginTemplate", 
+					"flistItemTemplate", "friendList", "imageTemplate", "loginTemplate", 
 					"profileTemplate", "searchListItemTemplate", "searchTemplate", "settingsTemplate", 
 					"userSearchTemplate", "commentList", "mainTemplate",  "createActionTemplate", "statisticsViewTemplate",
-					"listViewTemplate", "graphViewTemplate", "hitsViewTemplate"];
+					"listViewTemplate", "graphViewTemplate", "hitsViewTemplate", "suggestedViewTemplate"];
 
 // loads templates into the app for future use by views.
 $.app.loadTemplates = function(options) {
@@ -1830,7 +1855,6 @@ $.app.loadTemplates({
 			Handlebars.registerPartial("flistItem", $.app.templates.flistItemTemplate);
 			Handlebars.registerPartial("alistItem", $.app.templates.alistItemTemplate);
 			Handlebars.registerPartial("activitiesList", $.app.templates.activitiesList);
-			Handlebars.registerPartial("interestsList", $.app.templates.interestsList);
 			Handlebars.registerPartial("friendsList", $.app.templates.friendList);
 			Handlebars.registerPartial("actionsList", $.app.templates.actionList);
 			Handlebars.registerPartial("login", $.app.templates.loginTemplate);
