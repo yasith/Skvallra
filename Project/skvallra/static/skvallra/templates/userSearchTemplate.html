@@ -10,15 +10,13 @@
 				{{this.address}}
 			</div>
 		</div>
-		{{#if this.isfriend}}
-			<div class='col-md-2' style="margin-top: 83px;">
-				<input type="button" id="{{id}}" class="btn btn-default pull-right removefriend" value="Remove Friend" />
-			</div>
-		{{else}}
-			<div class='col-md-2' style="margin-top: 83px;">
-				<input type="button" id="{{id}}" class="btn btn-default pull-right addfriend" value="Add Friend" />
-			</div>
-		{{/if}}
+		<div class='col-md-2' style="margin-top: 83px;" id="user_{{id}}">
+			{{#if this.isfriend}}
+					<input type="button" id="{{id}}" class="btn btn-default pull-right removefriend" value="Remove Friend" />
+			{{else}}
+					<input type="button" id="{{id}}" class="btn btn-default pull-right addfriend" value="Add Friend" />
+			{{/if}}
+		</div>
 	</div>
 	<br>
 {{/each}}
