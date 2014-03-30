@@ -1,6 +1,6 @@
 {{#each []}}
-	<div class="box-item row" id="{{id}}">
-		<div class="user md-col-5">
+	<div class="box-item row">
+		<div class="user col-md-10" id="{{id}}">
 			<div class="left usersearchimage" id="{{id}}">
 			</div>
 			<div class="usersearchname" >
@@ -10,15 +10,13 @@
 				{{this.address}}
 			</div>
 		</div>
-		{{#if this.isfriend}}
-			<div class='pull-right'>
-				<input type="button" id="{{id}}" class="btn btn-default removefriend" value="Remove Friend" />
-			</div>
-		{{else}}
-			<div class='pull-right'>
-				<input type="button" id="{{id}}" class="btn btn-default addfriend" value="Add Friend" />
-			</div>
-		{{/if}}
+		<div class='col-md-2' style="margin-top: 83px;" id="user_{{id}}">
+			{{#if this.isfriend}}
+					<input type="button" id="{{id}}" class="btn btn-default pull-right removefriend" value="Remove Friend" />
+			{{else}}
+					<input type="button" id="{{id}}" class="btn btn-default pull-right addfriend" value="Add Friend" />
+			{{/if}}
+		</div>
 	</div>
 	<br>
 {{/each}}

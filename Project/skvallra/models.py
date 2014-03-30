@@ -10,6 +10,8 @@ from django.contrib.auth.hashers import make_password
 
 import sys
 
+import datetime
+
 class Tag(models.Model):
 	""" 
 	Tag model. Each tag can be associated with any number of Users or Actions. 
@@ -141,7 +143,7 @@ class Action(models.Model):
 	public = models.BooleanField(default=True)
 	min_participants = models.IntegerField(default=1)
 	max_participants = models.IntegerField(default=1)
-	address = models.CharField('address', max_length=200)
+	address = models.CharField('address', max_length=200, blank=True, null=True)
 	coordinates = models.CharField('coordinates', max_length=50, blank=True, null=True)
 	image = models.ForeignKey('Image', blank=True, null=True)
 	thumbnail = models.ForeignKey('Image', blank=True, null=True, related_name="event_thumbnail")
@@ -153,9 +155,9 @@ class Action(models.Model):
 			if global_settings.count() != 0:
 				global_settings = global_settings[0]
 				if (self.min_participants < global_settings.min_participants):
-					raise Exception, "Minimum number of participants should be at least " + str(global_settings.min_participants) + "."
+					raise Exception, "Minimum number of participants is set to at least " + str(global_settings.min_participants) + "."
 				elif (self.max_participants > global_settings.max_participants):
-					raise Exception, "Maximum number of participants should be at most " + str(global_settings.max_participants) + "."
+					raise Exception, "Maximum number of participants is set to at most " + str(global_settings.max_participants) + "."
 				else:
 					super(Action, self).save()			
 			else:
@@ -166,6 +168,14 @@ class Action(models.Model):
 
 	def __unicode__(self):
 		return u'%s' % self.action_id
+
+	def is_current(self):
+		current = datetime.datetime.now(self.start_date.tzinfo)
+		print(current, self.start_date, self.end_date)
+		if (self.start_date <= current and current <= self.end_date) or current <= self.start_date:
+			return True
+		else:
+			return False
 
 
 class Image(models.Model):
@@ -202,4 +212,10 @@ class Comment(models.Model):
 	comment_time = models.DateTimeField(_('comment time'), default=timezone.now)
 	comment =  models.TextField('user_comment')
 
+class PageView(models.Model):
 
+	page = models.CharField(max_length=30)
+	date = models.DateTimeField(default=timezone.now)
+
+	def __unicode__(self):
+		return self.page + " " + str(self.date)

@@ -210,7 +210,9 @@ div {
 		}
 	}
 	&.register {
-		.animate(register, 1s, forwards);
+		width: 400px;
+		height: 380px;
+		left: 36%;
 		position: absolute;
 		top: 30%;
 		margin-left: auto;
@@ -277,6 +279,10 @@ div {
 
 .login-inputs-animate {
 	.animate(login-inputs, 1s, forwards);
+}
+
+.register-animate {
+	.animate(register, 1s, forwards);
 }
 
 @-webkit-keyframes unblur {
@@ -383,7 +389,7 @@ div {
 			position: relative;
 			margin-top: -20px;
 			padding-right: 3px;
-			background-color: fade(lighten(@font-color, 70%), 40%);
+			// background-color: fade(lighten(@font-color, 70%), 40%);
 			padding-left: 3px;
 			float: right;
 			z-index: 1000;
@@ -431,7 +437,6 @@ div {
 	clear: both;
 }
 
-.action_title
 .friend, .action {
 	display: inline-block;
 }
@@ -466,6 +471,9 @@ div {
 	font-weight: normal;
 	font-size: @font-size;
 	width: @friend-item-width;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
 }
 
 
@@ -491,17 +499,7 @@ div {
 
 /* Action page */
 
-.actionpageimage {
-	border: 1px solid lighten(#000, 90%);
-	border-radius: 4px;
-	margin-bottom: 10px;
-	> img {
-		max-height: 250px;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-	}
-}
+
 
 .action_details {
 	> label {
@@ -530,9 +528,15 @@ div {
 		> .name {
 			display: inline-block;
 		}
-		> .join, .leave {
-			display: inline-block;
-			margin-right: 0px;
+		> .action_controls {
+			> .rating {
+				display: inline-block;
+			}
+			> .join, .leave {
+				display: inline-block;
+				margin-right: 0px;
+			}
+
 		}
 	}
 	.editable {
@@ -543,4 +547,55 @@ div {
 			font-size: @font-size;
 		}
 	}
+	.actionpageimage {
+		border: 1px solid lighten(#000, 90%);
+		border-radius: 4px;
+		margin-bottom: 10px;
+		> img {
+			max-height: 250px;
+			display: block;
+		}
+		> .edit {
+			position: relative;
+			padding-right: 3px;
+			padding-left: 3px;
+			float: right;
+			z-index: 1000;
+		}
+	}
+	.users-editable {
+		> edit {
+			position: relative;
+			padding-right: 3px;
+			padding-left: 3px; 
+			z-index: 1000; 
+		}
+	}
+}
+
+.lists {
+	margin-left: 20px;
+}
+
+td {
+	width: 50%;
+	text-align: center;
+}
+
+thead {
+	font-weight: bold;
+	background-color: lighten(@font-color, 90%);
+}
+
+#googleMap {
+	border: 1px solid lighten(#000, 10%);
+	width: inherit;
+}
+
+div[id^=hitChart] {
+	display: inline-block;
+}
+
+table[id^=legend] {
+	display: inline-block;
 }

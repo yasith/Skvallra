@@ -16,7 +16,16 @@ import os
 from PIL import Image as pilImage
 from StringIO import StringIO
 
-from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment
+from django.utils import timezone
+
+from datetime import datetime
+from datetime import date
+from datetime import timedelta
+import pytz
+
+from collections import OrderedDict
+
+from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment, PageView
 from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSerializer, UserActionSerializer, ImageSerializer, SettingSerializer, CommentSerializer, CommentInputSerializer
 
 
@@ -28,6 +37,16 @@ class SkvallraUserViewSet(viewsets.ModelViewSet):
 	serializer_class = SkvallraUserSerializer
 
 	permission_classes = (TokenHasReadWriteScope,)
+
+	def list(self, request):
+		pv = PageView(page="User")
+		pv.save()
+		return Response(SkvallraUserSerializer(SkvallraUser.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="User")
+		pv.save()
+		return Response(SkvallraUserSerializer(SkvallraUser.objects.get(pk=pk)).data)
 
 	@link()
 	def isfriend(self, request, pk=None):
@@ -52,6 +71,8 @@ class meViewSet(viewsets.ModelViewSet):
 	def list(self, request):
 		user = request.user
 		if not user.is_anonymous():
+			pv = PageView(page="Profile")
+			pv.save()
 			serializer = SkvallraUserSerializer(user)
 			return Response(serializer.data)
 		return Response(status=401)
@@ -61,6 +82,8 @@ class meViewSet(viewsets.ModelViewSet):
 	def retrieve(self, request, pk=None):
 		user = request.user
 		if not user.is_anonymous():
+			pv = PageView(page="Profile")
+			pv.save()
 			serializer = SkvallraUserSerializer(user)
 			return Response(serializer.data)
 		return Response(status=401)
@@ -73,6 +96,16 @@ class TagViewSet(viewsets.ModelViewSet):
 	serializer_class = TagSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="Tag")
+		pv.save()
+		return Response(TagSerializer(Tag.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Tag")
+		pv.save()
+		return Response(TagSerializer(Tag.objects.get(pk=pk)).data)
+
 class ActionViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows actions to be viewed or edited.
@@ -80,6 +113,16 @@ class ActionViewSet(viewsets.ModelViewSet):
 	queryset = Action.objects.all()
 	serializer_class = ActionSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Action")
+		pv.save()
+		return Response(ActionSerializer(Action.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Action")
+		pv.save()
+		return Response(ActionSerializer(Action.objects.get(pk=pk)).data)
 
 class UserActionViewSet(viewsets.ModelViewSet):
 	"""
@@ -89,43 +132,24 @@ class UserActionViewSet(viewsets.ModelViewSet):
 	serializer_class = UserActionSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="UserAction")
+		pv.save()
+		return Response(UserActionSerializer(UserAction.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="UserAction")
+		pv.save()
+		return Response(UserActionSerializer(UserAction.objects.get(pk=pk)).data)
+
 class UserActionsView(viewsets.ModelViewSet):   
-    serializer_class = UserActionSerializer
-    model = UserAction
-    # permission_classes = (TokenHasReadWriteScope, )
-
-    def list(self, request):
-        user = request.user
-        temp = UserAction.objects.filter(user_id=user.id)
-        actions = []
-        for t in temp:
-            actions.append(Action.objects.get(pk=t.action_id))
-        serializer = ActionSerializer(actions, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        temp = UserAction.objects.filter(user_id=pk)
-        actions = []
-        for t in temp:
-            actions.append(Action.objects.get(pk=t.action_id))
-        serializer = ActionSerializer(actions, many=True)
-        return Response(serializer.data)
-
-    @link()
-    def get_useraction(self, request, pk=None):
-        try:
-            queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
-            serializer = UserActionSerializer(queryset)
-            data = serializer.data
-        except ObjectDoesNotExist:
-            data = {}
-        return Response(data)
-
 	serializer_class = UserActionSerializer
 	model = UserAction
 	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
+		pv = PageView(page="User_Action")
+		pv.save()
 		user = request.user
 		temp = UserAction.objects.filter(user_id=user.id)
 		actions = []
@@ -135,6 +159,8 @@ class UserActionsView(viewsets.ModelViewSet):
 		return Response(serializer.data)
 
 	def retrieve(self, request, pk=None):
+		pv = PageView(page="User_Action")
+		pv.save()
 		temp = UserAction.objects.filter(user_id=pk)
 		actions = []
 		for t in temp:
@@ -146,7 +172,6 @@ class UserActionsView(viewsets.ModelViewSet):
 	def get_useraction(self, request, pk=None):
 		try:
 			queryset = UserAction.objects.get(user_id = request.user.pk, action_id=pk)
-			print(pk)
 			serializer = UserActionSerializer(queryset)
 			data = serializer.data
 		except ObjectDoesNotExist:
@@ -162,6 +187,8 @@ class ActionUsersView(viewsets.ModelViewSet):
 		return Response({})
 
 	def retrieve(self, request, pk=None):
+		pv = PageView(page="Action_User")
+		pv.save()
 		temp = UserAction.objects.filter(action_id=pk)
 		users = []
 		for t in temp:
@@ -177,6 +204,16 @@ class ImageViewSet(viewsets.ModelViewSet):
 	serializer_class = ImageSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
 
+	def list(self, request):
+		pv = PageView(page="Image")
+		pv.save()
+		return Response(ImageSerializer(Image.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Image")
+		pv.save()
+		return Response(ImageSerializer(Image.objects.get(pk=pk)).data)
+
 class SettingViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows settings to be viewed or edited.
@@ -184,6 +221,16 @@ class SettingViewSet(viewsets.ModelViewSet):
 	queryset = Setting.objects.all()
 	serializer_class = SettingSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Setting")
+		pv.save()
+		return Response(SettingSerializer(Setting.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Setting")
+		pv.save()
+		return Response(SettingSerializer(Setting.objects.get(pk=pk)).data)
 
 class ActionCommentViewSet(viewsets.ModelViewSet):
 	"""
@@ -197,7 +244,9 @@ class ActionCommentViewSet(viewsets.ModelViewSet):
 		return Response({})
 
 	def retrieve(self, request, pk=None):
-		comments = Comment.objects.filter(action_id=pk)
+		pv = PageView(page="ActionComment")
+		pv.save()
+		comments = Comment.objects.filter(action_id=pk).order_by('-comment_time')
 		serializer = CommentSerializer(comments, many=True)
 		return Response(serializer.data)
 
@@ -208,6 +257,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 	queryset = Comment.objects.all()
 	serializer_class = CommentInputSerializer
 	# permission_classes = (TokenHasReadWriteScope, )
+
+	def list(self, request):
+		pv = PageView(page="Comment")
+		pv.save()
+		return Response(CommentSerializer(Comment.objects.all(), many=True).data)
+
+	def retrieve(self, request, pk=None):
+		pv = PageView(page="Comment")
+		pv.save()
+		return Response(CommentSerializer(Comment.objects.get(pk=pk)).data)
 
 class SearchViewSet(viewsets.ModelViewSet):
 	"""
@@ -224,14 +283,14 @@ class SearchViewSet(viewsets.ModelViewSet):
 
 	@link()
 	def users(self, request, pk=None):
-		users = SkvallraUser.objects.filter((Q(first_name__contains=pk) | Q(last_name__contains=pk)) & ~Q(pk=request.user.pk))
+		users = SkvallraUser.objects.filter((Q(first_name__icontains=pk) | Q(last_name__icontains=pk)) & ~Q(pk=request.user.pk))
 
 		serializer = SkvallraUserSerializer(users, many=True)
 		return Response(serializer.data)
 
 	@link()
 	def actions(self, request, pk=None):
-		actions = Action.objects.filter(Q(title__contains=pk, public=True) | Q(description__contains=pk, public=True))
+		actions = Action.objects.filter(Q(title__icontains=pk, public=True) | Q(description__icontains=pk, public=True))
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
@@ -282,3 +341,195 @@ class UploadImage(views.APIView):
 		os.remove(os.path.dirname(os.path.realpath(__file__)) + '/static/skvallra/temp/' + original_hex + '.png')
 		return Response({'id': new_image.pk}, status=200)
 		
+class TopOrganizers(views.APIView):
+
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+		ranks = {}
+		for u in SkvallraUser.objects.all():
+			try:
+				ranks[u.get_rating()].append(u)
+			except KeyError:
+				ranks[u.get_rating()] = [u]
+
+		srt = sorted(ranks.items(), reverse=True)
+		output = {}
+		output['headers'] = ["Username", "Rank"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
+			top = srt.pop(0)
+			rank = top[0]
+			users = top[1]
+			while len(output['elements']) < number and len(users) > 0:
+				usr = users.pop(0)
+				if offset <= 0:
+					output['elements'].append([usr.username, rank])
+				offset -= 1
+				offset = max(offset, 0)
+		
+		return Response(output, status=200)
+
+class TopTags(views.APIView):
+	
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+
+		tags = {}
+		users = SkvallraUser.objects.all()
+		actions = Action.objects.all()
+		for u in users:
+			for t in u.activities.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+			for t in u.interests.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+		for a in actions:
+			for t in a.tags.all():
+				try:
+					tags[t] += 1
+				except KeyError:
+					tags[t] = 1
+
+		srt = sorted(tags.items(), key=lambda x : x[1], reverse=True)
+		output = {}
+		output['headers'] = ["Tag", "Count"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
+			top = srt.pop(0)
+			if offset <= 0:
+				output['elements'].append([top[0].tag_id, top[1]])
+			offset -= 1
+			offset = max(offset, 0)
+
+
+		return Response(output, status=200)
+
+class TopActions(views.APIView):
+
+	def get(self, request, number, offset):
+		number = int(number)
+		offset = int(offset)
+		current = datetime.now(pytz.utc)
+
+		actions = Action.objects.filter(Q(start_date__lte=current, end_date__gt=current) | Q(start_date__gte=current))
+		useractions = UserAction.objects.filter(action_id__in=actions)
+
+		acts = {}
+		for u in useractions:
+			try:
+				acts[Action.objects.get(pk=u.action_id)] += 1
+			except KeyError:
+				acts[Action.objects.get(pk=u.action_id)] = 1
+
+		srt = sorted(acts.items(), key=lambda x : x[1], reverse=True)
+		output = {}
+		output['headers'] = ["Title", "Number of Users"]
+		output['elements'] = []
+		while len(output['elements']) < number and len(srt) > 0:
+			top = srt.pop(0)
+			if offset <= 0:
+				output['elements'].append([top[0].title, top[1]])
+			offset -= 1
+			offset = max(offset, 0)
+
+		return Response(output, status=200)
+
+class NumberOfUsers(views.APIView):
+
+	def get(self, request):
+		return Response(len(SkvallraUser.objects.all()), status=200)
+
+class NumberOfActionsPerUser(views.APIView):
+
+	def get(self, request):
+		number_of_buckets = 10
+
+		useractions = UserAction.objects.filter(role=1)
+
+		users = {}
+		for ua in useractions:
+			try:
+				users[SkvallraUser.objects.get(pk=ua.user_id)] += 1
+			except KeyError:
+				users[SkvallraUser.objects.get(pk=ua.user_id)] = 1
+		
+		temp = OrderedDict()
+		largest_amount = max(users.values())
+		smallest_amount = 0
+
+		if largest_amount - smallest_amount < 10:
+			number_of_buckets = largest_amount - smallest_amount + 1
+
+		number_of_counts_per_bucket = (largest_amount + 1) / number_of_buckets
+
+		for i in range(number_of_buckets):
+			if i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1:
+				key = str(i * number_of_counts_per_bucket)
+			else:
+				key = str(i * number_of_counts_per_bucket) + "-" + str((i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1)
+			temp[key] = 0
+
+
+		for k,v in users.iteritems():
+			for i in range(number_of_buckets):
+				if (i * number_of_counts_per_bucket <= v and (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1 > v) or (i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1 and v == i * number_of_counts_per_bucket):
+					if i * number_of_counts_per_bucket == (i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1:
+						temp[str(i * number_of_counts_per_bucket)] += 1
+					else:
+						temp[str(i * number_of_counts_per_bucket) + "-" + str((i * number_of_counts_per_bucket) + number_of_counts_per_bucket - 1)] += 1
+					break
+
+		output = {}
+		output['headers'] = ["Number of Actions", "Number of Users"]
+		output['elements'] = temp.items()
+		# srt = sorted(temp.items(), key=lambda x : x[1], reverse=True)
+		# # print(srt)
+		# for item in srt:
+		# 	k,v = item
+		# 	if int(k[:k.index("-")]) == int(k[k.index("-") + 1:]):
+		# 		output['elements'].append([k[:k.index("-")],v])
+		# 	else:
+		# 		output['elements'].append([k,v])
+
+
+		# print(output)
+
+		return Response(output, status=200)
+
+class PageViewsByDay(views.APIView):
+
+	def get(self, request, type, number, offset):
+		number = int(number)
+		offset = int(offset)
+		current = timezone.now().date()
+		td = timedelta(days=offset)
+		end_date = current - td + timedelta(days=1)
+		start_date = end_date - timedelta(days=number)
+
+		pageViews = PageView.objects.filter(date__range=(start_date, end_date), page=type)
+		count = {}
+		for i in range((end_date - start_date).days):
+			count[start_date + timedelta(days=i)] = 0
+		for pv in pageViews:
+			count[pv.date.date()] += 1
+
+		srt = sorted(count.items(), key=lambda x : x)
+		output = []
+
+		while len(srt) > 0:
+			top = srt.pop(0)
+			output.append([top[0], top[1]])
+
+		return Response(output, status=200)
+
+class IsAdmin(views.APIView):
+
+	def get(self, request):
+		return Response(request.user.is_staff, status=200)
