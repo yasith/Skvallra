@@ -1761,35 +1761,54 @@ Router = Backbone.Router.extend({
 		$.app.profile.fetch();
 	},
 	show_suggested: function() {
-		console.log("HEREREE");
-		var suggestedView = new SuggestedView();
-		suggestedView.$el = $('#content');
-		suggestedView.render();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var suggestedView = new SuggestedView();
+			suggestedView.$el = $('#content');
+			suggestedView.render();
+		}
 	},
 	show_nearby: function() {
 		// TODO: display the nearby actions page
 	},
 	show_settings: function() {
-		var settings = new Settings();
-		var settingsView = new SettingsView({model: settings});
-		settingsView.$el = $("#content");
-		settings.fetch();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var settings = new Settings();
+			var settingsView = new SettingsView({model: settings});
+			settingsView.$el = $("#content");
+			settings.fetch();
+		}
 	},
 	statistics: function() {
-		var statsView = new StatisticsView();
-		statsView.$el = $("#content");
-		statsView.render();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var statsView = new StatisticsView();
+			statsView.$el = $("#content");
+			statsView.render();
+		}
 	},
 	show_action: function(id) {
-		var action = new Action({id: id});
-		$.app.actionView = new ActionView({model: action});
-		$.app.actionView.$el = $("#content");
-		action.fetch();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var action = new Action({id: id});
+			$.app.actionView = new ActionView({model: action});
+			$.app.actionView.$el = $("#content");
+			action.fetch();
+		}
 	},
 	show_search: function(term) {
-		var searchView = new SearchView({searchterm: term});
-		searchView.$el = $("#content");
-		searchView.render();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var searchView = new SearchView({searchterm: term});
+			searchView.$el = $("#content");
+			searchView.render();
+		}
 	},
 	show_activities: function(term) {
 		// TODO: display search page with users and actions who do a specified activity
@@ -1798,26 +1817,34 @@ Router = Backbone.Router.extend({
 		// TODO: display search page with users and actions who have a specified interest
 	},
 	configure_action: function() {
-		var d = new Date();
-		var action = new Action({
-			"title": "Action Title",
-			"description": "Start writing your action description here!",
-			"start_date": d,
-			"end_date": d,
-			"public": true, 
-			"min_participants": 1,
-			"max_participants": 1,
-			"address": "Action Location",
-		});
-		var newActionView = new CreateActionView({model: action});
-		newActionView.$el = $("#content");
-		newActionView.render();
-		newActionView.delegateEvents();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var d = new Date();
+			var action = new Action({
+				"title": "Action Title",
+				"description": "Start writing your action description here!",
+				"start_date": d,
+				"end_date": d,
+				"public": true, 
+				"min_participants": 1,
+				"max_participants": 1,
+				"address": "Action Location",
+			});
+			var newActionView = new CreateActionView({model: action});
+			newActionView.$el = $("#content");
+			newActionView.render();
+			newActionView.delegateEvents();
+		}
 	},
 	invite_users: function(id) {
-		var searchForUsersForAcionView = new SearchForActionView({id: id});
-		searchForUsersForAcionView.$el = $("#content");
-		searchForUsersForAcionView.render();
+		if ($.app.OAuthToken === undefined){
+			router.navigate("/", {trigger: true});
+		} else {
+			var searchForUsersForAcionView = new SearchForActionView({id: id});
+			searchForUsersForAcionView.$el = $("#content");
+			searchForUsersForAcionView.render();
+		}
 	},
 	logout: function() {
 		delete $.app.OAuthToken;
