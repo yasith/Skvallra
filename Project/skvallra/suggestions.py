@@ -132,16 +132,13 @@ def get_suggestion(user_id, _people, _friends):
   global friends
   people = _people
   friends = _friends
-  print(friends)
 
   vectors = create_vectors()
-  print(vectors)
 
   clusters = kmeans(3, vectors)
-  print("Social Groups", clusters)
 
   suggested = suggest_friends(user_id, clusters)
-  print("Suggested friends for Yasith", suggested)
+  return suggested
 
 if __name__ == "__main__":
   people = ["Chris", "Yuliya", "Yasith", "Andrew", "Gerhard", "Dan", "Anton", "Alex", "Sue",

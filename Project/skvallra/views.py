@@ -215,7 +215,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 		pv.save()
 		return Response(ImageSerializer(Image.objects.get(pk=pk)).data)
 
-class SuggestedFriendsViewSet(viewsets.ModelViewset):
+class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 	"""
 	API end point that shows suggested friends for a given user
 	"""
@@ -238,6 +238,10 @@ class SuggestedFriendsViewSet(viewsets.ModelViewset):
 				friend_list.append(friend.pk)
 			friends[u.pk] = friend_list 
 
+		print("DEBUG SUGGESTIONS")
+		print("People: " + people)
+		print("Friends: " + friends)
+
 		friends = get_suggestion(user_id, people, friends)	
 
 		friend_objs = []
@@ -245,7 +249,7 @@ class SuggestedFriendsViewSet(viewsets.ModelViewset):
 			friend_obj = SkvallraUser.objects.get(pk=friend)
 			friend_objs.append(friend_obj)
 
-		serializer = SkvallraUserSerializer(friend_objs, many=true)
+		serializer = SkvallraUserSerializer(friend_objs, many=True)
 		return Response(serializer.data)
 
 class SettingViewSet(viewsets.ModelViewSet):
@@ -310,7 +314,7 @@ class SearchViewSet(viewsets.ModelViewSet):
 	model = SkvallraUser
 
 	def list(self, request):
-			return Response({})
+		return Response({})
 
 	def retrieve(self, request, pk=None):
 		return self.users(request, pk)
