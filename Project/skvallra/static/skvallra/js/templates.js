@@ -1494,7 +1494,7 @@ ActionParticipantsView = ActionFriendListView.extend({
 			var parentWidth = parent.width();
 			var divIcon = $("<div class='remove_user'><img src='/static/skvallra/images/cross_small.png' id='edit_img'></div>");
 			parent.append(divIcon);
-			divIcon.css({"margin-top": -parentHeight, "margin-left": parentWidth - 1.5 * divIcon.width()});
+			divIcon.css({"margin-top": -parentHeight, "margin-left": parentWidth - 20});
 
 			var userId = parent.children(".friend").attr('id');
 
