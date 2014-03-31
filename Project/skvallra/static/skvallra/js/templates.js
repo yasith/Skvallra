@@ -331,7 +331,7 @@ HitsView = Backbone.View.extend({
 		data.title = "Hits Per Page";
 		data.values = [];
 		data.id = "hitsperpage";
-		var views = ["User", "Profile", "Tag", "Action", "UserAction", "User_Action", "Action_User", "Image", "Setting", "ActionComment", "Comment"]
+		var views = ["User", "Profile", "Tag", "Action", "User_Action", "Action_User", "Image", "Setting", "ActionComment", "Comment"]
 		var requests = []
 		var view = this;
 		$(document).ajaxStop(function () {
