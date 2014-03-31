@@ -215,7 +215,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 		pv.save()
 		return Response(ImageSerializer(Image.objects.get(pk=pk)).data)
 
-class SuggestedFriendsViewSet(viewsets.ModelViewset):
+class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 	"""
 	API end point that shows suggested friends for a given user
 	"""
