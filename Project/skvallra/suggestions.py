@@ -135,7 +135,7 @@ def get_suggestion(user_id, _people, _friends):
 
   vectors = create_vectors()
 
-  clusters = kmeans(3, vectors)
+  clusters = kmeans(4, vectors)
 
   suggested = suggest_friends(user_id, clusters)
   return suggested
