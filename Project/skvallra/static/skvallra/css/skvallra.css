@@ -4227,7 +4227,10 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .pager li {
   display: inline;
 }
-.pager li > a,
+.pager li > a {
+  display: inline-block;
+  padding: 0px 9px;
+}
 .pager li > span {
   display: inline-block;
   padding: 0px 9px;
@@ -6492,4 +6495,9 @@ table[id^=legend] {
   padding-right: 3px;
   padding-left: 3px;
   z-index: 1000;
+}
+a.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: #e6e6e6;
 }
