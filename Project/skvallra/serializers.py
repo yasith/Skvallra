@@ -110,6 +110,49 @@ class ActionSerializer(serializers.ModelSerializer):
         model = Action
         fields = ('action_id', 'title', 'description', 'start_date', 'end_date', 'public', 'min_participants', 'max_participants', 'address', 'coordinates', 'image', 'tags')
 
+    def restore_object(self, attrs, instance=None):
+            """
+            Given a dictionary of deserialized field values, either update
+            an existing model instance, or create a new model instance.
+            """
+            if instance is not None:
+                instance.action_id = attrs.get('action_id', instance.action_id)
+                instance.title = attrs.get('title', instance.title)
+                instance.description = attrs.get('description', instance.description)
+                instance.start_date = attrs.get('start_date', instance.start_date)
+                instance.end_date = attrs.get('end_date', instance.end_date)
+                instance.public = attrs.get('public', instance.public)
+                instance.min_participants = attrs.get('min_participants', instance.min_participants)
+                instance.max_participants = attrs.get('max_participants', instance.max_participants)
+                instance.address = attrs.get('address', instance.address)
+                instance.coordinates = attrs.get('coordinates', instance.coordinates)
+                instance.image = attrs.get('image', instance.image)
+                instance.tags = attrs.get('tags', instance.tags)
+                # instance.is_staff = attrs.get('is_staff', instance.is_staff)
+                # instance.is_active = attrs.get('is_active', instance.is_active)
+                # instance.date_joined = attrs.get('date_joined', instance.date_joined)
+                return instance
+            tags = attrs['tags']
+            del attrs['tags']
+            if attrs['image'] == None:
+                attrs['image'] = Image.objects.get(pk=2)
+            try: 
+                if attrs['address'] == None:
+                    attrs['address'] = "Default address"
+            except KeyError:
+                attrs['address'] = "Default address"
+
+            try: 
+                if attrs['description'] == None:
+                    attrs['description'] = "Start writing your action description here!"
+            except KeyError:
+                attrs['description'] = "Start writing your action description here!"
+
+
+            instance = Action(**attrs)
+            return instance
+
+
 class UserActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAction
