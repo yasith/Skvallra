@@ -1012,7 +1012,7 @@ ProfileView = Backbone.View.extend({
 	},
 	render_map: function(){
 		var mapDimensions = $("#googleMap").parent().width();
-		var coords = $.app.user.get('coordinates');
+		var coords = this.model.get('coordinates');
 		if (coords) {
 			$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
 			coords = coords.split(",");
