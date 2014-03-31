@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res" >
+            <file
+                name="background"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable/background.jpg"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="background2"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable/background2.jpg"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable-hdpi/ic_launcher.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable-mdpi/ic_launcher.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable-xhdpi/ic_launcher.png"
+                qualifiers="xhdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/drawable-xxhdpi/ic_launcher.png"
+                qualifiers="xxhdpi"
+                type="drawable" />
+            <file
+                name="activity_event"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/activity_event.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_login"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/activity_login.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_profile"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/activity_profile.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="event_list"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/event_list.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="fragment_event_comments"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/fragment_event_comments.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="fragment_event_details"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/fragment_event_details.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="fragment_event_users"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/layout/fragment_event_users.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="event"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/menu/event.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                name="login"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/menu/login.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                name="profile"
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/menu/profile.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/values/dimens.xml"
+                qualifiers="" >
+                <dimen name="activity_horizontal_margin" >16dp
+                </dimen>
+                <dimen name="activity_vertical_margin" >16dp
+                </dimen>
+            </file>
+            <file
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/values/strings.xml"
+                qualifiers="" >
+                <string name="action_settings" >Settings
+                </string>
+                <string name="hello_blank_fragment" >Hello blank fragment
+                </string>
+                <string name="app_name" >Skvallra
+                </string>
+                <string name="title_activity_profile" >Profile
+                </string>
+                <string name="title_activity_event" >EventActivity
+                </string>
+                <string name="hello_world" >Hello world!
+                </string>
+            </file>
+            <file
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/values/styles.xml"
+                qualifiers="" >
+
+                <style
+                    name="AppTheme"
+                    parent="android:Theme.Holo.Light" >
+
+                    <!-- Customize your theme here. -->
+                </style>
+            </file>
+            <file
+                path="/Users/yasith/Projects/Skvallra/Android/app/src/main/res/values-w820dp/dimens.xml"
+                qualifiers="w820dp" >
+                <dimen name="activity_horizontal_margin" >64dp
+                </dimen>
+            </file>
+        </source>
+        <source path="/Users/yasith/Projects/Skvallra/Android/app/build/res/rs/debug" />
+        <source path="/Users/yasith/Projects/Skvallra/Android/app/build/res/generated/debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/Users/yasith/Projects/Skvallra/Android/app/src/debug/res" />
+    </dataSet>
+
+</merger>

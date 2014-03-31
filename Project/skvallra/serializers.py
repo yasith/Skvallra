@@ -9,6 +9,7 @@ import sys
 class SkvallraUserSerializer(serializers.ModelSerializer):
     # birthday = serializers.DateTimeField(format='%B %d, %Y')
     rating = serializers.IntegerField(source='get_rating', read_only=True)
+    password = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = SkvallraUser
