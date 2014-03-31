@@ -28,6 +28,7 @@ from collections import OrderedDict
 from skvallra.models import SkvallraUser, Tag, Action, UserAction, Image, Setting, Comment, PageView
 from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSerializer, UserActionSerializer, ImageSerializer, SettingSerializer, CommentSerializer, CommentInputSerializer
 
+from suggestions import get_suggestion
 
 class SkvallraUserViewSet(viewsets.ModelViewSet):
 	"""
@@ -213,6 +214,32 @@ class ImageViewSet(viewsets.ModelViewSet):
 		pv = PageView(page="Image")
 		pv.save()
 		return Response(ImageSerializer(Image.objects.get(pk=pk)).data)
+
+class SuggestedFriendsViewSet(viewsets.ModelViewset):
+	"""
+	API end point that shows suggested friends for a given user
+	"""
+
+	queryset = SkvallraUser.objects.all()
+	serializer_class = SkvallraUserSerializer
+
+	def list(self, request):
+		user_id = request.user.pk
+		
+		people = []
+		friends = {}
+
+		for u in SkvallraUser.objects.all():
+			# Add each users id into the people list
+			people.append(u.pk)
+			# Add each users friends into the friends dictionary
+			friends[u.pk] = u.friends
+
+		friends = get_suggestion(user_id, people, friends)	
+		for friend in friends:
+			friend_obj = SkvallraUser.objects.get(pk=friend)
+			
+
 
 class SettingViewSet(viewsets.ModelViewSet):
 	"""

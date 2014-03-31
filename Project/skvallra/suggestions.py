@@ -3,9 +3,14 @@ import random
 
 EPOCHS = 100
 
+people = []
+friends = {}
+
+'''
+TEST DATA
+
 people = ["Chris", "Yuliya", "Yasith", "Andrew", "Gerhard", "Dan", "Anton", "Alex", "Sue",
           "Rackoff", "Abbas"]
-
 friends = {}
 friends["Chris"] = ["Yuliya", "Yasith", "Anton", "Alex"]
 friends["Yuliya"] = ["Chris", "Yasith", "Anton", "Alex", "Rackoff"]
@@ -18,6 +23,7 @@ friends["Alex"] = ["Anton"]
 friends["Sue"] = ["Andrew", "Gerhard", "Dan", "Abbas", "Rackoff"]
 friends["Rackoff"] = ["Andrew"]
 friends["Abbas"] = ["Yuliya", "Andrew", "Gerhard", "Dan", "Rackoff"]
+'''
 
 def euclidean_distance(p, q):
   ''' p and q are two person vectors '''
@@ -120,7 +126,12 @@ def suggest_friends(person, clusters):
 
   return suggested
 
-if __name__ == "__main__":
+def get_suggestion(user_id, _people, _friends):
+
+  global people
+  global friends
+  people = _people
+  friends = _friends
   print(friends)
 
   vectors = create_vectors()
@@ -129,8 +140,23 @@ if __name__ == "__main__":
   clusters = kmeans(3, vectors)
   print("Social Groups", clusters)
 
-  suggested = suggest_friends("Yasith", clusters)
+  suggested = suggest_friends(user_id, clusters)
   print("Suggested friends for Yasith", suggested)
 
-  suggested = suggest_friends("Rackoff", clusters)
-  print("Suggested friends for Rackoff", suggested)
+if __name__ == "__main__":
+  people = ["Chris", "Yuliya", "Yasith", "Andrew", "Gerhard", "Dan", "Anton", "Alex", "Sue",
+          "Rackoff", "Abbas"]
+  friends = {}
+  friends["Chris"] = ["Yuliya", "Yasith", "Anton", "Alex"]
+  friends["Yuliya"] = ["Chris", "Yasith", "Anton", "Alex", "Rackoff"]
+  friends["Yasith"] = ["Chris", "Yuliya"]
+  friends["Andrew"] = ["Gerhard", "Dan", "Sue"]
+  friends["Gerhard"] = ["Andrew", "Dan", "Rackoff", "Abbas"]
+  friends["Dan"] = ["Andrew", "Gerhard", "Rackoff", "Abbas"]
+  friends["Anton"] = ["Alex"]
+  friends["Alex"] = ["Anton"]
+  friends["Sue"] = ["Andrew", "Gerhard", "Dan", "Abbas", "Rackoff"]
+  friends["Rackoff"] = ["Andrew"]
+  friends["Abbas"] = ["Yuliya", "Andrew", "Gerhard", "Dan", "Rackoff"]
+  get_suggestion("Yasith", people, friends)
+	
