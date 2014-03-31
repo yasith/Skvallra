@@ -6487,3 +6487,9 @@ div[id^=hitChart] {
 table[id^=legend] {
   display: inline-block;
 }
+.list0 .editable {
+  position: relative;
+  padding-right: 3px;
+  padding-left: 3px;
+  z-index: 1000;
+}

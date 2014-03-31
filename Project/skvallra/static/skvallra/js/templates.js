@@ -249,6 +249,47 @@ SettingsView = Backbone.View.extend({
 		var template = Handlebars.compile(source);
 		var html = template(this.model.toJSON());
 		this.$el.html(html);
+
+		var model = this.model;
+		console.log(model);
+		var editOnHover = function () {
+			$(this).children(".edit").remove();
+			var divImg = $("<div class='edit pull-right'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
+			$(this).append(divImg);
+			$(this).children('.edit').click(function (event) {
+				var parent = $(this).parent();
+				$(this).remove();
+
+				var classes = parent.attr('class');
+				classes = classes.split(" ");
+				classes.splice(classes.indexOf('editable'),1);
+
+				var parentClass = classes[0];
+				parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
+				$('#editing').trigger('focus');
+
+				parent.unbind();
+
+				$('#editing').blur(function (event) {
+
+					parent.hover(editOnHover, function() {
+						$(this).children(".edit").remove();
+					});
+					
+					var text = ActionMainView.prototype.encodeHTML($(this).val());
+					parent.html(text + " ");
+
+					model.set(parentClass, text);
+					console.log(model);
+
+					model.save();
+				});
+			})
+		}
+
+		$('.editable').hover(editOnHover, function() {
+			$(this).children(".edit").remove();
+		});
 	},
 });
 
@@ -375,11 +416,10 @@ StatisticsView = Backbone.View.extend({
 		hitsView.render();
 	},
 	render_settings: function() {
-		var settings = new Setting();
+		var settings = new Setting({id: 1});
 		var settingsView = new SettingsView({model: settings});
 		settingsView.$el = $("#list0");
 		settings.fetch();
-		console.log(settingsView);
 	},
 });
 
