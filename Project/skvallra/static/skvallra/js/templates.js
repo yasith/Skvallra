@@ -435,6 +435,7 @@ ActivitiesView = Backbone.View.extend({
 		var source = $.app.templates.activitiesList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
+		console.log(html);
 		this.$el.html(html);
 	}
 });
@@ -1004,6 +1005,7 @@ ProfileView = Backbone.View.extend({
 			acts.add(act);
 			act.fetch();
 		});
+		activitiesView.render();
 	},
 	render_interests: function() {
 		var activities = this.model.attributes.interests;
@@ -1015,6 +1017,7 @@ ProfileView = Backbone.View.extend({
 			acts.add(act);
 			act.fetch();
 		});
+		activitiesView.render();
 	},
 	render_rating: function (rating) {
 		$('.rating').raty({ 
