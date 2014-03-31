@@ -1734,7 +1734,7 @@ Router = Backbone.Router.extend({
 	},
 	show_profile: function(id) {
 		$.app.profile;
-		if (id) {
+		if (id || $.app.OAuthToken !== undefined) {
 			$.app.profile = new User({id: id});
 		} else {
 			$.app.profile = new Profile();
