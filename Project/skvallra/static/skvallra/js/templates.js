@@ -21,6 +21,7 @@ $.app.errors_messages = {};
 $.app.errors_messages.internal_error = "An internal error has happened while processing your request.";
 $.app.errors_messages.action_update_error = "An internal error has happened while processing your request. Your action was not updated.";
 $.app.errors_messages.geo_error = "The address you entered is not valid. Your address will be updated but map location will not change.";
+$.app.errors_messages.add_user_to_action_error = "An internal error has happened while processing your request. The user was not added to the action.";
 
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
@@ -57,6 +58,15 @@ SearchAction = Backbone.Collection.extend({
 	},
 	url: function() {
 		return "/api/search/" + this.id + "/actions/";
+	},
+});
+
+SearchUsersForAction = Backbone.Collection.extend({
+	initialize: function(models, options) {
+		this.id = options.id;    
+	},
+	url: function() {
+		return "/api/search/" + this.id + "/invite_users/";
 	},
 });
 
@@ -130,15 +140,14 @@ UserActionInteraction = Backbone.Model.extend({
 });
 
 UserActionInteractions = Backbone.Collection.extend({
-	// url: '/api/useractions/',
 	model: UserActionInteraction,
 	getByUserAndAction: function(user_id, action_id){
 		return this.filter(function(elem) {
-			return (elem.get("user") === user_id) && (elem.get("action") == action_id);
+			return (elem.get("user") == user_id) && (elem.get("action") == action_id);
 		})[0]
 	},
 	url: function() {
-		return '/api/useractions/' + this.id;
+		return '/api/useractions/';
 	},
 });
 
@@ -398,81 +407,6 @@ ActionListView = Backbone.View.extend({
 	}
 });
 
-// Backbone view to display the list of comments
-ActionCommentsView = Backbone.View.extend({
-	initialize: function() {
-		// bind parents render_comments function to change event
-		this.collection.on('change', $.app.actionView.render_comments, $.app.actionView);
-		// bind render function to sync event
-		this.collection.on('sync', this.render, this);
-		this.collection.on('add', this.render, this);
-		// this.collection.on('all', function(eventName){
-		// 	console.log('Name of View: ' + eventName);
-		// });
-	},
-	events: {
-		// event, element and function to bind together
-		"click #add_comment": "add_comment",
-	},
-	render: function() {
-		var source = $.app.templates.commentList;
-		var template = Handlebars.compile(source);
-		var html = template(this.collection.toJSON());
-		this.$el.html(html);
-
-		var renderElem = $(".comment > .col-md-2 > .userimage");
-		ImageView.prototype.render_thumbnail(renderElem);
-	},
-	add_comment: function(event) {
-		var NewComment = new Comment({
-			"action_id": $(".title").get(0).id, 
-			"user_id": $.app.user.id,  
-			"comment_time": new Date().toISOString(), 
-			"comment": $("#new_comment").val(),
-		});
-		NewComment.save();
-		this.collection.add(NewComment);
-	},
-})
-
-// Backbone view to display a list of users
-ActionFriendListView = Backbone.View.extend({
-	initialize: function() {
-		// bind render function to add, change and sync events
-		this.collection.on('add', this.render, this);
-		this.collection.on('change', this.render, this);
-		this.collection.on('sync', this.render, this);
-
-	},
-	events: {
-		// event, element and function to bind together
-		"click .friend": "navi",
-	},
-	render: function() {
-		var source = $.app.templates.friendList;
-		var template = Handlebars.compile(source);
-		var html = template(this.collection.toJSON());
-
-		this.$el.html(html);
-		this.render_image();
-	},
-	render_image: function() {
-		$(this.collection.models).each(function() {
-			var image = new Images({id: this.attributes.image});
-			var imageView = new ImageView({model: image});
-			imageView.$el = $('#' + this.attributes.id + '.userimage');
-			image.fetch();
-		});
-	},
-	navi: function(event) {
-		if (event.currentTarget.id == $.app.user.attributes.id) {
-			router.navigate("/", {trigger: true});
-		} else {
-			router.navigate("/" + event.currentTarget.id, {trigger: true});
-		}
-	}
-});
-
 // Backbone view to display an image
 ImageView = Backbone.View.extend({
 	initialize: function() {
@@ -506,7 +440,7 @@ ImageView = Backbone.View.extend({
 				var leftPad = ImageView.prototype.get_pad(boxwidth, imgwidth);
 				childImg.css({'margin-top': topPad, 'margin-left': leftPad});
 			});
-		}, 30);
+		}, 100);
 	},
 	get_pad: function(boxparam, targetparam) {
 		var pad = 0;
@@ -516,6 +450,7 @@ ImageView = Backbone.View.extend({
 		return pad;
 	}
 });
+
 
 // Backbone view to display the list of user search results
 SearchUserView = Backbone.View.extend({
@@ -550,9 +485,7 @@ SearchUserView = Backbone.View.extend({
 		});
 
 		var html = template(temp);
-
-		this.$el.html(html);
-
+		this.$el.html(html);	
 		this.render_image();
 	},
 	render_image: function() {
@@ -564,7 +497,6 @@ SearchUserView = Backbone.View.extend({
 		});
 	},
 	navi: function(event) {
-		// console.log(event.currentTarget);
 		if (event.currentTarget.id == $.app.user.attributes.id) {
 			router.navigate("/", {trigger: true});
 		} else {
@@ -584,6 +516,43 @@ SearchUserView = Backbone.View.extend({
 		// friends.push(parseInt(event.currentTarget.id));
 		$.app.user.save();
 		this.collection.fetch();
+	},
+});
+
+
+// Backbone view to display the list of user search results
+SearchUsersForActionView = SearchUserView.extend({
+	events: {
+		// event, element and function to bind together
+		'click .user': 'navi',
+		'click .add_user': 'add_user',
+	},
+	render: function() {
+		var source = $.app.templates.userSearchTemplate; 
+		var template = Handlebars.compile(source);
+		var temp = this.collection.toJSON();
+		var html = template(temp);
+
+		this.$el.html(html);
+		$(":button").remove();
+		$(this.collection.models).each(function() {
+			var id = this.attributes.id;
+			$("#user_" + id).html('<input type="button" id="'+ id +'" class="btn btn-default pull-right add_user" value="Add User" />');
+		});
+
+		this.render_image();
+	},
+	add_user: function (event) {
+		var userId = event.currentTarget.id;
+		var userAction = new UserActionInteraction({ "action": this.id, "user": userId, "role": $.app._participant });
+		userAction.save({}, {
+			success: function() {
+				$(".user#" + userId).parent().remove();
+			},
+			error: function(model, response, options) {
+				alert($.app.errors_messages.add_user_to_action_error);
+			}
+		});
 	},
 });
 
@@ -683,15 +652,30 @@ SearchView = Backbone.View.extend({
 		actionSearch.fetch();
 		searchActionView.delegateEvents();
 	},
-	render_image: function() {
-		$(this.collection.models).each(function() {
-			var image = new Images({id: this.attributes.image});
-			var imageView = new ImageView({model: image});
-			imageView.$el = $('#' + this.attributes.id + '.usersearchimage');
-			image.fetch();
-		});
+});
+
+// Backbone view to display the results of search for new members for action page
+SearchForActionView = Backbone.View.extend({
+	initialize: function(options) {
+		this.searchterm = options.searchterm;
+	},
+	render: function() {
+		var source = $.app.templates.searchTemplate;
+		var template = Handlebars.compile(source);
+		var html = template({});
+
+		this.$el.html(html);
+
+		$(".actions_contatiner").remove();
+
+		var userSearch = new SearchUsersForAction([], {id: this.id});
+		var searchUserView = new SearchUsersForActionView({collection: userSearch, id: this.id});
+		searchUserView.$el = $('#users');
+		userSearch.fetch();
+		searchUserView.delegateEvents();
 	},
 });
+
 
 // Backbone view to display a users profile
 ProfileView = Backbone.View.extend({
@@ -830,23 +814,11 @@ ProfileView = Backbone.View.extend({
 		var model = this.model;
 		image.fetch({
 			success: function () {
-				setTimeout(function () {
-					var boxheight = $('.profileimage').height();
-					var imgheight = $('.profileimage > img').height();
-					var pad = (boxheight - imgheight) / 2;
-					if (pad > 0) {
-						$('.profileimage > img').css('margin-top', pad);
-					};
-					var constraint = $(".profileimage").width();
-					$('.profileimage > img').css({"max-width": constraint, "max-height": constraint});
-					var leftpad = (constraint - $('.profileimage > img').width()) / 2;
-					$('.profileimage > img').css("margin-left", leftpad);
-				}, 30);
 				if (model.get('id') === $.app.user.get('id')) {
 					$('#profileimagebox').unbind();
 					$('#profileimagebox').hover(function() {
 						$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
-						$(".edit").css("margin-top", - $('.profileimage > img').height());
+						$(".edit").css("margin-top", - $('.profileimage').height());
 						$(this).unbind('click');
 						$(this).children('.edit').click(function (event) {
 							$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><div class="progress progress-striped active" style="display: none;"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
@@ -995,7 +967,6 @@ ProfileView = Backbone.View.extend({
 		var model = this.model;
 		$.app.user.save({}, {
 			success: function () {
-				console.log("add");
 				model.fetch();
 			}
 		});
@@ -1010,24 +981,29 @@ ProfileView = Backbone.View.extend({
 		var model = this.model;
 		$.app.user.save({}, {
 			success: function () {
-				console.log("remove");
 				model.fetch();
 			}
 		});
 	},
 	render_map: function(){
 		var mapDimensions = $("#googleMap").parent().width();
-		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
-		var coords = this.model.get('coordinates').split(",");
-		var lat = coords[0];
-		var lon = coords[1];
-		var myCenter = new google.maps.LatLng(lat, lon)
-		var mapProp = {	center: myCenter,
-						zoom:15,
-						mapTypeId:google.maps.MapTypeId.ROADMAP };
-		var map = new google.maps.Map($('#googleMap')[0],mapProp);
-		var marker = new google.maps.Marker({ position: myCenter});
-		marker.setMap(map);
+		var coords = this.model.get('coordinates');
+		if (coords) {
+			$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
+			coords = coords.split(",");
+			var lat = coords[0];
+			var lon = coords[1];
+			var myCenter = new google.maps.LatLng(lat, lon)
+			var mapProp = {	center: myCenter,
+							zoom:15,
+							mapTypeId:google.maps.MapTypeId.ROADMAP };
+			var map = new google.maps.Map($('#googleMap')[0],mapProp);
+			var marker = new google.maps.Marker({ position: myCenter});
+			marker.setMap(map);
+		}
+		else {
+			$("#googleMap").hide();
+		}
 	},
 });
 
@@ -1042,7 +1018,7 @@ MainView = Backbone.View.extend({
 
 ActionMainView = Backbone.View.extend({
 	edit_data: function (model, actionExists) {
-		$('.editable').hover(function () {
+		var editOnHover = function () {
 			$(this).children(".edit").remove();
 			$(this).append("<div class='edit'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
 
@@ -1066,13 +1042,20 @@ ActionMainView = Backbone.View.extend({
 				parent.unbind();
 
 				$('#editing').blur(function (event) {
+
+					parent.hover(editOnHover, function() {
+						$(this).children(".edit").remove();
+					});
+					
 					var text = ActionMainView.prototype.encodeHTML($(this).val());
 					parent.html(text + " ");
 
 					if ((parentClass === 'start_date') || (parentClass === 'end_date')) {
 						d = new Date(text);
-						text = d.toISOString();
-					} else if (parentClass === 'address') {
+						text = d.toISOString();	
+					} 
+
+					else if (parentClass === 'address') {
 						var geocoder = new google.maps.Geocoder();
 						var address = text.replace(/, /g, ',').replace(/ /g, "+");
 
@@ -1100,7 +1083,9 @@ ActionMainView = Backbone.View.extend({
 					}
 				});
 			})
-		}, function() {
+		}
+
+		$('.editable').hover(editOnHover, function() {
 			$(this).children(".edit").remove();
 		});
 	},
@@ -1183,6 +1168,22 @@ ActionMainView = Backbone.View.extend({
 		});
 
 	},
+	add_users: function () {
+		$('.users-editable').hover(function () {
+			var parent = this; 
+			var parentHeight = $(this).height();
+			$(this).children(".edit").remove();
+			var divIcon = $("<div class='edit pull-right'><img src='/static/skvallra/images/plus_small.png' id='edit_img'></div>");
+			$(this).append(divIcon);		
+			divIcon.css({"margin-top": -(parentHeight + divIcon.height())});
+
+			$(this).children('.edit').click(function (event) {
+				router.navigate("/invite_users/" + $.app.actionView.model.get('id'), {trigger: true});
+			});
+		}, function() {
+			$(this).children('.edit').remove();
+		});
+	},
 	set_lock_icon: function(actionStatus) {
 		// Display icon corresponding to the Action's public status.
 		var lockIcon;
@@ -1203,7 +1204,7 @@ ActionMainView = Backbone.View.extend({
 	encodeHTML: function(s) {
 		return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 	},
-	pretare_date_for_render: function(given_date) {
+	prepare_date_for_render: function(given_date) {
 		var options = {year: "numeric", month: "long", day: "numeric"};
 		var new_date = new Date(given_date);
 		return (new_date.toLocaleDateString("en-US", options) + " " + new_date.toLocaleTimeString());
@@ -1211,8 +1212,6 @@ ActionMainView = Backbone.View.extend({
 	},
 	save_model: function(model, actionExists) {
 		if (actionExists) {
-			console.log(model);
-
 			model.save({}, {
 				error: function(model, response, options) {
 					ActionMainView.prototype.action_save_error(model, response, options);
@@ -1236,7 +1235,9 @@ ActionLockView = ActionMainView.extend({
 	},
 	render: function() {
 		$(".participants_limit").empty();
+		var view = this;
 		var isOrganizer = this.model.get('role') == $.app._organizer;
+
 		if (isOrganizer) {
 			var actionPublicStatus = $.app.actionView.model.get('public');
 			this.set_lock_icon(actionPublicStatus);
@@ -1247,12 +1248,16 @@ ActionLockView = ActionMainView.extend({
 				$.app.actionView.model.get('max_participants') + "</div>");
 			$(".participants_limit").append(minUsers, maxUsers);
 
-			var view = this;
 			$(document).ready(function() {
 				view.edit_data($.app.actionView.model, true);
 				view.edit_image();
+				view.add_users();
 			});
-
+		}
+		else {
+			$(document).ready(function() {
+				view.add_users();
+			});
 		}
 	},
 	toggle_private_status: function() {
@@ -1363,6 +1368,112 @@ ActionControlsView = Backbone.View.extend({
 	},
 });
 
+// Backbone view to display a list of users
+ActionFriendListView = Backbone.View.extend({
+	initialize: function() {
+		// bind render function to add, change and sync events
+		this.collection.on('add', this.render, this);
+		this.collection.on('change', this.render, this);
+		this.collection.on('sync', this.render, this);
+	},
+	events: {
+		// event, element and function to bind together
+		"click .friend": "navi",
+	},
+	render: function() {
+		var source = $.app.templates.friendList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+
+		this.$el.html(html);
+		this.render_image();
+		this.remove_users();
+	},
+	render_image: function() {
+		$(this.collection.models).each(function() {
+			var image = new Images({id: this.attributes.image});
+			var imageView = new ImageView({model: image});
+			imageView.$el = $('#' + this.attributes.id + '.userimage');
+			image.fetch();
+		});
+	},
+	navi: function(event) {
+		if (event.currentTarget.id == $.app.user.attributes.id) {
+			router.navigate("/", {trigger: true});
+		} else {
+			router.navigate("/" + event.currentTarget.id, {trigger: true});
+		}
+	},
+	remove_users: function() {
+		var editOnHover = function () {
+			var parent = $(this);
+			$(this).children(".remove_user").remove();
+			var parentHeight = parent.height();
+			var parentWidth = parent.width();
+			var divIcon = $("<div class='remove_user'><img src='/static/skvallra/images/cross_small.png' id='edit_img'></div>");
+			parent.append(divIcon);
+			divIcon.css({"margin-top": -parentHeight, "margin-left": parentWidth - 1.5 * divIcon.width()});
+
+			var userId = parent.children(".friend").attr('id');
+
+			$('.remove_user').click(function (event) {
+				var userActions = new UserActionInteractions({});
+				userActions.fetch({
+					success: function(model, response, options) {	
+						var userAction = userActions.getByUserAndAction(userId, $.app.actionView.model.get('id'));
+						userAction.destroy();
+						$.app.actionView.render_participants();
+					},
+					error: function(model, response, options) {
+						console.log(response);
+					}
+				});
+			})
+		}
+
+		$('.friend-box').hover(editOnHover, function() {
+			$(this).children(".remove_user").remove();
+		});
+	},
+});
+
+// Backbone view to display the list of comments
+ActionCommentsView = Backbone.View.extend({
+	initialize: function() {
+		// bind parents render_comments function to change event
+		this.collection.on('change', $.app.actionView.render_comments, $.app.actionView);
+		// bind render function to sync event
+		this.collection.on('sync', this.render, this);
+		this.collection.on('add', this.render, this);
+		// this.collection.on('all', function(eventName){
+		// 	console.log('Name of View: ' + eventName);
+		// });
+	},
+	events: {
+		// event, element and function to bind together
+		"click #add_comment": "add_comment",
+	},
+	render: function() {
+		var source = $.app.templates.commentList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+		this.$el.html(html);
+
+		var renderElem = $(".comment > .col-md-2 > .userimage");
+		ImageView.prototype.render_thumbnail(renderElem);
+	},
+	add_comment: function(event) {
+		var NewComment = new Comment({
+			"action_id": $(".title").get(0).id, 
+			"user_id": $.app.user.id,  
+			"comment_time": new Date().toISOString(), 
+			"comment": $("#new_comment").val(),
+		});
+		NewComment.save();
+		this.collection.add(NewComment);
+	},
+});
+
 // Backbone view to display an action
 ActionView = Backbone.View.extend({
 
@@ -1377,8 +1488,8 @@ ActionView = Backbone.View.extend({
 		var template = Handlebars.compile(source);	
 		var temp = this.model.toJSON();
 		
-		temp.start_date = ActionMainView.prototype.pretare_date_for_render(temp.start_date);
-		temp.end_date = ActionMainView.prototype.pretare_date_for_render(temp.end_date);
+		temp.start_date = ActionMainView.prototype.prepare_date_for_render(temp.start_date);
+		temp.end_date = ActionMainView.prototype.prepare_date_for_render(temp.end_date);
 
 		var html = template(temp);
 		this.$el.html(html);
@@ -1446,17 +1557,22 @@ ActionView = Backbone.View.extend({
 	},
 	render_map: function(){
 		var mapDimensions = $(".action_details").width();
-		$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
-		var coords = this.model.get('coordinates').split(",");
-		var lat = coords[0];
-		var lon = coords[1];
-		var myCenter = new google.maps.LatLng(lat, lon)
-		var mapProp = {	center: myCenter,
-						zoom:15,
-						mapTypeId:google.maps.MapTypeId.ROADMAP };
-		var map = new google.maps.Map($('#googleMap')[0],mapProp);
-		var marker = new google.maps.Marker({ position: myCenter});
-		marker.setMap(map);
+		var coords = this.model.get('coordinates');
+		if (coords) {
+			coords = coords.split(",");
+			$("#googleMap").css({'height': mapDimensions, 'width': mapDimensions});
+			var lat = coords[0];
+			var lon = coords[1];
+			var myCenter = new google.maps.LatLng(lat, lon)
+			var mapProp = {	center: myCenter,
+							zoom:15,
+							mapTypeId:google.maps.MapTypeId.ROADMAP };
+			var map = new google.maps.Map($('#googleMap')[0],mapProp);
+			var marker = new google.maps.Marker({ position: myCenter});
+			marker.setMap(map);
+		} else {
+			$("#googleMap").hide();
+		}
 	},
 });
 
@@ -1466,8 +1582,8 @@ CreateActionView = ActionMainView.extend({
 		var template = Handlebars.compile(source);
 		var temp = this.model.toJSON();
 
-		temp.start_date = this.pretare_date_for_render(temp.start_date);
-		temp.end_date = this.pretare_date_for_render(temp.end_date);
+		temp.start_date = this.prepare_date_for_render(temp.start_date);
+		temp.end_date = this.prepare_date_for_render(temp.end_date);
 
 		var html = template(temp);
 		this.$el.html(html);
@@ -1547,6 +1663,7 @@ Router = Backbone.Router.extend({
 		"search/:term": "show_search",
 		"activities/:term": "show_activities",
 		"interests/:term": "show_interests",
+		"invite_users/:id": "invite_users",
 		":id": "show_profile",
 		"action/:id": "show_action",
 	},
@@ -1619,7 +1736,7 @@ Router = Backbone.Router.extend({
 		var d = new Date();
 		var action = new Action({
 			"title": "Action Title",
-			"description": "Action Description",
+			"description": "Start writing your action description here!",
 			"start_date": d,
 			"end_date": d,
 			"public": true, 
@@ -1631,6 +1748,11 @@ Router = Backbone.Router.extend({
 		newActionView.$el = $("#content");
 		newActionView.render();
 		newActionView.delegateEvents();
+	},
+	invite_users: function(id) {
+		var searchForUsersForAcionView = new SearchForActionView({id: id});
+		searchForUsersForAcionView.$el = $("#content");
+		searchForUsersForAcionView.render();
 	},
 	logout: function() {
 		delete $.app.OAuthToken;
