@@ -81,7 +81,7 @@ public class EventListAdapter extends ArrayAdapter<Event> {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Picasso.with(context).load(image.getImageUrl()).fit().into(eventImage);
+                Picasso.with(context).load(image.getImageUrl()).fit().centerCrop().into(eventImage);
             }
         });
     }

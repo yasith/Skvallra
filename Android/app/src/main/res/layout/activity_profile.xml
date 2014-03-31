@@ -87,6 +87,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/interest_list"
         android:numColumns="7"
-        android:columnWidth="100dp"/>
+        android:columnWidth="250dp"/>
 
 </LinearLayout>

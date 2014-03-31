@@ -125,9 +125,9 @@ public class ProfileActivity extends Activity {
                 public void run() {
                     nameText.setText(user.getFirstName() + " " + user.getLastName());
                     emailText.setText(user.getEmail());
-                    dobText.setText(user.getBirthday());
+                    dobText.setText(user.getBirthday().substring(0, 10));
 
-                    Picasso.with(context).load(image.getImageUrl()).fit().into(profilePic);
+                    Picasso.with(context).load(image.getImageUrl()).fit().centerCrop().into(profilePic);
 
                     for(String s: user.getInterests()) {
                         interestAdapter.insert(s, interestAdapter.getCount());

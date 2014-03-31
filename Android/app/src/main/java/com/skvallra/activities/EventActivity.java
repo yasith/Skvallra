@@ -58,7 +58,7 @@ public class EventActivity extends FragmentActivity implements EventDetailsFragm
         }
         tabHost.setup(this, getSupportFragmentManager(), R.id.tab_fragment);
         tabHost.addTab(tabHost.newTabSpec("details").setIndicator("DETAILS"), EventDetailsFragment.class, null);
-        tabHost.addTab(tabHost.newTabSpec("people").setIndicator("PEOPLE"), EventUsersFragment.class, null);
+        tabHost.addTab(tabHost.newTabSpec("people").setIndicator("MAP"), EventUsersFragment.class, null);
         tabHost.addTab(tabHost.newTabSpec("comments").setIndicator("COMMENTS"), EventCommentsFragment.class, null);
 
     }
