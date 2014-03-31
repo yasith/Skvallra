@@ -322,6 +322,7 @@ class SearchViewSet(viewsets.ModelViewSet):
 	@link()
 	def users(self, request, pk=None):
 		users = SkvallraUser.objects.filter((Q(first_name__icontains=pk) | Q(last_name__icontains=pk)) & ~Q(pk=request.user.pk))
+		users = list(users)[:5]
 
 		serializer = SkvallraUserSerializer(users, many=True)
 		return Response(serializer.data)
@@ -329,6 +330,7 @@ class SearchViewSet(viewsets.ModelViewSet):
 	@link()
 	def actions(self, request, pk=None):
 		actions = Action.objects.filter(Q(title__icontains=pk, public=True) | Q(description__icontains=pk, public=True))
+		actions = list(actions)[:5]
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
