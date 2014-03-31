@@ -6346,6 +6346,9 @@ div.register > form > div > input::-webkit-input-placeholder {
 .bottom {
   clear: both;
 }
+.friend-box {
+  display: inline-block;
+}
 .friend,
 .action {
   display: inline-block;
@@ -6369,13 +6372,11 @@ div.register > form > div > input::-webkit-input-placeholder {
 .usersearchname,
 .actionsearchname {
   font-size: 21px;
-  margin-left: 15px;
 }
 .usersearchaddress,
 .actionsearchaddress {
   font-size: 14px;
   color: #808080;
-  margin-left: 15px;
 }
 .userimagename,
 .actionimagename {
@@ -6453,6 +6454,18 @@ div.register > form > div > input::-webkit-input-placeholder {
   float: right;
   z-index: 1000;
 }
+.action_page .users-editable > edit {
+  position: relative;
+  padding-right: 3px;
+  padding-left: 3px;
+  z-index: 1000;
+}
+.action_page .remove_user {
+  position: absolute;
+  padding-right: 3px;
+  padding-left: 3px;
+  z-index: 1000;
+}
 .lists {
   margin-left: 20px;
 }
@@ -6473,4 +6486,10 @@ div[id^=hitChart] {
 }
 table[id^=legend] {
   display: inline-block;
+}
+.list0 .editable {
+  position: relative;
+  padding-right: 3px;
+  padding-left: 3px;
+  z-index: 1000;
 }
