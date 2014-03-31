@@ -1821,7 +1821,7 @@ Router = Backbone.Router.extend({
 	},
 	logout: function() {
 		delete $.app.OAuthToken;
-		$.removeCookie("OAuthToken");
+		$.removeCookie("OAuthToken", {domain : ".skvallra.com"});
 		setTimeout(function() {
 			router.navigate("/", {trigger: true});
 		}, 100);
@@ -1845,7 +1845,7 @@ $.app.authenticate = function() {
 	}).done(function (data) {
 		// Store the OAuth Token
 		$.app.OAuthToken = data.access_token;
-		$.cookie("OAuthToken", $.app.OAuthToken);
+		$.cookie("OAuthToken", $.app.OAuthToken, {domain: ".skvallra.com"});
 		// remove the login form
 		// $(".login").remove();
 		// remove the blur filter from the behind content
@@ -1921,7 +1921,7 @@ $.app.validate = function() {
 		statusCode: {
 			401: function() {
 				delete $.app.OAuthToken;
-				$.removeCookie("OAuthToken");
+				$.removeCookie("OAuthToken", {domain: ".skvallra.com"});
 				$('#logout').remove();
 				$('#links').remove();
 				$('#configure_action').remove();
