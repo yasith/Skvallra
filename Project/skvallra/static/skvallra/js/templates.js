@@ -376,7 +376,7 @@ StatisticsView = Backbone.View.extend({
 		var html = template({});
 		this.$el.html(html);
 
-		var lists = ["settings", "top_organizers", "top_tags", "top_actions"];
+		var lists = ["settings", "number_of_users", "top_organizers", "top_tags", "top_actions"];
 		var listHtml = "";
 		for (var i = 0; i <= lists.length - 1; i++) {
 			listHtml += '<div id="list' + i + '" class="panel panel-default"></div>';

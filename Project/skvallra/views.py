@@ -498,7 +498,10 @@ class TopActions(views.APIView):
 class NumberOfUsers(views.APIView):
 
 	def get(self, request):
-		return Response(len(SkvallraUser.objects.all()), status=200)
+		output = {}
+		output['headers'] = ["Number of Users", len(SkvallraUser.objects.all())]
+		output['elements'] = []
+		return Response(output, status=200)
 
 class NumberOfActionsPerUser(views.APIView):
 
