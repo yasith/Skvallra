@@ -342,6 +342,13 @@ class SearchViewSet(viewsets.ModelViewSet):
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
 
+	@link()
+	def invite_users(self, request, pk=None):
+		users_in_action = UserAction.objects.filter(action_id=pk).values_list('user', flat=True)
+		potential_members = SkvallraUser.objects.exclude(pk__in=users_in_action)
+		serializer = SkvallraUserSerializer(potential_members, many=True)
+		return Response(serializer.data)
+
 def index(request):
 	return render(request, "skvallra/index.html", {})
 
