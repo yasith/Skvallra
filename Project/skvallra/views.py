@@ -239,8 +239,8 @@ class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 			friends[u.pk] = friend_list 
 
 		print("DEBUG SUGGESTIONS")
-		print("People: " + people)
-		print("Friends: " + friends)
+		print("People: " + str(people))
+		print("Friends: " + str(friends))
 
 		friends = get_suggestion(user_id, people, friends)	
 
