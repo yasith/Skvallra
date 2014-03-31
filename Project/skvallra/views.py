@@ -241,14 +241,17 @@ class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 			friends[u.pk] = friend_list 
 
 		print("DEBUG SUGGESTIONS")
+		print("User: " + str(user_id))
 		print("People: " + str(people))
 		print("Friends: " + str(friends))
 
 		friends = get_suggestion(user_id, people, friends)	
 
+		print("Suggested Friends: " + str(friends[:MAX_SUGGESTIONS]))
+
 		friend_objs = []
 		for friend in friends[:MAX_SUGGESTIONS]:
-			if friend.pk == user_id:
+			if friend == user_id:
 				pass
 			friend_obj = SkvallraUser.objects.get(pk=friend)
 			friend_objs.append(friend_obj)
