@@ -1121,7 +1121,7 @@ ActionMainView = Backbone.View.extend({
 						text = d.toISOString();	
 					} 
 
-					else if (parentClass === 'address') {
+					if (parentClass === 'address') {
 						var geocoder = new google.maps.Geocoder();
 						var address = text.replace(/, /g, ',').replace(/ /g, "+");
 
