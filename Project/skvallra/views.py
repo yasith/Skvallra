@@ -251,8 +251,8 @@ class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 
 		friend_objs = []
 		for friend in friends[:MAX_SUGGESTIONS]:
-			if friend == long(user_id):
-				pass
+			if friend == user_id:
+				continue
 			friend_obj = SkvallraUser.objects.get(pk=friend)
 			friend_objs.append(friend_obj)
 
