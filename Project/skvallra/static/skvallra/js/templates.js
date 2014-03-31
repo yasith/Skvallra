@@ -236,6 +236,22 @@ ListView = Backbone.View.extend({
 	},
 });
 
+// Backbone view to display the settings page
+SettingsView = Backbone.View.extend({
+	initialize: function() {
+		// bind render function to add, change and sync events
+		this.model.on('add', this.render, this);
+		this.model.on('change', this.render, this);
+		this.model.on('sync', this.render, this);
+	},
+	render: function() {
+		var source = $.app.templates.settingsTemplate;
+		var template = Handlebars.compile(source);
+		var html = template(this.model.toJSON());
+		this.$el.html(html);
+	},
+});
+
 GraphView = Backbone.View.extend({
 	initialize: function (options) {
 		this.url = options.url;
@@ -319,13 +335,14 @@ StatisticsView = Backbone.View.extend({
 		var html = template({});
 		this.$el.html(html);
 
-		var lists = ["top_organizers", "top_tags", "top_actions"];
+		var lists = ["settings", "top_organizers", "top_tags", "top_actions"];
 		var listHtml = "";
 		for (var i = 0; i <= lists.length - 1; i++) {
 			listHtml += '<div id="list' + i + '" class="panel panel-default"></div>';
 		};
 		$('.lists').html(listHtml);
 
+		lists.splice(0,1);
 		this.render_lists(lists);
 
 		var graphs = ["actions_per_user"];
@@ -337,11 +354,13 @@ StatisticsView = Backbone.View.extend({
 
 		this.render_graphs(graphs);
 
+		this.render_settings();
+
 	},
 	render_lists: function (lists) {
 		$(lists).each(function(index, el) {
 			var listView = new ListView({'url': el});
-			listView.$el = $('#list' + index);
+			listView.$el = $('#list' + (index + 1));
 			listView.render();
 		});
 	},
@@ -355,6 +374,12 @@ StatisticsView = Backbone.View.extend({
 		hitsView.$el = $('#graph' + graphs.length);
 		hitsView.render();
 	},
+	render_settings: function() {
+		var settings = new Setting();
+		var settingsView = new SettingsView({model: settings});
+		settingsView.$el = $("#list0");
+		settings.fetch();
+	}
 });
 
 // Backbone view to display a list of Activities
@@ -1404,6 +1429,9 @@ ActionFriendListView = Backbone.View.extend({
 			router.navigate("/" + event.currentTarget.id, {trigger: true});
 		}
 	},
+});
+
+ActionParticipantsView = ActionFriendListView.extend({
 	remove_users: function() {
 		var editOnHover = function () {
 			var parent = $(this);
@@ -1524,7 +1552,7 @@ ActionView = Backbone.View.extend({
 		var participants = new ActionUsers([], {id: this.model.get('id')});
 		participants.fetch({success: function(){
 			var users = new Users();
-			var actionFriendListView = new ActionFriendListView({collection: users});
+			var actionFriendListView = new ActionParticipantsView({collection: users});
 			actionFriendListView.$el = $('.users');
 			participants.each(function(m) {
 				var user = new User({id: m.get("id")});
@@ -1629,23 +1657,6 @@ CreateActionView = ActionMainView.extend({
 		});
 	},
 }); 
-
-
-// Backbone view to display the settings page
-SettingsView = Backbone.View.extend({
-	initialize: function() {
-		// bind render function to add, change and sync events
-		this.model.on('add', this.render, this);
-		this.model.on('change', this.render, this);
-		this.model.on('sync', this.render, this);
-	},
-	render: function() {
-		var source = $.app.templates.settingsTemplate;
-		var template = Handlebars.compile(source);
-		var html = template(this.model.toJSON());
-		this.$el.html(html);
-	},
-});
 
 // Backbone router to allow for navigation though the app
 // and to allow for urls within the app even though it is
