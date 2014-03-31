@@ -233,13 +233,20 @@ class SuggestedFriendsViewSet(viewsets.ModelViewset):
 			# Add each users id into the people list
 			people.append(u.pk)
 			# Add each users friends into the friends dictionary
-			friends[u.pk] = u.friends
+			friend_list = []
+			for friend in u.friends.all():
+				friend_list.append(friend.pk)
+			friends[u.pk] = friend_list 
 
 		friends = get_suggestion(user_id, people, friends)	
+
+		friend_objs = []
 		for friend in friends:
 			friend_obj = SkvallraUser.objects.get(pk=friend)
-			
+			friend_objs.append(friend_obj)
 
+		serializer = SkvallraUserSerializer(friend_objs, many=true)
+		return Response(serializer.data)
 
 class SettingViewSet(viewsets.ModelViewSet):
 	"""
@@ -321,14 +328,6 @@ class SearchViewSet(viewsets.ModelViewSet):
 		
 		serializer = ActionSerializer(actions, many=True)
 		return Response(serializer.data)
-
-	@link()
-	def invite_users(self, request, pk=None):
-		users_in_action = UserAction.objects.filter(action_id=pk).values_list('user', flat=True)
-		potential_members = SkvallraUser.objects.exclude(pk__in=users_in_action)
-		serializer = SkvallraUserSerializer(potential_members, many=True)
-		return Response(serializer.data)
-
 
 def index(request):
 	return render(request, "skvallra/index.html", {})
