@@ -1412,7 +1412,6 @@ ActionFriendListView = Backbone.View.extend({
 
 		this.$el.html(html);
 		this.render_image();
-		this.remove_users();
 	},
 	render_image: function() {
 		$(this.collection.models).each(function() {
@@ -1432,6 +1431,15 @@ ActionFriendListView = Backbone.View.extend({
 });
 
 ActionParticipantsView = ActionFriendListView.extend({
+	render: function() {
+		var source = $.app.templates.friendList;
+		var template = Handlebars.compile(source);
+		var html = template(this.collection.toJSON());
+
+		this.$el.html(html);
+		this.render_image();
+		this.remove_users();
+	},
 	remove_users: function() {
 		var editOnHover = function () {
 			var parent = $(this);
