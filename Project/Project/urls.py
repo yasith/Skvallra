@@ -19,6 +19,7 @@ router.register(r'comments', views.CommentViewSet)
 router.register(r'action_comments', views.ActionCommentViewSet)
 router.register(r'me', views.meViewSet)
 router.register(r'search', views.SearchViewSet)
+router.register(r'suggested', views.SuggestedFriendsViewSet)
 
 urlpatterns = patterns('',
 	# Examples:
