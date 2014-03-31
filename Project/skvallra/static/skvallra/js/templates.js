@@ -379,7 +379,8 @@ StatisticsView = Backbone.View.extend({
 		var settingsView = new SettingsView({model: settings});
 		settingsView.$el = $("#list0");
 		settings.fetch();
-	}
+		console.log(settingsView);
+	},
 });
 
 // Backbone view to display a list of Activities
@@ -1331,6 +1332,7 @@ ActionControlsView = Backbone.View.extend({
 					$(".editable").each(function(){
 						$(this).removeClass("editable");
 						$(this).unbind();
+						$.app.actionView.render_participants();
 					});	
 				}
 			},
@@ -1353,6 +1355,7 @@ ActionControlsView = Backbone.View.extend({
 				$(".join").html("Leave").switchClass("join", "leave");
 				temp.draw_rating(0);
 				temp.model = UserAction;
+				$.app.actionView.render_participants();
 			}, 
 			error: function(model, response, options) {
 				var responseText = response.responseText;
