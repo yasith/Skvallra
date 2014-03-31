@@ -30,6 +30,8 @@ from skvallra.serializers import SkvallraUserSerializer, TagSerializer, ActionSe
 
 from suggestions import get_suggestion
 
+MAX_SUGGESTIONS = 5
+
 class SkvallraUserViewSet(viewsets.ModelViewSet):
 	"""
 	API endpoint that allows users to be viewed or edited.
@@ -245,7 +247,7 @@ class SuggestedFriendsViewSet(viewsets.ModelViewSet):
 		friends = get_suggestion(user_id, people, friends)	
 
 		friend_objs = []
-		for friend in friends:
+		for friend in friends[:MAX_SUGGESTIONS]:
 			friend_obj = SkvallraUser.objects.get(pk=friend)
 			friend_objs.append(friend_obj)
 
