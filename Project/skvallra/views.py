@@ -68,7 +68,6 @@ class meViewSet(viewsets.ModelViewSet):
 	"""
 	serializer_class = SkvallraUserSerializer
 	model = SkvallraUser
-	# permission_classes = (TokenHasReadWriteScope,)
 
 	@permission_classes((TokenHasReadWriteScope, ))
 	def list(self, request):
@@ -97,7 +96,6 @@ class TagViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Tag.objects.all()
 	serializer_class = TagSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="Tag")
@@ -115,7 +113,6 @@ class ActionViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Action.objects.all()
 	serializer_class = ActionSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="Action")
@@ -133,7 +130,6 @@ class UserActionViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = UserAction.objects.all()
 	serializer_class = UserActionSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="UserAction")
@@ -148,7 +144,6 @@ class UserActionViewSet(viewsets.ModelViewSet):
 class UserActionsView(viewsets.ModelViewSet):   
 	serializer_class = UserActionSerializer
 	model = UserAction
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="User_Action")
@@ -184,7 +179,6 @@ class UserActionsView(viewsets.ModelViewSet):
 class ActionUsersView(viewsets.ModelViewSet):   
 	serializer_class = SkvallraUserSerializer
 	model = SkvallraUser
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		return Response({})
@@ -205,7 +199,6 @@ class ImageViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Image.objects.all()
 	serializer_class = ImageSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="Image")
@@ -265,7 +258,6 @@ class SettingViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Setting.objects.all()
 	serializer_class = SettingSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="Setting")
@@ -283,7 +275,6 @@ class ActionCommentViewSet(viewsets.ModelViewSet):
 	"""
 	serializer_class = CommentSerializer
 	model = Comment
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		return Response({})
@@ -301,7 +292,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = Comment.objects.all()
 	serializer_class = CommentInputSerializer
-	# permission_classes = (TokenHasReadWriteScope, )
 
 	def list(self, request):
 		pv = PageView(page="Comment")
@@ -367,7 +357,6 @@ class UploadImage(views.APIView):
 
 	def post(self, request):
 		file_obj = request.FILES['0']
-		# print(type(file_obj))
 		m = md5()
 		for chunk in file_obj.chunks():
 			m.update(chunk)
@@ -546,17 +535,6 @@ class NumberOfActionsPerUser(views.APIView):
 		output = {}
 		output['headers'] = ["Number of Actions", "Number of Users"]
 		output['elements'] = temp.items()
-		# srt = sorted(temp.items(), key=lambda x : x[1], reverse=True)
-		# # print(srt)
-		# for item in srt:
-		# 	k,v = item
-		# 	if int(k[:k.index("-")]) == int(k[k.index("-") + 1:]):
-		# 		output['elements'].append([k[:k.index("-")],v])
-		# 	else:
-		# 		output['elements'].append([k,v])
-
-
-		# print(output)
 
 		return Response(output, status=200)
 

@@ -22,6 +22,7 @@ $.app.errors_messages.internal_error = "An internal error has happened while pro
 $.app.errors_messages.action_update_error = "An internal error has happened while processing your request. Your action was not updated.";
 $.app.errors_messages.geo_error = "The address you entered is not valid. Your address will be updated but map location will not change.";
 $.app.errors_messages.add_user_to_action_error = "An internal error has happened while processing your request. The user was not added to the action.";
+$.app.errors_messages.remove_user_from_action_error = "An internal error has happened while processing your request. The user was not removed from the action.";
 
 // add needed functionality to all jquery ajax calls
 $.ajaxSetup({
@@ -251,7 +252,6 @@ SettingsView = Backbone.View.extend({
 		this.$el.html(html);
 
 		var model = this.model;
-		console.log(model);
 		var editOnHover = function () {
 			$(this).children(".edit").remove();
 			var divImg = $("<div class='edit pull-right'><img src='/static/skvallra/images/edit.png' id='edit_img'></div>");
@@ -278,10 +278,7 @@ SettingsView = Backbone.View.extend({
 					
 					var text = ActionMainView.prototype.encodeHTML($(this).val());
 					parent.html(text + " ");
-
 					model.set(parentClass, text);
-					console.log(model);
-
 					model.save();
 				});
 			})
@@ -335,7 +332,6 @@ HitsView = Backbone.View.extend({
 		var requests = []
 		var view = this;
 		$(document).ajaxStop(function () {
-			console.log(data);
 			var source = $.app.templates.hitsViewTemplate;
 			var template = Handlebars.compile(source);
 			var html = template(data);
@@ -435,7 +431,6 @@ ActivitiesView = Backbone.View.extend({
 		var source = $.app.templates.activitiesList;
 		var template = Handlebars.compile(source);
 		var html = template(this.collection.toJSON());
-		console.log(html);
 		this.$el.html(html);
 	}
 });
@@ -580,7 +575,6 @@ SearchUserView = Backbone.View.extend({
 		var friends = $.app.user.get('friends');
 		var index = friends.indexOf(parseInt(event.currentTarget.id));
 		friends.splice(index,1)
-		// friends.push(parseInt(event.currentTarget.id));
 		$.app.user.save();
 		this.collection.fetch();
 	},
@@ -816,7 +810,6 @@ ProfileView = Backbone.View.extend({
 						$(this).remove();
 						parent.html("<input type='text' id='editing' style='width: 100%;' value='" + $.trim(parent.text()) + "'/>");
 						parent.unbind();
-						// parent.unbind('mouseout');
 						$('#editing').trigger('focus');
 						$('#editing').blur(function (event) {
 							var text = $(this).val();
@@ -853,7 +846,6 @@ ProfileView = Backbone.View.extend({
 
 										} else {
 											alert($.app.errors_messages.geo_error);
-											console.log("Geocoding failed: " + status);
 											$.app.user.set(parentClass, text);
 											$.app.user.save();
 										}
@@ -889,22 +881,9 @@ ProfileView = Backbone.View.extend({
 						$(this).unbind('click');
 						$(this).children('.edit').click(function (event) {
 							$('.container').after('<div class="upload fadein"><form onSubmit="return false"><div><input class="form-control" type="file" id="file" /></div><div><div class="progress progress-striped active" style="display: none;"><div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div></div><div><input type="submit" id="submit" class="btn btn-default" value="submit" /></div></form></div>');
-							// $(".upload").fadeIn('1000');
-							// $('.container')[0].style.animation = "blur 1s";
-							// $('.container')[0].style.webkitAnimationDuration = "1s";
-							// $('.container')[0].style.webkitAnimationName = "blur";
-							// $('.container')[0].style.animationPlayState = "running"
-							// $('.container')[0].style.webkitAnimationPlayState = "running"
-
-							// console.log($('.container')[0].style);
-							// $('.container').style.webkitAnimationDuration = '1s';
-							// $('.container').style.webkitAnimationName = "unblur";
-							// $('.container').style.webkitAnimationPlayState = "running";
-							// $('.container').css("-webkit-filter", "blur(0)");
 							$('.container').removeClass('unblur');
 							$('.container').addClass('blur');
 
-							// $('.container').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "blur"});
 							$('#submit').click(function(event) {
 								event.stopPropagation();
 								event.preventDefault();
@@ -944,7 +923,6 @@ ProfileView = Backbone.View.extend({
 										$('.upload').unbind();
 										$('.upload').remove();
 									});
-									// $('.container').next('.upload').remove();
 									$('.container').unbind('click');
 									$('.container').removeClass('blur');
 									$('.container').addClass('unblur');
@@ -962,7 +940,6 @@ ProfileView = Backbone.View.extend({
 										$('.upload').unbind();
 										$('.upload').remove();
 									});
-									// $('.container').next('.upload').remove();
 									$('.container').unbind('click');
 									$('.container').removeClass('blur');
 									$('.container').addClass('unblur');
@@ -1025,8 +1002,6 @@ ProfileView = Backbone.View.extend({
 			hints: ["very bad", "poor", "okay", "good", "excellent"], // star hints
 			cancel: false, // allow cancel rating
 			readOnly: true,
-			// cancelHint: 'Remove rating', 
-			// cancelPlace: 'right', // put cancel icon on the right
 			score: rating, // startup score
 		});
 	},
@@ -1046,7 +1021,6 @@ ProfileView = Backbone.View.extend({
 		var index = friends.indexOf(this.model.get('id'));
 		friends.splice(index,1)
 		
-		// friends.push(parseInt(event.currentTarget.id));
 		var model = this.model;
 		$.app.user.save({}, {
 			success: function () {
@@ -1140,7 +1114,6 @@ ActionMainView = Backbone.View.extend({
 								}
 								else {
 									alert($.app.errors_messages.geo_error);
-									console.log("Geocoding failed: " + status);
 									model.set(parentClass, text);
 									ActionMainView.prototype.save_model(model, actionExists);
 								}
@@ -1207,7 +1180,6 @@ ActionMainView = Backbone.View.extend({
 							$('.upload').unbind();
 							$('.upload').remove();
 						});
-						// $('.container').next('.upload').remove();
 						$('.container').unbind('click');
 						$('.container').removeClass('blur');
 						$('.container').addClass('unblur');
@@ -1225,7 +1197,6 @@ ActionMainView = Backbone.View.extend({
 							$('.upload').unbind();
 							$('.upload').remove();
 						});
-						// $('.container').next('.upload').remove();
 						$('.container').unbind('click');
 						$('.container').removeClass('blur');
 						$('.container').addClass('unblur');
@@ -1349,9 +1320,6 @@ ActionControlsView = Backbone.View.extend({
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
 		this.model.on('sync', this.render, this);
-		// this.model.on('all', function(eventName){
-	// 		console.log('Name of View: ' + eventName);
-	// 	});
 	},
 	events: {
 		// event, element and function to bind together
@@ -1507,7 +1475,7 @@ ActionParticipantsView = ActionFriendListView.extend({
 						$.app.actionView.render_participants();
 					},
 					error: function(model, response, options) {
-						console.log(response);
+						alert($.app.errors_messages.remove_user_from_action_error);
 					}
 				});
 			})
@@ -1527,9 +1495,6 @@ ActionCommentsView = Backbone.View.extend({
 		// bind render function to sync event
 		this.collection.on('sync', this.render, this);
 		this.collection.on('add', this.render, this);
-		// this.collection.on('all', function(eventName){
-		// 	console.log('Name of View: ' + eventName);
-		// });
 	},
 	events: {
 		// event, element and function to bind together
@@ -1560,10 +1525,9 @@ ActionCommentsView = Backbone.View.extend({
 ActionView = Backbone.View.extend({
 
 	initialize: function() {
-		// bind render function to add, change and sync events
+		// bind render function to add and change events
 		this.model.on('add', this.render, this);
 		this.model.on('change', this.render, this);
-		// this.model.on('sync', this.render, this);
 	},
 	render: function() {
 		var source = $.app.templates.actionTemplate;
@@ -1873,11 +1837,6 @@ $.app.authenticate = function() {
 		// Store the OAuth Token
 		$.app.OAuthToken = data.access_token;
 		$.cookie("OAuthToken", $.app.OAuthToken, {domain: ".skvallra.com"});
-		// remove the login form
-		// $(".login").remove();
-		// remove the blur filter from the behind content
-		// $(".container").css("-webkit-filter", "");
-		// add the logout button
 		$("#logo").after('<ul class="nav navbar-nav navbar-right" id="logout"><li><a class="navbar-link" href="/logout">Logout</a></li></ul>');
 		$('#navbar-form').after('<ul id="links" class="nav navbar-nav pull-right"><li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="/static/skvallra/images/other_gear_white_small.png" /></a><ul class="dropdown-menu"><li><a id="changepw" href="#">Change Password</a></li></ul></li></ul>');
 		$("#changepw").click($.app.changepw);
@@ -1895,15 +1854,10 @@ $.app.authenticate = function() {
 		});
 		
 		// reload the users profile
-		// router.show_profile();
-		// $.app.profile.fetch();
-
 		$('.register').removeClass('register-animate');
 		$('.login-animate').removeClass('login-animate').addClass('login');
 		$('.login, .login-animate, .register').removeClass('fadein').addClass('fadeout');
 		$('.container').removeClass('blur').addClass('unblur');
-		// $('.container').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "unblur"});
-		// $('.login, .login-animate').css({"-webkit-animation-fill-mode": "forwards", "-webkit-animation-duration" : "1s", "-webkit-animation-name": "fadeout"});
 		$('.login, .login-animate, .register').bind('oanimationend animationend webkitAnimationEnd', function () {
 			$('.login, .login-animate, .register').unbind();
 			$('.login, .login-animate, .register').remove();
