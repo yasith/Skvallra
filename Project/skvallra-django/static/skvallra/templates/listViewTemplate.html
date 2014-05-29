@@ -1,0 +1,21 @@
+<div class="panel-heading">
+	{{this.title}}
+</div>
+<table class="table">
+	<thead>
+		<tr>
+			{{#each headers}}
+				<td>{{this}}</td>
+			{{/each}}
+		</tr>
+	</thead>
+	<tbody>
+	{{#each elements}}
+		<tr class="">
+			{{#each []}}
+				<td>{{this}}</td>
+			{{/each}}
+		</tr>
+	{{/each}}
+	</tbody>
+</table>

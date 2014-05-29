@@ -1,0 +1,24 @@
+{{#each []}}
+	<div class="box-item row">
+		<div class="search-action col-md-10" id="{{id}}">
+			<div class="left actionsearchimage" id="{{id}}">
+			</div>
+			<div class="actionsearchname" >
+				{{this.title}}
+			</div>
+			<div class="actionsearchaddress" >
+				{{this.address}}
+			</div>
+		</div>
+		{{#if this.ismember}}
+			<div class='col-md-2' style="margin-top: 83px;">
+				<input type="button" id="{{id}}" class="btn btn-default pull-right leaveaction" value="Leave" />
+			</div>
+		{{else}}
+			<div class='col-md-2' style="margin-top: 83px;">
+				<input type="button" id="{{id}}" class="btn btn-default pull-right joinaction" value="Join" />
+			</div>
+		{{/if}}
+	</div>
+	<br>
+{{/each}}
