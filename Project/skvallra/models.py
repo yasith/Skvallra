@@ -3,16 +3,9 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 from sqlalchemy import event
 
-from skvallra import app
+from skvallra import app, db
 
 from datetime import datetime
-
-username = 'skvallra'
-password = 'skvallra'
-database = 'skvallra'
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://'+username+':'+password+'@localhost/'+database
-db = SQLAlchemy(app)
 
 class Tag(db.Model):
 	""" 

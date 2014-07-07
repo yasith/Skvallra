@@ -1468,6 +1468,7 @@ ActionParticipantsView = ActionFriendListView.extend({
 			$('.remove_user').click(function (event) {
 				var userActions = new UserActionInteractions({});
 				userActions.fetch({
+					success: function(model, response, options) {
 						var userAction = userActions.getByUserAndAction(userId, $.app.actionView.model.get('id'));
 						userAction.destroy();
 						$.app.actionView.render_participants();
@@ -2032,6 +2033,9 @@ $.app.loadTemplates({
 			var temp = new Profile();
 			temp.fetch();
 
+			// validate
+			$.app.validate();
+
 			// attempt to retrieve the users actions.
 			$.ajax({
 				type: "GET",
@@ -2043,8 +2047,7 @@ $.app.loadTemplates({
 				});
 				$.app.actions = temp;
 
-				// validate and start the app
-				$.app.validate();
+				// start the app
 				router = new Router();
 				Backbone.history.start({pushState: true});
 			});

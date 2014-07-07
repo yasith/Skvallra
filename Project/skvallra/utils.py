@@ -1,22 +1,36 @@
-from flask import Flask, request, Response, abort, session, redirect, url_for
+from flask import Flask, g, request, Response, abort, session, redirect, url_for
 from sqlalchemy.orm.collections import InstrumentedList
+from functools import wraps
 import json
+
+from skvallra import db
+from models import User
 
 from datetime import datetime
 
 
-class login_required(object):
+# class login_required(object):
 
-	def __init__(self, f):
-		self.f = f
-		self.__name__ = f.__name__
+# 	def __init__(self, f):
+# 		self.f = f
+# 		self.__name__ = f.__name__
 
-	def __call__(self):
-		if 'id' in session:
-			print 'pass'
-			return self.f()
-		else:
+# 	def __call__(self):
+# 		print request.headers
+# 		if 'id' in session:
+# 			print 'pass'
+# 			return self.f()
+# 		else:
+# 			print 'fail'
+# 			abort(401)
+
+def login_required(f):
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		if 'id' not in session or not User.query.filter_by(id=session['id']).first():
 			abort(401)
+		return f(*args, **kwargs)
+	return decorated_function
 
 class BaseSerializer(object):
 	"""docstring for BaseSerializer"""

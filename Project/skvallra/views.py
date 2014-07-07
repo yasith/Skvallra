@@ -1,6 +1,7 @@
-from flask import Flask, request, Response, abort, session, redirect, url_for, render_template
-from skvallra import app
+from flask import Flask, g, request, Response, abort, session, redirect, url_for, render_template
+from skvallra import app, db
 from models import *
+from oauth2.o_models import Token
 import json
 from api.v1_0.views import *
 from utils import login_required
@@ -23,6 +24,9 @@ def login():
 @app.route('/logout/', methods=['GET'])
 @login_required
 def logout():
+	token = Token.query.filter_by(user_id=session['id']).first()
+	db.session.delete(token)
+	db.session.commit()
 	session.pop('id', None)
 	return redirect(url_for('index'))
 

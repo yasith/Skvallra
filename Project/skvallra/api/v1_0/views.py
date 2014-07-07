@@ -1,8 +1,9 @@
 from flask import Flask, request, Response, abort, session, redirect, url_for
 from sqlalchemy import or_, and_, not_
 
-from skvallra import app
+from skvallra import app, db
 from utils import login_required
+from oauth2.utils import check_oauth
 from models import *
 from serializers import UserSerializer, TagSerializer, ActionSerializer, ImageSerializer, UserActionSerializer, CommentSerializer, CommentInputSerializer, PageViewSerializer, SettingSerializer
 from suggestions import get_suggestion
@@ -24,7 +25,8 @@ api_version = 'v1.0'
 MAX_SUGGESTIONS = 5
 
 @app.route('/api/' + api_version + '/me/', methods=['GET'])
-@login_required
+# @login_required
+@check_oauth
 def me():
 	pretty = True
 	if 'X-Requested-With' in request.headers:
