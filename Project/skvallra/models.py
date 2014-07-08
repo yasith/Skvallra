@@ -63,7 +63,7 @@ class User(db.Model):
 		if birthday is None:
 			birthday = datetime.utcnow()
 		if type(birthday) == type(unicode(birthday)):
-			birthday = datetime.strptime(birthday, '%Y-%m-%d %H:%M:%S')
+			birthday = datetime.strptime(birthday, '%Y-%m-%dT%H:%M:%S.%fZ')
 		self.birthday = birthday
 		self.gender = gender
 		self.address = address
@@ -73,7 +73,7 @@ class User(db.Model):
 		if date_joined is None:
 			date_joined = datetime.utcnow()
 		if type(date_joined) == type(unicode(date_joined)):
-			date_joined = datetime.strptime(date_joined, '%Y-%m-%d %H:%M:%S')
+			date_joined = datetime.strptime(date_joined, '%Y-%m-%dT%H:%M:%S.%fZ')
 		self.date_joined = date_joined
 		self.image = 1
 
@@ -86,14 +86,14 @@ class User(db.Model):
 		self.first_name = kwargs.get('first_name', self.first_name)
 		self.last_name = kwargs.get('last_name', self.last_name)
 		birthday = kwargs.get('birthday', self.birthday)
-		self.birthday = datetime.strptime(birthday, '%Y-%m-%d %H:%M:%S') if type(birthday) == type(unicode('')) else birthday
+		self.birthday = datetime.strptime(birthday, '%Y-%m-%dT%H:%M:%S.%fZ') if type(birthday) == type(unicode('')) else birthday
 		self.gender = kwargs.get('gender', self.gender)
 		self.address = kwargs.get('address', self.address)
 		self.coordinates = kwargs.get('coordinates', self.coordinates)
 		self.is_staff = kwargs.get('is_staff', self.is_staff)
 		self.is_active = kwargs.get('is_active', self.is_active)
 		date_joined = kwargs.get('date_joined', self.date_joined)
-		self.date_joined = datetime.strptime(date_joined, '%Y-%m-%d %H:%M:%S') if type(date_joined) == type(unicode('')) else date_joined
+		self.date_joined = datetime.strptime(date_joined, '%Y-%m-%dT%H:%M:%S.%fZ') if type(date_joined) == type(unicode('')) else date_joined
 		friends = kwargs.get('friends', self.friends)
 		new_friends = []
 		for f in friends:
@@ -108,7 +108,8 @@ class User(db.Model):
 	def __repr__(self):
 		return '%s' % str(self.id)
 
-	def get_rating(self):
+	def get_rating(self, field):
+		print field
 		actions = UserAction.query.filter_by(user_id=self.id, role=1).all()
 
 		total = 0
@@ -122,6 +123,9 @@ class User(db.Model):
 		if count != 0:
 			total = total / count
 		return total
+
+	def format_date(self, field):
+		return "\"" + str(self.__getattribute__(field).strftime('%Y-%m-%dT%H:%M:%S.%fZ')) + "\""
 
 @event.listens_for(User.friends, 'append')
 def make_symmetrical(target, value, initiator):
@@ -197,12 +201,12 @@ class Action(db.Model):
 		if start_date is None:
 			start_date = datetime.utcnow()
 		if type(start_date) == type(unicode(start_date)):
-			start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
+			start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
 		self.start_date = start_date
 		if end_date is None:
 			end_date = datetime.utcnow()
 		if type(end_date) == type(unicode(end_date)):
-			end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
+			end_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M:%S.%fZ')
 		self.end_date = end_date
 		self.public = public
 		if min_participants == None:
@@ -219,10 +223,10 @@ class Action(db.Model):
 		self.title = kwargs.get('title', self.title)
 		self.description = kwargs.get('description', self.description)
 		start_date = kwargs.get('start_date', self.start_date)
-		self.start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S') if type(start_date) == type(unicode('')) else start_date
+		self.start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ') if type(start_date) == type(unicode('')) else start_date
 		
 		end_date = kwargs.get('end_date', self.end_date)
-		self.end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S') if type(end_date) == type(unicode('')) else end_date
+		self.end_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M:%S.%fZ') if type(end_date) == type(unicode('')) else end_date
 
 		self.public = kwargs.get('public', self.public)
 		self.min_participants = kwargs.get('min_participants', self.min_participants)
@@ -233,6 +237,9 @@ class Action(db.Model):
 
 	def __repr__(self):
 		return '%s' % self.id
+
+	def format_date(self, field):
+		return "\"" + str(self.__getattribute__(field).strftime('%Y-%m-%dT%H:%M:%S.%fZ')) + "\""
 
 class Image(db.Model):
 	""" Image model """
@@ -294,8 +301,11 @@ class Comment(db.Model):
 		self.action_id = kwargs.get('action_id', self.action_id)
 		self.user_id = kwargs.get('user_id', self.user_id)
 		comment_time = kwargs.get('comment_time', self.comment_time)
-		self.comment_time = datetime.strptime(comment_time, '%Y-%m-%d %H:%M:%S') if type(comment_time) == type(unicode('')) else comment_time
+		self.comment_time = datetime.strptime(comment_time, '%Y-%m-%dT%H:%M:%S.%fZ') if type(comment_time) == type(unicode('')) else comment_time
 		self.comment = kwargs.get('comment', self.comment)
+
+	def format_date(self, field):
+		return "\"" + str(self.__getattribute__(field).strftime('%Y-%m-%dT%H:%M:%S.%fZ')) + "\""
 
 class PageView(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -311,7 +321,10 @@ class PageView(db.Model):
 	def save(self, **kwargs):
 		self.page = kwargs.get('page', self.page)
 		date = kwargs.get('date', self.date)
-		self.date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S') if type(date) == type(unicode('')) else date
+		self.date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ') if type(date) == type(unicode('')) else date
 
 	def __repr__(self):
 		return '%r %r' % self.page, str(self.date)
+
+	def format_date(self, field):
+		return "\"" + str(self.__getattribute__(field).strftime('%Y-%m-%dT%H:%M:%S.%fZ')) + "\""

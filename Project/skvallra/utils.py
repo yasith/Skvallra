@@ -32,6 +32,8 @@ def login_required(f):
 		return f(*args, **kwargs)
 	return decorated_function
 
+
+
 class BaseSerializer(object):
 	"""docstring for BaseSerializer"""
 	fields = []
@@ -70,7 +72,7 @@ class BaseSerializer(object):
 						value = func.model.query.filter_by(id=value).first()
 						value = func.serialize(value)
 					else:
-						value = obj.__getattribute__(func)()
+						value = obj.__getattribute__(func)(field)
 				except AttributeError, e:
 					try:
 						value = obj.__getattribute__(field)
@@ -111,7 +113,7 @@ class BaseSerializer(object):
 						value = func.model.query.filter_by(id=value).first()
 						value = func.serialize(value)
 					else:
-						value = obj.__getattribute__(func)()
+						value = obj.__getattribute__(func)(self.fields[-1])
 				except AttributeError, e:
 					try:
 						value = obj.__getattribute__(self.fields[-1])

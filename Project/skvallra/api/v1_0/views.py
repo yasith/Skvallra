@@ -573,8 +573,6 @@ def change_password():
 
 @app.route('/api/' + api_version + '/upload_image/', methods=['POST'])
 def upload_image():
-	# TODO: Update this to work with Flask
-
 	file_obj = request.files['0']
 	m = md5()
 	
