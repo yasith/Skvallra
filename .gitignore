@@ -1,0 +1,8 @@
+*.pyc
+
+*.aux
+*.log
+
+.DS_Store
+
+settings.py

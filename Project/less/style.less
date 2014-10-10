@@ -1,0 +1,614 @@
+@font-size:					14px;
+@larger-font-size:			@font-size * 1.5;
+
+@font-color:				#000;
+@light-font-color:			lighten(@font-color, 50%);
+
+@friend-item-width:			100px;
+
+@white:						#fff;
+
+.animate(@animation, @duration, @fill) {
+	-webkit-animation-name: @animation;
+	-webkit-animation-duration: @duration;
+	-webkit-animation-fill-mode: @fill;
+	animation-name: @animation;
+	animation-duration: @duration;
+	animation-fill-mode: @fill;
+}
+
+.animate(@animation, @duration, @fill, @state) {
+	-webkit-animation-name: @animation;
+	-webkit-animation-duration: @duration;
+	-webkit-animation-fill-mode: @fill;
+	-webkit-animation-play-state: @state;
+	animation-name: @animation;
+	animation-duration: @duration;
+	animation-fill-mode: @fill;
+	animation-play-state: @state;
+}
+
+body {
+	font-size: @font-size;
+	color: @font-color
+}
+
+img {
+	max-width: 100%;
+}
+
+a {
+	color: darken(@green, 20%);
+}
+
+div.upload {
+	position: absolute;
+	top: 30%;
+	left: 39.5%;
+	width: 350px;
+	height: 155px;
+	background-color: #eee;
+	border: 1px solid #eee;
+	border-radius: 30px;
+	overflow: hidden;
+	> form {
+		width: 250px;
+		margin-top: 47px;
+		margin-left: auto;
+		margin-right: auto;
+		> div {
+			width: 100%;
+			margin-left: auto;
+			margin-right: auto;
+			&:nth-last-child(2) {
+				> progress {
+					width: 100%;
+				}
+			}
+			&:last-child {
+				width: 69px;
+			}
+			> input {
+				width: 100%;
+				margin: 2px;
+				.placeholder(darken(@green, 20%))
+			}
+		}
+	}
+}
+
+div#change {
+	position: absolute;
+	top: 30%;
+	left: 39.5%;
+	width: 300px;
+	height: 220px;
+	background-color: #eee;
+	border: 1px solid #eee;
+	border-radius: 30px;
+	overflow: hidden;
+	> form {
+		width: 200px;
+		margin-top: 40px;
+		margin-left: auto;
+		margin-right: auto;
+		> div {
+			margin-left: auto;
+			margin-right: auto;
+			> input {
+				width: 100%;
+				margin: 2px;
+				.placeholder(darken(@green, 20%))
+			}
+		}
+	}
+}
+
+div {
+	&.login {
+		position: absolute;
+		top: 30%;
+		left: 39.5%;
+		width: 300px;
+		height: 230px;
+		background-color: #eee;
+		border: 1px solid #eee;
+		border-radius: 30px;
+		overflow: hidden;
+		> form {
+			width: 200px;
+			margin-top: 40px;
+			margin-left: auto;
+			margin-right: auto;
+			> div, > a {
+				margin-left: auto;
+				margin-right: auto;
+			}
+			> div {
+				> #email,#passwordconfirm, #fname, #lname {
+					margin: 0px;
+					padding-top: 0px;
+					padding-bottom: 0px;
+					border-width: 0px;
+					height: 0px;
+				}
+				> a {
+					font-size: 0.75em;
+				}
+				&:last-child {
+					width: 41px;
+					height: 12px;
+				}
+				&:nth-last-of-type(2) {
+					width: 61px;
+				}
+				> input {
+					width: 100%;
+					margin: 2px;
+					.placeholder(darken(@green, 20%))
+				}
+			}
+		}
+	}
+	&.login-animate {
+		.animate(login, 1s, forwards);
+		position: absolute;
+		top: 30%;
+		left: 39.5%;
+		width: 300px;
+		height: 230px;
+		background-color: #eee;
+		border: 1px solid #eee;
+		border-radius: 30px;
+		overflow: hidden;
+		> form {
+			width: 200px;
+			margin-top: 40px;
+			margin-left: auto;
+			margin-right: auto;
+			> div, > a {
+				margin-left: auto;
+				margin-right: auto;
+			}
+			> div {
+				> #email,#passwordconfirm, #fname, #lname {
+					.animate(login-inputs, 1s, forwards);
+					margin: 0px;
+					padding-top: 0px;
+					padding-bottom: 0px;
+					border-width: 0px;
+					height: 0px;
+				}
+				> a {
+					font-size: 0.75em;
+				}
+				&:last-child {
+					width: 41px;
+					height: 12px;
+				}
+				&:nth-last-of-type(2) {
+					width: 61px;
+				}
+				> input {
+					width: 100%;
+					margin: 2px;
+					.placeholder(darken(@green, 20%))
+				}
+			}
+		}
+	}
+	&.register {
+		width: 400px;
+		height: 380px;
+		left: 36%;
+		position: absolute;
+		top: 30%;
+		margin-left: auto;
+		margin-right: auto;
+		background-color: #eee;
+		border: 1px solid #eee;
+		border-radius: 30px;
+		> form {
+			width: 200px;
+			margin-top: 40px;
+			margin-left: auto;
+			margin-right: auto;
+			> div, > a {
+				margin-left: auto;
+				margin-right: auto;
+			}
+			> div {
+				> #email,#passwordconfirm, #fname, #lname {
+					.animate(register-inputs, 1s, forwards);
+				}
+				> a {
+					font-size: 0.75em;
+				}
+				&:last-child {
+					width: 28px;
+					height: 12px;
+				}
+				&:nth-last-of-type(2) {
+					width: 78px;
+				}
+				> input {
+					width: 100%;
+					margin: 2px;
+					.placeholder(darken(@green, 20%))
+				}
+			}
+		}
+	}
+}
+
+.blur {
+	-webkit-filter: blur(0px);
+	.animate(blur, 1s, forwards);
+}
+
+.unblur {
+	-webkit-filter: blur(6px);
+	.animate(unblur, 1s, forwards);
+}
+
+.fadein {
+	opacity: 0.0;
+	.animate(fadein, 1s, forwards);
+}
+
+.fadeout {
+	opacity: 1.0;
+	.animate(fadeout, 1s, forwards);
+}
+
+.login-animate {
+	.animate(login, 1s, forwards);
+}
+
+.login-inputs-animate {
+	.animate(login-inputs, 1s, forwards);
+}
+
+.register-animate {
+	.animate(register, 1s, forwards);
+}
+
+@-webkit-keyframes unblur {
+	from {-webkit-filter: blur(6px);}
+	to {-webkit-filter: blur(0px);}
+}
+
+@-webkit-keyframes blur {
+	from {-webkit-filter: blur(0px);}
+	to {-webkit-filter: blur(6px);}
+}
+
+@-webkit-keyframes fadeout {
+	from {opacity: 1.0;}
+	to {opacity: 0.0;}
+}
+
+@-webkit-keyframes fadein {
+	from {opacity: 0.0;}
+	to {opacity: 1.0;}
+}
+
+@-webkit-keyframes register {
+	from {width: 300px; height: 230px; left: 39.5%;}
+	to {width: 400px; height: 380px; left: 36%;}
+}
+
+@-webkit-keyframes login {
+	from {width: 400px; height: 380px; left: 36%;}
+	to {width: 300px; height: 230px; left: 39.5%;}
+}
+
+@-webkit-keyframes register-inputs {
+  	0% {margin: 0px;
+    	padding-top: 0px;
+    	padding-bottom: 0px;
+    	border-width: 0px;
+    	height: 0px;
+   	}
+  	100% {margin: 2px;
+    	padding-top: 6px;
+        padding-bottom: 6px;
+        border-width: 1px;
+        height: 34px;
+   	}
+}
+
+@-webkit-keyframes login-inputs {
+	0% {margin: 2px;
+    	padding-top: 6px;
+        padding-bottom: 6px;
+        border-width: 1px;
+        height: 34px;
+   	}
+  	100% {margin: 0px;
+    	padding-top: 0px;
+    	padding-bottom: 0px;
+    	border-width: 0px;
+    	height: 0px;
+   	}
+}
+
+#error {
+	min-height: 20px;
+	text-align: center;
+	color: red;
+}
+
+#content {
+	margin-bottom: 20px;
+}
+
+.navbar {
+
+	.home {
+		color: darken(@green, 35%);
+		font-size: @font-size * 2;
+		font-weight: bold;
+		img {
+			height: 25px;
+		}
+	}
+}
+
+#form-button {
+	border: none;
+	padding: 0px 0px;
+	background-color: @white;
+	margin-left: -30px;
+	img {
+		height: 15px;
+	}
+}
+
+#profileimagebox {
+	position: relative;
+	&:before {
+		content: "";
+		display: block;
+		padding-top: 100%;
+	}
+	> div {
+		&.edit {
+			position: relative;
+			margin-top: -20px;
+			padding-right: 3px;
+			// background-color: fade(lighten(@font-color, 70%), 40%);
+			padding-left: 3px;
+			float: right;
+			z-index: 1000;
+		}
+	}
+}
+
+.userimage, .actionimage, .usersearchimage, .actionsearchimage {
+	position: relative;
+	&:before {
+		content: "";
+		display: block;
+		padding-top: 100%;
+	}
+	> img {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+}
+
+.profileimage{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border: 1px solid lighten(#000, 90%);
+	border-radius: 4px;
+	z-index: 0;
+}
+
+.left{
+	float: left;
+}
+
+
+.right{
+	float: left;
+}
+
+.bottom{
+	clear: both;
+}
+
+.friend-box {
+	display: inline-block;
+}
+
+.friend, .action {
+	display: inline-block;
+}
+
+.userimage, .actionimage {
+	border: 1px solid lighten(#000, 90%);
+	border-radius: 4px;
+	width: @friend-item-width;
+}
+
+.usersearchimage, .actionsearchimage {
+	border: 1px solid lighten(#000, 90%);
+	border-radius: 4px;
+	width: @friend-item-width * 2;
+}
+
+.left {
+	float: left;
+	margin-right: 5px;
+}
+
+.usersearchname, .actionsearchname {
+	font-size: @larger-font-size;
+}
+
+.usersearchaddress, .actionsearchaddress {
+	font-size: @font-size;
+	color: @light-font-color;
+}
+
+.userimagename, .actionimagename {
+	font-weight: normal;
+	font-size: @font-size;
+	width: @friend-item-width;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+
+.name {
+	font-weight: bold;
+	font-size: @larger-font-size;
+}
+
+.birthday {
+	color: @light-font-color;
+}
+
+.address {
+	color: @light-font-color;
+}
+
+.box-item {
+	border: 2px solid darken(@green, 20%);
+	border-radius: 4px;
+	padding: 8px;
+}
+
+
+/* Action page */
+
+
+
+.action_details {
+	> label {
+		display: inline-block;
+	}
+	> .date {
+		display: inline-block;
+	}
+	> .participants_limit {
+		> .constraint {
+			display: inline-block;
+		}
+	}
+}
+
+.action_page {
+	.action_title_bar {
+		> #action_status {
+			display: inline-block;
+			padding-left: 0px;
+			> .lock, .unlock {
+				padding-right: 10px;
+				padding-bottom: 15px;
+			}
+		}
+		> .name {
+			display: inline-block;
+		}
+		> .action_controls {
+			> .rating {
+				display: inline-block;
+			}
+			> .join, .leave {
+				display: inline-block;
+				margin-right: 0px;
+			}
+
+		}
+	}
+	.editable {
+		> .edit {
+			display: inline-block;
+			color: @light-font-color;
+			margin-left: 5px;
+			font-size: @font-size;
+		}
+	}
+	.actionpageimage {
+		border: 1px solid lighten(#000, 90%);
+		border-radius: 4px;
+		margin-bottom: 10px;
+		> img {
+			max-height: 250px;
+			display: block;
+		}
+		> .edit {
+			position: relative;
+			padding-right: 3px;
+			padding-left: 3px;
+			float: right;
+			z-index: 1000;
+		}
+	}
+	.users-editable {
+		> edit {
+			position: relative;
+			padding-right: 3px;
+			padding-left: 3px; 
+			z-index: 1000; 
+		}
+	}
+	.remove_user {
+		position: absolute;
+		padding-right: 3px;
+		padding-left: 3px; 
+		z-index: 1000; 
+	}
+}
+
+.lists {
+	margin-left: 20px;
+}
+
+td {
+	width: 50%;
+	text-align: center;
+}
+
+thead {
+	font-weight: bold;
+	background-color: lighten(@font-color, 90%);
+}
+
+#googleMap {
+	border: 1px solid lighten(#000, 10%);
+	width: inherit;
+}
+
+div[id^=hitChart] {
+	display: inline-block;
+}
+
+table[id^=legend] {
+	display: inline-block;
+}
+
+.list0 {
+	.editable {
+		position: relative;
+		padding-right: 3px;
+		padding-left: 3px; 
+		z-index: 1000; 
+	}
+}
+
+a.disabled {
+	cursor: not-allowed;
+	pointer-events: none;
+	background-color: lighten(@font-color, 90%);
+}

@@ -1,0 +1,35 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="{% static "skvallra/js/jquery.min.js" %}"></script>
+		<script src="{% static "skvallra/js/jquery.cookie.js" %}"></script>
+		<script src="{% static "skvallra/js/handlebars.js" %}"></script>
+		<script src="{% static "skvallra/js/underscore-min.js" %}"></script>
+		<script src="{% static "skvallra/js/backbone-min.js" %}"></script>
+		<script src="{% static "skvallra/js/templates.js" %}"></script>
+		<script src="{% static "skvallra/js/jquery.raty.min.js" %}"></script>
+		<script src="{% static "skvallra/js/bootstrap.min.js" %}"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"></script>
+		<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD5Hj0nkbaK3HGyh4qkhrENXcanhkNQrHA&sensor=false"></script>
+
+		<link rel="stylesheet" type="text/css" href="{% static "skvallra/css/skvallra.css" %}">
+		<title>Skvallra</title>
+	</head>
+	<body>
+		<nav class="navbar navbar-static-top navbar-default" role="navigation">
+			<div class="container-fluid">
+				<a class="navbar-brand" id="logo" href="/">Skvallra</a>
+				<form class="navbar-form navbar-right" id="navbar-form" onSubmit="return false" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" id="searchbox" placeholder="Search">
+						<button type="submit" class="" id="form-button"><img src="/static/skvallra/images/magnifier.png" /></button>
+					</div>
+				</form>
+			</div>
+		</nav>
+		<div id="content">
+		</div>
+	</body>
+</html>

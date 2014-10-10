@@ -1,0 +1,23 @@
+<div class="new_comment">
+	<textarea rows="4" cols="50" class="form-control box-item" id="new_comment"></textarea>
+	<br>
+	<button type="button" class="btn btn-default pull-right" id="add_comment">Submit</button>
+	<div class="row"></div>
+</div>
+<br>
+<div class="list">
+	{{#each []}}
+	<div class="comment box-item" id="{{id}}">
+		<div class="col-md-2">
+			<div class="userimage"><img src="/static/skvallra/images/{{user_id.image.image_hash}}.png" /></div>
+			<div class="userimagename"><a>{{user_id.first_name}} {{user_id.last_name}}</a></div>
+		</div>
+		<div class="col-md-6">
+			<div class="comment_time">{{comment_time}}</div>
+			<div class="comment_body">{{comment}}</div>
+		</div>
+		<div class="row"></div>
+	</div>
+	<br>
+{{/each}}
+</div>

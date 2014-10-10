@@ -1,0 +1,44 @@
+<div class="panel-heading">
+	{{this.title}}
+</div>
+<div class="graph">
+	<script>
+		require([
+			"dojox/charting/Chart",
+			"dojox/charting/themes/Claro",
+			"dojox/charting/plot2d/Columns",
+			"dojox/charting/axis2d/Default",
+			"dojo/domReady!"
+		], function(Chart, theme){
+
+			// Create the chart within it's "holding" node
+			var columnChart = new Chart("chartNode{{id}}");
+
+			var chartData = [{{#each this.elements}}{{this.y}},{{/each}}];
+			var labels = [{{#each this.elements}} { value: {{@index}} + 1, text: "{{this.x}}"}, {{/each}}];
+			
+			// Set the theme
+			columnChart.setTheme(theme);
+			
+			// Add the only/default plot 
+			columnChart.addPlot("default", {
+				type: "Columns", // our plot2d/Pie module reference as type value
+				gap: 5,
+			});
+
+			columnChart.addAxis("x", {minorLabels: false, labels: labels});
+    		columnChart.addAxis("y", { vertical: true, fixLower: "major", fixUpper: "major" });
+			
+			// Add the series of data
+			columnChart.addSeries("Number of Actions Per User", chartData, {stroke: {color: "#2c8d38"}, fill: "#3bc04c"});
+
+			// Render the chart!
+			columnChart.render();
+
+		});
+	
+	</script>
+	 
+	<!-- create the chart -->
+	<div id="chartNode{{id}}"></div>
+</div>

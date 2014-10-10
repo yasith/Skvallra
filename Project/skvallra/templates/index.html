@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="{{ url_for('static',filename='js/jquery.min.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/jquery.cookie.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/handlebars.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/underscore-min.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/backbone-min.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/templates.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/jquery.raty.min.js')}}"></script>
+		<script src="{{ url_for('static',filename='js/bootstrap.min.js')}}"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"></script>
+		<!-- <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD5Hj0nkbaK3HGyh4qkhrENXcanhkNQrHA&sensor=false"></script> -->
+
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/skvallra.css')}}">
+		<title>Skvallra</title>
+	</head>
+	<body>
+		<nav class="navbar navbar-static-top navbar-default" role="navigation">
+			<div class="container-fluid">
+				<a class="navbar-brand" id="logo" href="/">Skvallra</a>
+				<form class="navbar-form navbar-right" id="navbar-form" onSubmit="return false" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" id="searchbox" placeholder="Search">
+						<button type="submit" class="" id="form-button"><img src="/static/images/magnifier.png" /></button>
+					</div>
+				</form>
+			</div>
+		</nav>
+		<div id="content">
+		</div>
+	</body>
+</html>

@@ -1,0 +1,34 @@
+<div class="container action_page">
+	<div class="actionpageimage" id="actionpageimage"></div>
+	<div class="action_title_bar">
+		<div class="action_status" id="action_status"></div>
+		<div class="title name editable" id="{{id}}">{{this.title}}</div>
+		<div class="action_controls">
+			<div class="rating"></div>
+			<div class="participation pull-right"></div>
+		</div>
+	</div>	
+ 	<br>
+	<div class="row">
+		<div class="col-md-4 action_details">
+			<label>Starts on:</label> <div class="start_date date editable">{{this.start_date}}</div>
+			<br>
+			<label>Ends on: </label> <div class="end_date date editable">{{this.end_date}}</div>
+			<div class="participants_limit"></div>
+			<br>
+			<div class="address editable">{{this.address}}</div>
+			<div id="googleMap"></div>
+			<div class="tags editable">
+				{{> activitiesList}}
+			</div>
+			<div class="users users-editable">
+				{{> friendsList}}
+			</div>
+		</div>
+		<div class="col-md-8">
+			<div class="description editable">{{this.description}}</div>
+			<br>
+			<div class="user_comments"></div>
+		</div>	
+	</div>
+</div>

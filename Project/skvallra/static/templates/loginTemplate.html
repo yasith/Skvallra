@@ -1,0 +1,86 @@
+<div class="login">
+	<script>
+		function expandregister () {
+			$(".login, .login-animate").bind('oanimationstart animationstart webkitAnimationStart', function () {
+				$('#error').text("");
+				$('input').val("");
+				$("#login").html("Register");
+				$("#expandregister").html("Login");
+				$("#expandregister").attr('id', 'collapselogin');
+				$("#login").attr('id', 'register');
+				$("#register").unbind('click');
+				$("#collapselogin").unbind('click');
+				$("#collapselogin").click(collapselogin);
+				$("#register").click($.app.register);
+			});
+			// $('.login > form > div > #email').removeClass('login-inputs-animate');
+			// $('.login > form > div > #passwordconfirm').removeClass('login-inputs-animate');
+			// $('.login > form > div > #fname').removeClass('login-inputs-animate');
+			// $('.login > form > div > #lname').removeClass('login-inputs-animate');
+			// $('.login').removeClass('login-animate');
+			console.log($(".login, .login-animate"));
+			$(".login, .login-animate").switchClass('login login-animate', 'register register-animate');
+		};
+
+		function collapselogin () {
+			$(".register").bind('oanimationstart animationstart webkitAnimationStart', function () {
+				$('#error').text("");
+				$('input').val("");
+				$("#register").html("Login");
+				$("#collapselogin").html("Register");
+				$("#collapselogin").attr('id', 'expandregister');
+				$("#register").attr('id', 'login');
+				$("#login").unbind('click');
+				$("#expandregister").unbind('click');
+				$("#expandregister").click(expandregister);
+				$("#login").click($.app.authenticate);
+			});
+			// console.log($(".register").style);
+			// $(".register").style.webkitAnimationFillMode = "backwards";
+			$('.register').switchClass('register register-animate', 'login-animate');
+			// $('.login > form > div > #email').addClass('login-inputs-animate');
+			// $('.login > form > div > #passwordconfirm').addClass('login-inputs-animate');
+			// $('.login > form > div > #fname').addClass('login-inputs-animate');
+			// $('.login > form > div > #lname').addClass('login-inputs-animate');
+			// $(".register").removeClass('register');
+		}
+
+		$(document).ready(function () {
+			$(".container").css("-webkit-filter", "blur(6px)");
+			$("#login").click($.app.authenticate);
+			$("#expandregister").click(expandregister);
+			$("#logout").remove();
+			$('#links').remove();
+			$('#configure_action').remove();
+			$('#display_statistics').remove();
+		});
+	</script>
+	<form onSubmit="return false" autocomplete="off">
+		<div id="error">
+		</div>
+		<div>
+			<input id="username" class="form-control" placeholder="Username" type="text" autofocus />
+		</div>
+		<div>
+			<input id="email" class="form-control" placeholder="Email" type="text" />
+		</div>
+		<div>
+			<input id="password" class="form-control" placeholder="Password" type="password" />
+		</div>
+		<div>
+			<input id="passwordconfirm" class="form-control" placeholder="Confirm Password" type="password" />
+		</div>
+		<div>
+			<input id="fname" class="form-control" placeholder="First Name" type="text" />
+		</div>
+		<div>
+			<input id="lname" class="form-control" placeholder="Last Name" type="text" />
+		</div>
+		<div>
+			<button type="submit" id="login" class="btn btn-default">Login</button>
+		</div>
+		<div>
+			<a id="expandregister">Register</a>
+		</div>
+	</form>
+</div>

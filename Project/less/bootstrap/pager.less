@@ -1,0 +1,66 @@
+//
+// Pager pagination
+// --------------------------------------------------
+
+
+.pager {
+  padding-left: 0;
+  margin: @line-height-computed 0;
+  list-style: none;
+  text-align: center;
+  border: 1px solid @pager-border;
+  border-radius: @pager-border-radius;
+  &:extend(.clearfix all);
+  li {
+    display: inline;
+    > a {
+		display: inline-block;
+		padding: 0px 9px;
+	}
+    > span {
+      display: inline-block;
+      padding: 0px 9px;
+      background-color: @pager-bg;
+      // border-left: 1px solid @pager-border;
+      // border-radius: @pager-border-radius;
+    }
+
+    > a:hover,
+    > a:focus {
+      text-decoration: none;
+      background-color: @pager-hover-bg;
+    }
+  }
+
+  .next {
+    > a,
+    > span {
+      color: @pager-color;
+      float: right;
+      border-left: 1px solid @pager-border;
+      border-radius: @pager-border-radius;
+    }
+  }
+
+  .previous {
+    > a,
+    > span {
+      color: @pager-color;
+      float: left;
+      border-right: 1px solid @pager-border;
+      border-radius: @pager-border-radius;
+    }
+  }
+
+  .disabled {
+    > a,
+    > a:hover,
+    > a:focus,
+    > span {
+      color: @pager-disabled-color;
+      background-color: @pager-bg;
+      cursor: not-allowed;
+    }
+  }
+
+}

@@ -1,0 +1,54 @@
+<div class="panel-heading">
+	{{this.title}}
+</div>
+<div class="graph">
+	<script>
+		require([
+			"dojox/charting/Chart",
+			"dojox/charting/themes/Claro",
+			"dojox/charting/plot2d/Markers",
+			"dojox/charting/widget/Legend",
+			"dojox/charting/axis2d/Default",
+			"dojo/domReady!"
+		], function(Chart, theme, plot, Legend){
+
+			// Create the chart within it's "holding" node
+			var columnChart = new Chart("hitChart{{id}}");
+
+			{{#each this.values}}
+				var chartData{{this.[0]}} = [{{#each this.[1]}} {{this.[1]}}, {{/each}}];
+			{{/each}}
+			var labels = [{{#each this.labels}} {value: {{@index}} + 1, text: '{{this}}' }, {{/each}}];
+
+
+			
+			// Set the theme
+			columnChart.setTheme(theme);
+			
+			// Add the only/default plot 
+			columnChart.addPlot("default", {
+				type: plot, // our plot2d/Pie module reference as type value
+				gap: 5,
+			});
+
+			columnChart.addAxis("x", {minorLabels: false, labels: labels});
+    		columnChart.addAxis("y", { vertical: true, fixLower: "major", fixUpper: "major" });
+			
+			// Add the series of data
+			{{#each this.values}}
+				columnChart.addSeries("{{this.[0]}}", chartData{{this.[0]}});
+			{{/each}}
+
+			// Render the chart!
+			columnChart.render();
+
+			var legend = new Legend({ chartRef: columnChart, horizontal: false }, "legend{{id}}");
+
+		});
+	
+	</script>
+	 
+	<!-- create the chart -->
+	<div id="hitChart{{id}}"></div>
+	<div id="legend{{id}}"></div>
+</div>
